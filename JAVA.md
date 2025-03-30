@@ -1,0 +1,1237 @@
+# Naming Convention
+## class name
+- **No spaces** in the class name.
+- **Case-sensitive**: `MyClass` and `myclass` are considered different.
+- **Start with an uppercase letter** (by convention).
+- **Cannot be a reserved keyword** (e.g., `class`, `public`, `interface`, etc.).
+- **No special characters** other than underscores (`_`) and dollar signs (`$`).
+- **Can start with an underscore (`_`) or a dollar sign (`$`)**.
+- After the first character, a class name can contain:
+    - Letters (A-Z, a-z)
+    - Digits (0-9)
+    - Underscores (`_`)
+    - Dollar signs (`$`)
+    Examples: `MyClass123`, `Helper_Class`, `My$Helper`
+
+# Access Modifiers
+
+| **Access Modifier**           | **Top-Level Class** | **Same Package (Class Member)** | **Subclass (Same Package)** | **Subclass (Different Package)** | **World (Other Classes)** |
+| ----------------------------- | ------------------- | ------------------------------- | --------------------------- | -------------------------------- | ------------------------- |
+| **public**                    | ✅ Yes               | ✅ Yes                           | ✅ Yes                       | ✅ Yes                            | ✅ Yes                     |
+| **protected**                 | ❌ No                | ✅ Yes                           | ✅ Yes                       | ✅ Yes                            | ❌ No                      |
+| **default (package-private)** | ✅ Yes               | ✅ Yes                           | ✅ Yes                       | ❌ No                             | ❌ No                      |
+| **private**                   | ❌ No                | ✅ Yes (Only within class)       | ❌ No                        | ❌ No                             | ❌ No                      |
+
+#### Explanation:
+1. **`public`** → Accessible **everywhere** (inside and outside the package, subclass, and world).
+2. **`protected`** → Accessible within the **same package** and **subclasses in other packages**.
+3. **`default (package-private)`** → Accessible only within the **same package**.
+4. **`private`** → Accessible only within the **same class** (not even in subclasses).
+
++ **Class** are either **public or default** but can not be private or protected.
+
+
+
+**Note :**
+```java
+if (condition1 && condition2) {
+    // Executes only if both condition1 and condition2 are true
+}
+```
+above code: it check condition 1 and if it is true then check condition 2 otherwise returns false without checking condition 2
+
+# In built methods :
+**`strip()`** vs **`trim()`**: both remove white spaces and **`\n`** but strip is new and remove all kind of whitespaces like tab .
+
+
+
+---
+# Searching and Sorting
+
+# [Binary Search](https://www.w3schools.com/dsa/dsa_algo_binarysearch.php)
++ works on sorted array only
+
+
+
+
+---
+# OOPS
+
+---
+
+## this keyword
++ In Java, the `this` keyword refers to the current instance of a class. 
++ to get reference of current object
++ It is used to refer to instance variables, methods, or the current object. 
++ It is especially useful when you have parameter names that are the same as instance variables. i.e.
+```java
+public class Car {
+    private int wheels;
+    private String color;
+
+    public Car(int wheels, String color) { //constructor
+        this.wheels = wheels;
+        this.color = color;
+    }
+}
+```
+
+
+## final keyword
++ to finalise(fix) value .
++ final function can not be override.
++ final class can not be inherited by other class 
++ final class can not inherit other class
+
+## static keyword
+<u><b>Use case Scenario :</b></u>
++ jo property or method same rehne wale h multiple instances of an object unko hum static bana dete h.
++ when we want to call method without creating on object.
+
++ we make main class as static so that JVM can call it with class name without making its instance.
++ `this` for `super` keyword can't be used inside static function.
++ constructor can't be static
++ static function can not use non static function and variable.
++ static method is accessed using class name not object.
+```java
+class MyClass {
+    // Static method
+    static void greet() {
+        System.out.println("Hello from the static method!");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        // Accessing the static method using the class name
+        MyClass.greet();
+    }
+}
+
+//In this example, the `greet()` method is static, and it's called using `MyClass.greet()` instead of creating an object of `MyClass`.
+```
+
+## super keyword
+
++ **Calling a Parent Class Method and Property:** If the child class has a method with the same name as the one in the parent class, super allows you to call the parent class method.
+
++ **Calling the Parent Class Constructor:** super() can be used to call the constructor of the parent class when creating an object of the child class.
++ i.e. **`super()`**
+
+# Constructor
+
+**Constructor Format** :  `<Access Modifier> <Constructor Name> (parameters)`
++ used to initialize objects
++ constructor name same as class name
++ no return type
++ Automatically called when an object is created
+
+# Encapsulation
+
++ All properties and methods related to that class at one place .
++ hiding of data using getter and setter
+
+
+# Inheritance
+
++ Used for acquiring properties of other class.
++ Uses extend keyword.
++ When child class constructor is called to create object ,it also calls the parent class constructor which creates parent object too.(in inheritance).
++ You can not extend more than one class but can implement multiple interface in a class.
++ The class being inherited from is called the **superclass**, and the class that inherits is called the **subclass**.
+
+```java
+class Superclass {
+    // Superclass fields and methods
+}
+
+class Subclass extends Superclass {
+    // Subclass can have its own fields and methods
+    // It can also override methods from the superclass
+}
+```
+
+
+**Scenario 01:**
+Suppose a vehicle has private property and it is accessible using getter and setter.
+Now the car is extending vehicle . so the car also have that private property but can't directly access it. can access using getter and setter.
+
+
+# Abstraction
+
+<u><b>Use case Scenario :</b></u>
+When you want a method should(forced) be implemented in every subclass but defined(not implemented) in parent class.
+
++ Means to show only necessary detail to user. 
++ why? for encapsulation
++ Use abstract keyword
++ Method can be abstract or non abstract
++ Can have constructor.
++ Can have static method.
++ If a method is abstract then the class is also have to be abstract. (parent class)  or (if a class contains **at least one abstract method**, the class itself **must be declared as abstract**.)
++ A class that inherits from an abstract class must provide implementations for the abstract methods, unless it is also abstract. (child class)
+
+i.e.
+```java 
+abstract class Animal {
+    // Abstract method (no implementation)
+    abstract void sound();
+    
+    // Concrete method
+    void sleep() {
+        System.out.println("This animal sleeps.");
+    }
+}
+
+class Dog extends Animal {
+    // Providing implementation for the abstract method
+    void sound() {
+        System.out.println("Woof!");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Animal myDog = new Dog();
+        myDog.sound();  // Woof!
+        myDog.sleep();  // This animal sleeps.
+    }
+}
+```
+
+
+
+# Interface
+
++ Use interface keyword (parent class)
++ Its a pure abstract (only abstract methods)
++ All methods are abstract (by default).
++ Can also have default or static methods.
++ All properties (field) are either public , static or final.
++ In Java, interfaces cannot **`implement`** other interfaces
++ Multiple inheritance
+	1. A **class** can implement more than one **interface**.
+		When you **`implement`** an interface, you're creating a class that must provide implementations for the methods defined in the interface(s).
+	2. An **interface** can extend more than one **interface**.
+		When you **`extend`** an interface, you're creating a new interface that inherits the methods of the interfaces you're extending.
++ To inherit interface class we use implement keyword.
++ (child class) which uses implement either use abstract to make class abstract or implement all methods of parent class.
++ mostly not contain data member but if then it is of type final and static. (to store constant)
+
+i.e.
+```java
+public interface VehicleInterface{
+	public final static double PI=3.14; //data member
+	public int getMaxSpeed(); // method
+	public void print();  //method
+}
+```
+
+
+| Feature                | **Static Binding**                         | **Dynamic Binding**                         | **Method Overloading**                     | **Method Overriding**                       |
+|------------------------|----------------------------------------|----------------------------------------|----------------------------------------|----------------------------------------|
+| **Definition**         | The method call is resolved at **compile-time**. | The method call is resolved at **runtime**. | Multiple methods in the same class with the same name but different parameters. | A subclass provides a specific implementation of a method that is already defined in its parent class. |
+| **Binding Type**       | **Early Binding** (compile-time)       | **Late Binding** (runtime)            | **Early Binding** (compile-time)       | **Late Binding** (runtime)            |
+| **Which Methods?**     | **Static, private, and final methods** | **Non-static (instance) methods**     | Any method with different parameters in the same class | Only instance (non-static) methods |
+| **Decided At**         | **Compile-time**                       | **Runtime**                           | **Compile-time**                       | **Runtime**                           |
+| **Polymorphism Type**  | **Not polymorphic** (No dynamic behavior) | **Runtime polymorphism**              | **Compile-time polymorphism**          | **Runtime polymorphism**              |
+| **Inheritance Needed?** | ❌ No                                   | ✅ Yes (parent-child relationship)   | ❌ No                                   | ✅ Yes (must be in subclass)         |
+| **Return Type**        | Can be different                       | Must be the same or covariant        | Can be different                       | Can be the same or covariant         |
+| **Access Modifier Rule** | Can be more restrictive               | Cannot reduce visibility (must be the same or more accessible) | Can be different                       | Cannot be more restrictive than the overridden method |
+| **Example**           | Calling a static method                | Calling an overridden method         | Methods with different parameters     | Subclass providing a different implementation |
+
+# Static Binding (Early Binding)
+- It occurs when the method to be called is determined at **compile-time**. This typically happens with **static methods**, **private methods**, and **final methods**, where the method call is resolved based on the reference type, not the actual object type.
+i.e.
+```java
+class Animal {
+    // Static method in parent class
+    static void sound() {
+        System.out.println("Animal makes a sound");
+    }
+
+    // Private method in parent class
+    private void show() {
+        System.out.println("I am an animal");
+    }
+}
+
+class Dog extends Animal {
+    // Static method in child class
+    static void sound() {
+        System.out.println("Dog barks");
+    }
+
+    // Private method in child class
+    private void show() {
+        System.out.println("I am a dog");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Animal animal = new Dog();  // Reference is of type Animal, object is of type Dog
+        // Static method: static binding happens based on reference type (Animal)
+        animal.sound();  // Output: Animal makes a sound
+        // Private method: can't override, and static binding occurs with reference type (Animal)
+        // animal.show();  // Compiler error: show() has private access in Animal
+    }
+}
+
+```
+
+# Method hiding
+* occurs when a **static method** in a parent class is overridden by a **static method** in a child class.
+i.e.
+```java
+class Parent {
+    static void show() {
+        System.out.println("Parent show()");
+    }
+}
+
+class Child extends Parent {
+    static void show() {
+        System.out.println("Child show()");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Parent p = new Parent();
+        Parent c = new Child();
+        
+        p.show(); // prints: Parent show()
+        c.show(); // prints: Parent show() because the reference type is Parent
+    }
+}
+```
+
+# Dynamic Binding(late binding)
++ **Dynamic binding** is the process of determining the method to call at runtime based on the actual object type, rather than the reference type.
++ Method Overriding is a perfect example of dynamic binding.
+
+```java
+class Parent {
+    void show() { // Non-static method
+        System.out.println("Dynamic Binding: Parent Class");
+    }
+}
+
+class Child extends Parent {
+    void show() { // Overriding method
+        System.out.println("Dynamic Binding: Child Class");
+    }
+
+    public static void main(String[] args) {
+        Parent obj = new Child(); // Reference of Parent, object of Child
+        obj.show(); // Output: Dynamic Binding: Child Class
+    }
+}
+```
+
+
+
+# Polymorphism (multiple forms)
+
+i.e. vehicle class is parent and car class is child then 
+**`vehicle v = new car();`**  
+This allows you to treat `Car`, `Truck`, `Bike`, etc., as a **general** `vehicle` type. The specific object (`car` in this case) is still able to perform its own actions, but the code that handles it is written generically for **all vehicles**.
+
+why? bcz
+**Reusability**:  
+Your code can be reused for any subclass of `vehicle`. For example, `vehicle v = new Truck()` or `vehicle v = new Bike()` would work the same way. You can write methods that treat all vehicles in a unified way, no matter their specific type.
+
+### 1. Compile Time polymorphism or Function overloading or Static Polymorphism
+ + same method name but with different parameter.
+
+```java
+class Overloading {
+    void show(int a) {
+        System.out.println("Method with int: " + a);
+    }
+
+    void show(double b) {
+        System.out.println("Method with double: " + b);
+    }
+
+    void show(String s) {
+        System.out.println("Method with String: " + s);
+    }
+
+    public static void main(String[] args) {
+        Overloading obj = new Overloading();
+        obj.show(10);       // Output: Method with int: 10
+        obj.show(10.5);     // Output: Method with double: 10.5
+        obj.show("Hello");  // Output: Method with String: Hello
+    }
+}
+```
+ 
+
+### 2. Runtime Polymorphism or Function Overriding or Method Overriding
+
++ Function overriding occurs when a child class provides its own implementation of a method already defined in the parent class, replacing the parent's version.
++ Occurs in a subclass that inherits from a parent class.
++ if called then first it check if child has that method if not then parent class
+
+
+i.e. vehicle is parent class and car is child class
+```java
+vehicle v=new car();
+v.isconvertable();
+```
++ but here we can't do car specific thing cause **`isconvertable`** is defined in car not in vehicle, and we can do only vehicle specific things. above code will give error.
+
++ but we can access car specific method by casting it to car type if instance of car exist.
+
+```java 
+class Vehicle {
+    void move() {
+        System.out.println("Vehicle is moving");
+    }
+}
+
+class Car extends Vehicle {
+    void isConvertible() {
+        System.out.println("This car is convertible.");
+    }
+
+    @Override
+    void move() {
+        System.out.println("Car is driving");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Vehicle v = new Car();  // Vehicle reference to a Car object
+        
+        v.move();  // Calls Car's move() method (runtime polymorphism)
+
+        // If we want to call Car-specific methods
+        if (v instanceof Car) {
+            Car car = (Car) v;  // Cast to Car
+            car.isConvertible();  // Now you can call Car-specific methods
+        }
+    }
+}
+
+```
+
+
+i.e. Let’s say both the **`Vehicle`** class and the `Car` class have a **`print()`** method.
+
+```java
+class Vehicle {
+    void print() {
+        System.out.println("Printing Vehicle details");
+    }
+}
+
+class Car extends Vehicle {
+    @Override
+    void print() {
+        System.out.println("Printing Car details");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Vehicle v = new Car();  // Vehicle reference to a Car object
+        v.print();  // This will call the print() method from the Car class
+    }
+}
+
+```
+
+**Dynamic Method Dispatch**: (only for method overriding)
+- In the line **`Vehicle v = new Car();`**, the reference **`v`** is of type **`Vehicle`**, but it actually points to a **`Car`** object.
+
+
+# Exception Handling
+
+### Basic Steps for Handling Exceptions:
+
+1. **Throwing an Exception**:  
+    A method can throw an exception when it encounters an error and cannot handle it itself.
+    
+2. **Declaring Exceptions**:  
+    If a method throws an exception, it must either handle it or declare it using `throws`.
+    
+3. **Exception Propagation**:  
+    If an exception is thrown and not handled in the method, it propagates (bubbles up) to the calling method. This continues until it reaches the `main()` method or the program terminates.
+
+4. **Handling Exceptions**:  
+    A method can catch exceptions using a `try-catch` block, or it can propagate it further by declaring it with `throws`.
+
+
+### Throwing exception
+
+using **`throw`** keyword
+```java
+throw new Exception("This is a custom exception.");
+```
+
+When a method might throw a checked exception, it must either handle it or declare it using the **`throws`** keyword in the method signature.
+```java
+public void readFile() throws ExceptionType {
+    // Code that may throw an Exception
+    throw new Exception("This is a custom exception.");
+}
+```
+
+```java
+public class ExceptionType extends Exception {
+
+}
+```
+
+
+### Handling exception using **`try-catch`** block
+
+in main block
+```java
+try {
+    // Code that might throw an exception
+} catch (ExceptionType e) {
+    // Code to handle the exception
+} finally {
+    // Code that will run no matter what (optional)
+}
+```
+
+**NOTE :** 
++ We are not allowed to catch generalized exception before specific exception.
+
+
+
+# Generics
+
+<u><b>Use case Scenario :</b></u>
+Generics in Java allow us to create one class or method that works with **any type** of data, like `Integer`, `String`, or even custom types, without needing to write separate versions for each.
+
++ Generics in Java allow you to write classes, interfaces, and methods that can operate on objects of various types while providing compile-time type safety.
++ uses angle brackets (`< >`)
++ `<T>` is a placeholder for a type that will be specified when an object is created (e.g., `Pair<Integer>` or `Pair<String>`).
+
+i.e.
+```java
+package generics;
+
+public class Pair<T> {
+	private T first;
+	private T second;
+	
+	public Pair(T first,T second){
+		this.first=first;
+		this.second=second;
+	}
+	
+	public T getFirst(){
+		return this.first;
+	}
+	
+	public T getSecond(){
+		return this.second;
+	}
+	
+	public void setFirst(T first){
+		this.first=first;
+	}
+	
+	public void setSecond(T second){
+		this.second=second;
+	}
+}
+```
+
+```java
+package generics;
+
+public class PairUse{
+	public static void main(String[] args){
+		Pair<Integer> p1=new Pair<Integer>(5,10); //Integer is a wrapper class
+		p1.setFirst(10);
+		int f1=p1.getFirst();
+		
+		Pair<Integer> p2=new Pair<>(5,10); //this is also fine
+	}
+}
+```
+
+Above we used Wrapper class **`Integer`** 
+
+### Wrapper class
++ It wraps the primitive data type into an object so we can use it as object.
++ Like collections (i.e Arraylist) can only store objects.
+
+| Primitive Type | Wrapper Class  |
+|----------------|----------------|
+| `int`          | `Integer`      |
+| `char`         | `Character`    |
+| `byte`         | `Byte`         |
+| `short`        | `Short`        |
+| `long`         | `Long`         |
+| `float`        | `Float`        |
+| `double`       | `Double`       |
+| `boolean`      | `Boolean`      |
+## Multiple Generic Types:
+This refers to use of multiple generic type parameters in class , method or interface.
+
+i.e.
+```java
+public class Pair<T,U>{
+	private T first;
+	private U second;
+	
+	public Pair(T first,U second){
+		this.first=first;
+		this.second=second;
+	}
+	
+	private void setFirst(T first){
+		this.first=first;
+	}
+	
+	private void setSecond(U second){
+		this.second=second;
+	}
+	
+	private T getFirst(){
+		return this.first;
+	}
+	
+	private U getSecond(){
+		return this.second;
+	}
+}
+```
+
+```java
+public class PairUse{
+	public static void main(String[] argss){
+		Pair<Integer,String> p1=new Pair<>(45,"Hello");
+	}
+}
+```
+
+## Chained Generic Type
+Chained generic types occur when you use one generic type as the argument for another generic type.
+
+```java
+package generics;
+public class Pair<T,U>{
+	private T first;
+	private U second;
+	
+	public Pair(T first,U second){
+		this.first=first;
+		this.second=second;
+	}
+	
+	public T getFirst(){
+		return this.first;
+	}
+	
+	public U getSecond(){
+		return this.second;
+	}
+	
+	public void setFirst(T first){
+		this.first=first;
+	}
+	
+	public void setSecond(U second){
+		this.second=second;
+	}
+}
+```
+
+```java
+package generics;
+public class PairUse{
+	public static void main(String[] args){
+		int a=10;
+		int b=20;
+		int c=30;
+		Pair<Integer,Integer> p1=new Pair<>(a,b);
+		Pair<Pair<Integer,Integer>,Integer> p2=new Pair<>(p1,c);
+		System.out.println(p2.getSecond()); //to get third integer
+		System.out.println(p2.getFirst().getSecond()); // to get second integer
+		System.out.println(p2.getFirst().getFirst()); // to get first integer
+	}
+}
+```
+
+## Generic Method
+Methods can also be made generic, which means you can specify a type parameter for the method, independent of the class.
+
+i.e.
+```java
+public class GenericMethodExample{
+    // [access modifier] [other modifier] <T> [return type] [method name] ([parameter type] [parameter name])
+    //other modifier i.e. static,final,abstract etc
+	public static <T> void printArray(T[] arr){  //T[] arr parameter array of type T is an array
+		for(T element: arr){
+			System.out.println(element+" ");
+		}
+		System.out.println();
+	}
+	
+	
+	public static void main(String[] args){
+		Integer[] intArray={1,2,3,4}; //wrapper class Integer
+		String[] strArray={"Hello","World"}; //wrapper class String
+		
+		printArray(intArray); // output: 1 2 3 4
+		printArray(strArray); //output: Hello World
+	}
+}
+```
+
+
+## Bounded Type Parameters
+You can restrict the types that can be passed to a generic class, method, or interface by using bounds.
+
+```java
+public class BoundedTypeExample{
+	//Method with bounded type parameter
+	public static <T extends Number> void printNumber(T num){
+		System.out.println("Number"+num);;
+	}
+	
+	public static void main(String[] args){
+		printNumber(5); //works (Integer extends Number) ,here we didn't used wrapper bcz of autoboxing
+		printNumber(5.5); //works (Double extends Number)
+		
+		//printNumber("Hello") //compile-time error (String does not extend Number)
+	}
+}
+```
+
+In this example, the method `printNumber` only accepts objects of types that extend `Number` (such as `Integer`, `Double`, etc.).
+
+we can also use extend of different class i.e. Vehicle class
+
+### autoboxing mechanism
+Java automatically converts primitive types like int or double to their corresponding wrapper objects (Integer, Double, etc.) because the type parameter `T` extends `Number`.
+
+## Wildcards in Generics
+
+Wildcards allow for more flexibility in generics. There are two types of wildcards:
+
+- **Unbounded Wildcard (`?`)**: Represents any type.
+- **Upper Bounded Wildcard (`? extends T`)**: Restricts the wildcard to be a subtype of `T`.
+- **Lower Bounded Wildcard (`? super T`)**: Restricts the wildcard to be a supertype of `T`.
+```java
+// Unbounded wildcard
+public static void printList(List<?> list) {
+    for (Object obj : list) {
+        System.out.println(obj);
+    }
+}
+
+// Upper bounded wildcard
+public static void printNumbers(List<? extends Number> list) {
+    for (Number num : list) {
+        System.out.println(num);
+    }
+}
+
+// Lower bounded wildcard
+public static void addNumbers(List<? super Integer> list) {
+    list.add(10);
+    list.add(20);
+}
+
+public static void main(String[] args) {
+    List<Integer> intList = new ArrayList<>();
+    List<Double> doubleList = new ArrayList<>();
+    
+    // Unbounded
+    List<String> strList = Arrays.asList("a", "b", "c");
+    printList(strList);
+    
+    // Upper bounded
+    printNumbers(intList); // Works with Numbers or its subtypes
+    
+    // Lower bounded
+    addNumbers(intList); // Works with Integer or its supertypes
+}
+```
+
+## Generic interfaces
+Interfaces can also be generic, which allows the definition of more flexible and reusable code.
+
+```java
+public interface Pair<K, V> {
+    K getKey();
+    V getValue();
+}
+
+public class SimplePair<K, V> implements Pair<K, V> {
+    private K key;
+    private V value;
+
+    public SimplePair(K key, V value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    @Override
+    public K getKey() {
+        return key;
+    }
+
+    @Override
+    public V getValue() {
+        return value;
+    }
+}
+```
+
+
+
+---
+# DSA
+
+---
+**Note :**
++ Add at end, remove at end = LIFO (Stack)
++ Add at end, remove at front = FIFO (Queue)
+
+# Dynamic Array
+
++ Dynamic array in java i.e. ArrayList, Vector etc
++ ArrayList takes object. That's why we use wrapper classes like Integer, Boolean
++ It is a collection.
+
+## ArrayList
+
+```java
+import java.util.ArrayList;
+
+public class ArrayListUse{
+	public static void main(String[] args){
+		ArrayList<Integer> a1=new ArrayList<Interger>();
+		
+		a1.add(10); //add to the last
+		a1.add(30);
+		a1.add(40);
+		
+		a1.add(0,20); // add at specified location
+		
+		System.out.println(a1.size()); //arraylist size
+		
+		System.out.println(a1); //printing arraylist
+		
+		System.out.println(a1.get(0)); //get element at index 0
+		
+		//printing the list
+		for (int i=0;i<a1.size();i++){
+			System.out.println(a1.get(i));
+		}
+		
+		a1.remove(0); //remove index from specific element
+		
+		a1.set(1,50); //set replaces the element
+		
+		//print all element using for each
+		for(int element: a1){
+			System.out.println(element+" ");
+		}
+	}
+}
+```
+
+
+# LinkedList
+
+## Singly Linked list
+i.e. generic type singly linked list
+```java
+public class Node<T>{
+	private T data;
+	private Node<T> next;
+	
+	public Node(T data){
+		this.data=data;
+		this.next=null;
+	}
+	
+	public T getData(){
+		return this.data;
+	}
+}
+```
+
+```java
+public class NodeUse{
+	public static void main(String[] args){
+		Node<Integer> n1=new Node<>(10);
+		Node<Integer> n2=new Node<>(20);
+		Node<Integer> n3=new Node<>(30);
+		
+		n1.next=n2; //n1.next is used to access the field(or instance variable) of Node object
+		n2.next=n3;
+		
+		System.out.println(n1.getData()); //to print n1 data
+		
+		//to print whole list
+		Node<Integer> head=n1;
+		while(head!=null){
+			System.out.print(head.getData()+"->");
+			head=head.next;
+		}
+	}
+}
+```
+
+
+**Generic type Node for Linked List Implementation**
+```java
+public class Node<T> {
+	private T data;
+	private Node<T> next;
+	
+	public Node(T data){
+		this.data=data;
+		this.next=null;
+	}
+	public T getData(){
+		return this.data;
+	}
+	public Node<T> getNext(){
+		return this.next;
+	}
+	public void setData(T data){
+		this.data=data;
+	}
+	public void setNext(Node<T> next){
+		this.next=next;
+	}
+}
+```
+
+**`TakeInput`** Time Complexity O(n^2)
+```java
+import java.util.Scanner;
+public class LinkedList{
+	private static Node<Integer> takeInput(){
+		Node<Integer> head=null;
+		Scanner s=new Scanner(System.in);
+		int data=s.nextInt();
+		
+		while(data==-1){
+			Node<Integer> newNode=new Node<>(data);
+			if(head==null){
+				head=newNode;
+			}
+			else{
+				Node<Integer> temp=head;
+				while(temp.getNext()!=null){
+					temp=temp.getNext();
+				}
+				temp.setNext(newNode);
+			}
+			data.s.nextInt();
+		}
+		s.close();
+		return head;
+	}
+	
+	private static void printLL(Node<Integer> head){
+		Node<Integer> temp=head;
+		while(temp!=null){
+			System.out.print(temp.getData()+"->");
+			temp=temp.getNext();
+		}
+		System.out.println();
+	}
+	
+	public static void main(String[] args){
+		Node<Integer> head=takeInput();
+		printLL(head);
+	}
+}
+```
+
+**`TakeInput`** Time Complexity : O(n)
+
+# Linked List Operations in Java
+
+## Code
+
+```java
+import java.util.Scanner;
+
+public class LLTakingInputBetter {
+    // Repeatedly take input and create linked list
+    public static Node<Integer> takeInput(Scanner s) {
+        int data = s.nextInt();
+        Node<Integer> head = null, tail = null;
+
+        while (data != -1) {
+            Node<Integer> newNode = new Node<Integer>(data);
+            if (head == null) {
+                head = newNode;
+                tail = newNode;
+            } else {
+                tail.setNext(newNode);
+                tail = newNode;
+            }
+            data = s.nextInt();
+        }
+        return head;
+    }
+
+    // Insert at the given position
+    public static Node<Integer> insert(Node<Integer> head, int pos, int data) {
+        Node<Integer> temp = head;
+        Node<Integer> newNode = new Node<>(data);
+        int count = 0;
+
+        if (pos == 0) {
+            newNode.setNext(temp);
+            head = newNode;
+            return head;
+        } else {
+            while (count != pos && temp != null) { // Here temp != null because we also want to insert at the last position
+                temp = temp.getNext();
+                count++;
+            }
+            if (temp != null) { // Insert after the found node
+                Node<Integer> rightLL = temp.getNext();
+                temp.setNext(newNode);
+                newNode.setNext(rightLL);
+            } else {
+                System.out.println("Position out of bound");
+            }
+        }
+        return head;
+    }
+
+    // Length of the linked list
+    private static int length(Node<Integer> head) {
+        Node<Integer> temp = head;
+        int count = 0;
+        while (temp != null) {
+            temp = temp.getNext();
+            count++;
+        }
+        return count;
+    }
+
+    // Delete node from the given position in linked list
+    private static Node<Integer> delete(Node<Integer> head, int pos) {
+        Node<Integer> temp = head, prev = null;
+        int count = 0;
+        if (head == null) {
+            System.out.println("List is empty");
+            return head;
+        } else if (pos == 0) {
+            head = temp.getNext();
+            return head;
+        } else {
+            while (count != pos && temp != null) {
+                prev = temp;
+                temp = temp.getNext();
+                count++;
+            }
+            if (temp != null && temp.getNext() != null) {
+                prev.setNext(temp.getNext());
+            } else if (temp.getNext() == null) {
+                prev.setNext(null);
+            } else {
+                System.out.println("Position is out of bound");
+            }
+        }
+        return head;
+    }
+
+    // Print whole linked list
+    public static void printLL(Node<Integer> head) {
+        Node<Integer> temp = head;
+        while (temp != null) {
+            System.out.print(temp.getData() + "->");
+            temp = temp.getNext();
+        }
+        System.out.println();
+    }
+
+    // Print data of given position in linked list
+    private static void printAt(Node<Integer> head, int pos) {
+        int count = 0;
+        System.out.println("Enter the position to print value: ");
+        Node<Integer> temp = head;
+        while (count != pos && temp != null) {
+            temp = temp.getNext();
+            count++;
+        }
+        if (count == pos && temp != null) {
+            System.out.println("Data at position " + pos + ": " + temp.getData());
+        } else {
+            System.out.println("Position out of bound");
+        }
+    }
+
+    // Increase all values in linked list by 1
+    private static Node<Integer> increment(Node<Integer> head) {
+        Node<Integer> temp = head;
+        while (temp != null) {
+            int data = temp.getData();
+            data++;
+            temp.setData(data);
+            temp = temp.getNext();
+        }
+        return head;
+    }
+
+    // Searching the element (Last encounter)
+    private static int findNodeLast(Node<Integer> head, int element) {
+        Node<Integer> temp = head;
+        int pos = -1, count = 0;
+
+        while (temp != null) {
+            count++;
+            if (temp.getData() == element) {
+                pos = count;
+            }
+            temp = temp.getNext();
+        }
+        return pos;
+    }
+
+    // Searching the element (First encounter)
+    private static int findNodeFirst(Node<Integer> head, int element) {
+        Node<Integer> temp = head;
+        int pos = 0;
+        while (temp != null) {
+            if (temp.getData() == element) {
+                return pos;
+            } else {
+                temp = temp.getNext();
+                pos++;
+            }
+        }
+        return -1;
+    }
+
+    // Append last N nodes to first and return head
+    private static Node<Integer> appendLastN(Node<Integer> head, int nth, int length) {
+        Node<Integer> temp = head, prevR = null, tempL = null, lasNode = null;
+        int count = 0;
+
+        if (nth == 0) {
+            return head;
+        } else if (nth > length - 1) {
+            System.out.println("Provided position is out of bound");
+            return head;
+        }
+
+        while (temp != null) {
+            if (count == nth) { // For target node
+                tempL = temp;
+            } else if (count == nth - 1 && count != 0) { // For node previous to target node
+                prevR = temp;
+            } else if (count == length - 1) { // For last node
+                lasNode = temp;
+            }
+            count++;
+            temp = temp.getNext();
+        }
+        prevR.setNext(null);
+        lasNode.setNext(head);
+        head = tempL;
+
+        return head;
+    }
+
+    // Remove consecutive duplicate nodes
+    private static Node<Integer> removeConsecutiveDuplicate(Node<Integer> head) {
+        Node<Integer> temp = head;
+        if (temp == null) {
+            return head;
+        }
+        while (temp != null && temp.getNext() != null) {
+            if (temp.getData() == temp.getNext().getData()) {
+                temp.setNext(temp.getNext().getNext());
+            } else {
+                temp = temp.getNext();
+            }
+        }
+        return head;
+    }
+
+    // Reverse linked list using recursion
+    private static void reverseLLRecursive(Node<Integer> head) {
+        if (head == null) {
+            return;
+        }
+        reverseLLRecursive(head.getNext());
+        System.out.println(head.getData());
+    }
+
+    // Reverse LL Iteratively
+    private static Node<Integer> reverseLLIteratively(Node<Integer> head) {
+        Node<Integer> currNode = head, prvNode = null, fwdNode = null;
+
+        while (currNode != null) {
+            fwdNode = currNode.getNext();
+            currNode.setNext(prvNode);
+            prvNode = currNode;
+            currNode = fwdNode;
+        }
+        head = prvNode;
+        return head;
+    }
+
+    // Check palindrome
+    private static boolean checkPalindrome(Node<Integer> head) {
+        if (head == null || head.getNext() == null) {
+            return true; // Empty or single node list is always a palindrome
+        }
+        // Step 1: Find the middle element using slow and fast pointer approach
+        Node<Integer> slow
+```
+
+ **Note :** 
+
+**`temp!= null`**
++ to check that current node is not` null`
++ used when iterating over each node in the list
+
+**`temp.next!= null`** 
++ avoid trying to access **`temp.next`** in body when **`temp`** is the last node in loop
+
+when calling **`temp.next.next`** make sure **`temp.next`** is not `null`
+
+
+# Slow And Fast pointer approach or **tortoise and hare** algorithm
+
+**Concept:**
+- **Slow Pointer**: Moves **1 step** at a time.
+- **Fast Pointer**: Moves **2 steps** at a time.
+
+ **Key Applications:**
+
+1. **Cycle Detection**:
+    - If there's a cycle, **slow** and **fast** pointers will eventually meet inside the cycle.
+    - If there's no cycle, **fast** will reach `null` (end of the list).
+
+2. **Finding the Middle**:
+    - For an **odd number** of nodes, **slow** ends up at the middle node.
+    - For an **even number** of nodes, **slow** ends up at the **first middle node**.
+    - If you need the **second middle node** (for even-length lists), you can adjust the approach slightly by moving the `slow` pointer one extra step when `fast` reaches the end.
+    
+**Time Complexity**: **O(n)** (Linear time)
+
+**Space Complexity**: **O(1)** (Constant space)
+
+
+
+
+TODO:
+Stack
+Queue
