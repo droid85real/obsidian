@@ -1172,11 +1172,11 @@ public class LLTakingInputBetter {
         reverseLLRecursive(head.getNext());
         System.out.println(head.getData());
     }
-
+	
     // Reverse LL Iteratively
     private static Node<Integer> reverseLLIteratively(Node<Integer> head) {
         Node<Integer> currNode = head, prvNode = null, fwdNode = null;
-
+		
         while (currNode != null) {
             fwdNode = currNode.getNext();
             currNode.setNext(prvNode);
@@ -1186,14 +1186,85 @@ public class LLTakingInputBetter {
         head = prvNode;
         return head;
     }
-
-    // Check palindrome
+	
+    // check palindrome using slow and fast pointer method
     private static boolean checkPalindrome(Node<Integer> head) {
         if (head == null || head.getNext() == null) {
             return true; // Empty or single node list is always a palindrome
         }
-        // Step 1: Find the middle element using slow and fast pointer approach
-        Node<Integer> slow
+        // step-1: Find the middle element using slow and fast pointer approach
+        Node<Integer> slow = head, fast = head;
+		
+        while (fast != null && fast.getNext() != null) { //fast.getNext()==null when length is odd and fast.getNext().getNext()==null when length is even, but what we used is better approach
+            slow = slow.getNext();
+            fast = fast.getNext().getNext();
+        }
+		
+        // step 2: reverse the second half of the list starting from the "slow" node
+        Node<Integer> secondHalf = reverseLLIteratively(slow);
+		
+        // step 3: compare the first and second halves
+        Node<Integer> firstHalf = head;
+		
+        while (secondHalf != null) {
+            if (!firstHalf.getData().equals(secondHalf.getData())) {
+                return false;
+            }
+            firstHalf = firstHalf.getNext();
+            secondHalf = secondHalf.getNext();
+        }
+		
+        return true;
+    }
+	
+    public static void main(String[] args) {
+        Scanner s = new Scanner(System.in);
+        Node<Integer> head = takeInput(s); // to take input and create linked list
+        printLL(head); // to print linked list
+        System.out.println("Length of linked list: " + length(head)); // print length of linked list
+		
+        // Various operations performed in the main method
+        System.out.println("Enter position to print value at given position");
+        int pos = s.nextInt();
+        printAt(head, pos);
+		
+        System.out.println("Enter position to insert new data at a given position");
+        int pos2 = s.nextInt();
+        System.out.println("Enter the data to be inserted");
+        int data2 = s.nextInt();
+        head = insert(head, pos2, data2);
+        printLL(head);
+		
+        System.out.println("Enter the position of node to be deleted");
+        int pos3 = s.nextInt();
+        head = delete(head, pos3);
+        printLL(head);
+		
+        head = increment(head); // increase all data values by 1
+        printLL(head);
+		
+        System.out.println("Enter the element you are searching for");
+        int element = s.nextInt();
+        int pos4 = findNodeFirst(head, element);
+        printAt(head, pos4);
+		
+        System.out.println("Enter the Nth node");
+        int nth = s.nextInt();
+        head = appendLastN(head, nth, length(head));
+        printLL(head);
+		
+        head = removeConsecutiveDuplicate(head);
+        printLL(head);
+		
+        reverseLLRecursive(head);
+		
+        head = reverseLLIteratively(head);
+		
+        System.out.println(checkPalindrome(head));
+		
+        s.close();
+    }
+}
 ```
 
  **Note :** 
@@ -1229,7 +1300,7 @@ when calling **`temp.next.next`** make sure **`temp.next`** is not `null`
 
 **Space Complexity**: **O(1)** (Constant space)
 
-
+i.e. used in above given code in check palindrome.
 
 
 TODO:
