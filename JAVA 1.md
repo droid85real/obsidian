@@ -32,6 +32,8 @@
 
 
 
+# Loops
+
 **Note :**
 ```java
 if (condition1 && condition2) {
@@ -846,6 +848,7 @@ public class ArrayListUse{
 ```
 
 
+
 # LinkedList
 
 ## Singly Linked list
@@ -961,17 +964,17 @@ public class LinkedList{
 
 # Linked List Operations in Java
 
-## Code
+## Linked List implementation
 
 ```java
 import java.util.Scanner;
 
-public class LLTakingInputBetter {
+public class LinkedListBetter {
     // Repeatedly take input and create linked list
     public static Node<Integer> takeInput(Scanner s) {
         int data = s.nextInt();
         Node<Integer> head = null, tail = null;
-
+		
         while (data != -1) {
             Node<Integer> newNode = new Node<Integer>(data);
             if (head == null) {
@@ -985,13 +988,13 @@ public class LLTakingInputBetter {
         }
         return head;
     }
-
+	
     // Insert at the given position
     public static Node<Integer> insert(Node<Integer> head, int pos, int data) {
         Node<Integer> temp = head;
         Node<Integer> newNode = new Node<>(data);
         int count = 0;
-
+		
         if (pos == 0) {
             newNode.setNext(temp);
             head = newNode;
@@ -1011,7 +1014,7 @@ public class LLTakingInputBetter {
         }
         return head;
     }
-
+	
     // Length of the linked list
     private static int length(Node<Integer> head) {
         Node<Integer> temp = head;
@@ -1022,7 +1025,7 @@ public class LLTakingInputBetter {
         }
         return count;
     }
-
+	
     // Delete node from the given position in linked list
     private static Node<Integer> delete(Node<Integer> head, int pos) {
         Node<Integer> temp = head, prev = null;
@@ -1049,7 +1052,7 @@ public class LLTakingInputBetter {
         }
         return head;
     }
-
+	
     // Print whole linked list
     public static void printLL(Node<Integer> head) {
         Node<Integer> temp = head;
@@ -1059,7 +1062,7 @@ public class LLTakingInputBetter {
         }
         System.out.println();
     }
-
+	
     // Print data of given position in linked list
     private static void printAt(Node<Integer> head, int pos) {
         int count = 0;
@@ -1075,7 +1078,7 @@ public class LLTakingInputBetter {
             System.out.println("Position out of bound");
         }
     }
-
+	
     // Increase all values in linked list by 1
     private static Node<Integer> increment(Node<Integer> head) {
         Node<Integer> temp = head;
@@ -1087,12 +1090,12 @@ public class LLTakingInputBetter {
         }
         return head;
     }
-
+	
     // Searching the element (Last encounter)
     private static int findNodeLast(Node<Integer> head, int element) {
         Node<Integer> temp = head;
         int pos = -1, count = 0;
-
+		
         while (temp != null) {
             count++;
             if (temp.getData() == element) {
@@ -1102,7 +1105,7 @@ public class LLTakingInputBetter {
         }
         return pos;
     }
-
+	
     // Searching the element (First encounter)
     private static int findNodeFirst(Node<Integer> head, int element) {
         Node<Integer> temp = head;
@@ -1117,19 +1120,19 @@ public class LLTakingInputBetter {
         }
         return -1;
     }
-
+	
     // Append last N nodes to first and return head
     private static Node<Integer> appendLastN(Node<Integer> head, int nth, int length) {
         Node<Integer> temp = head, prevR = null, tempL = null, lasNode = null;
         int count = 0;
-
+		
         if (nth == 0) {
             return head;
         } else if (nth > length - 1) {
             System.out.println("Provided position is out of bound");
             return head;
         }
-
+		
         while (temp != null) {
             if (count == nth) { // For target node
                 tempL = temp;
@@ -1144,10 +1147,10 @@ public class LLTakingInputBetter {
         prevR.setNext(null);
         lasNode.setNext(head);
         head = tempL;
-
+		
         return head;
     }
-
+	
     // Remove consecutive duplicate nodes
     private static Node<Integer> removeConsecutiveDuplicate(Node<Integer> head) {
         Node<Integer> temp = head;
@@ -1163,29 +1166,20 @@ public class LLTakingInputBetter {
         }
         return head;
     }
-
-    // Reverse linked list using recursion
-    private static void reverseLLRecursive(Node<Integer> head) {
-        if (head == null) {
-            return;
-        }
-        reverseLLRecursive(head.getNext());
-        System.out.println(head.getData());
-    }
 	
-    // Reverse LL Iteratively
-    private static Node<Integer> reverseLLIteratively(Node<Integer> head) {
-        Node<Integer> currNode = head, prvNode = null, fwdNode = null;
+	//reverse LL Iteratively
+	private static Node<Integer> reverseLLIteratively(Node<Integer> head){
+		Node<Integer> currNode=head,prvNode=null,fwdNode=null;
 		
-        while (currNode != null) {
-            fwdNode = currNode.getNext();
-            currNode.setNext(prvNode);
-            prvNode = currNode;
-            currNode = fwdNode;
-        }
-        head = prvNode;
-        return head;
-    }
+		while (currNode!=null) {
+			fwdNode=currNode.getNext(); //1->2 3->4->5->null where 3 is current and 2 is prev ,fwd store next of 3
+			currNode.setNext(prvNode);// we make 3 point to 2
+			prvNode=currNode; // shift previous node to 1 step forward and make current as new previous
+			currNode=fwdNode; // shift current node to 1 step forward and make forward as new current
+		}
+		head=prvNode; // after loop current reaches null and previous reaches to last node and last node is head of reversed LL
+		return head;
+	}
 	
     // check palindrome using slow and fast pointer method
     private static boolean checkPalindrome(Node<Integer> head) {
@@ -1256,11 +1250,9 @@ public class LLTakingInputBetter {
         head = removeConsecutiveDuplicate(head);
         printLL(head);
 		
-        reverseLLRecursive(head);
+		head=reverseLLIteratively(head); //to reverse linked list using Iterative method
 		
-        head = reverseLLIteratively(head);
-		
-        System.out.println(checkPalindrome(head));
+		System.out.println(checkPalindrome(head)); //checking palindrome
 		
         s.close();
     }
@@ -1301,6 +1293,290 @@ when calling **`temp.next.next`** make sure **`temp.next`** is not `null`
 **Space Complexity**: **O(1)** (Constant space)
 
 i.e. used in above given code in check palindrome.
+
+## MergeTwoSortedLL (In place sorting)
+
+```java
+public class MergeTwoSortedLL {
+    
+    private static Node<Integer> makeLL(int[] arr){
+        Node<Integer> head=null,tail=null;
+		
+        for(int i=0;i<arr.length;i++){
+            Node<Integer> newNode=new Node<Integer>(arr[i]);
+            if(head==null){
+                head=newNode;
+                tail=newNode;
+            }else{
+                tail.setNext(newNode);
+                tail=newNode;
+            }
+        }
+        return head;
+    }
+	
+    private static Node<Integer> mergeLL(Node<Integer> LL1,Node<Integer> LL2){
+        if(LL1==null){
+            return LL2;
+        }else if(LL2==null){
+            return LL1;
+        }
+        Node<Integer> head=null,tail=null,t1=LL1,t2=LL2;
+        
+        if(t1.getData()<=t2.getData()){
+            head=t1;
+            tail=t1;
+            t1=t1.getNext();
+        }else{
+            head=t2;
+            tail=t2;
+            t2=t2.getNext();
+        }
+        
+        while (t1!=null && t2!=null) {
+            if(t1.getData()<=t2.getData()){
+                tail.setNext(t1);
+                tail=t1;
+                t1=t1.getNext();
+            }else{
+                tail.setNext(t2);
+                tail=t2;
+                t2=t2.getNext();
+            }
+        }
+		
+        if(t1!=null){
+            tail.setNext(t1);
+        }
+		
+        if(t2!=null){
+            tail.setNext(t2);
+        }
+        return head;
+    }
+	
+    private static void print(Node<Integer> head){
+        Node<Integer> temp=head;
+        while (temp!=null) {
+            System.out.print(temp.getData()+"->");
+            temp=temp.getNext();
+        }
+    }
+	
+    public static void main(String[] args) {
+        int[] arr1={1,3,5};
+        int[] arr2={2,4,6};
+		
+        Node<Integer> LL1=makeLL(arr1);
+        Node<Integer> LL2=makeLL(arr2);
+		
+        Node<Integer> LL3=mergeLL(LL1,LL2);
+        print(LL3);
+    }
+}
+```
+
+
+# Implementing Singly Linked List with Recursive Functions
+
+```java
+import java.util.Scanner;
+
+public class LinkedListRecursive {
+    // Create Linked list using recursion
+    private static Node<Integer> makeLLRecursive(Scanner s){
+        int data = s.nextInt();
+		
+        if(data == -1){
+            return null;
+        }
+        Node<Integer> newNode = new Node<Integer>(data);
+        newNode.setNext(makeLLRecursive(s));
+		
+        return newNode;
+    }
+	
+    // Insert node at position using recursion
+    private static Node<Integer> insertRecursive(Node<Integer> head, int pos, int data){
+        if(pos < 0){ // Prevent insertion at a negative index
+            System.out.println("Error: Position can't be negative");
+            return head;
+        }
+		
+        if(pos == 0){
+            Node<Integer> newNode = new Node<Integer>(data);
+            newNode.setNext(head);
+            return newNode;
+        }
+		
+        if (head == null) {  // If we reached the end of the list without inserting
+            System.out.println("Error: Position out of bounds.");
+            return head;
+        }
+		
+        head.setNext(insertRecursive(head.getNext(), pos-1, data));
+        return head;
+    }
+	
+    // Delete node at given position
+    private static Node<Integer> deleteRecursive(Node<Integer> head, int pos){
+        if(pos < 0){
+            System.out.println("Error: Position can't be negative");
+            return head;
+        }
+		
+        if(head == null){ // This happens when we reach the end of the linked list
+            System.out.println("Error: Position is out of bound");
+            return null;
+        }
+		
+        if(pos == 0){
+            return head.getNext(); // Skip the current node (delete it)
+        }
+		
+        // Recursive case: Move to the next node and decrease the position
+        head.setNext(deleteRecursive(head.getNext(), pos-1));
+        return head;
+    }
+	
+    // Reverse linked list using recursion
+    private static void reverseLLRecursive(Node<Integer> head){
+        if(head == null){
+            return;
+        }
+        reverseLLRecursive(head.getNext());
+        System.out.println(head.getData());
+    }
+	
+    // Reverse linked list using recursion (different approach)
+    private static Node<Integer> reverseLLRecursive2(Node<Integer> head){
+        // If the list is empty or has only one element, return the head
+        if(head == null || head.getNext() == null){
+            return head;
+        }
+		
+        // Reverse the rest of the list recursively
+        Node<Integer> reversedHead = reverseLLRecursive2(head.getNext());
+		
+        // After the recursive call, adjust the pointers
+        head.getNext().setNext(head); // Make the next node point to the current node 
+        head.setNext(null); // Set the current node's next to null
+		
+        return reversedHead; // Return the head of the reversed list
+    }
+	
+    // Print Linked list using recursion
+    private static void printRecursive(Node<Integer> head){
+        if(head == null){
+            return;
+        }
+        System.out.print(head.getData() + "->");
+        printRecursive(head.getNext());
+    }
+	
+    public static void main(String[] args) {
+        Scanner s = new Scanner(System.in);
+		
+        Node<Integer> head = makeLLRecursive(s);
+		
+        reverseLLRecursive(head); // Reverse linked list using recursion
+		
+        System.out.println("Enter position to insert new data at a given position (0 to n):");
+        int pos1 = s.nextInt();
+        System.out.println("Enter the data to be inserted:");
+        int data1 = s.nextInt();
+        head = insertRecursive(head, pos1, data1);  // Insert at the given position using recursion
+		
+        System.out.println("Enter the position of the node to be deleted:");
+        int pos2 = s.nextInt();
+        head = deleteRecursive(head, pos2); // Delete element at the given position
+		
+        reverseLLRecursive2(head);
+		
+        printRecursive(head); // Print linked list using recursion
+		
+        s.close();
+    }
+}
+```
+
+
+
+# `java.util.LinkedList`
+
+```java
+import java.util.LinkedList;
+
+public class LinkedListExample {
+
+    public static void main(String[] args) {
+        
+        // Create a LinkedList of integers
+        LinkedList<Integer> list = new LinkedList<>();
+		
+        // addFirst() - Adds an item to the beginning of the list
+        list.addFirst(10); // List: [10]
+        list.addFirst(20); // List: [20, 10]
+        System.out.println("After addFirst(): " + list); // Output: [20, 10]
+		
+        // addLast() - Adds an item to the end of the list
+        list.addLast(30); // List: [20, 10, 30]
+        System.out.println("After addLast(): " + list); // Output: [20, 10, 30]
+		
+        // removeFirst() - Removes an item from the beginning of the list
+        list.removeFirst(); // List: [10, 30]
+        System.out.println("After removeFirst(): " + list); // Output: [10, 30]
+		
+        // removeLast() - Removes an item from the end of the list
+        list.removeLast(); // List: [10]
+        System.out.println("After removeLast(): " + list); // Output: [10]
+		
+        // getFirst() - Retrieves the item at the beginning of the list
+        int first = list.getFirst(); // first = 10
+        System.out.println("First element: " + first); // Output: First element: 10
+		
+        // getLast() - Retrieves the item at the end of the list
+        list.addLast(40); // List: [10, 40]
+        int last = list.getLast(); // last = 40
+        System.out.println("Last element: " + last); // Output: Last element: 40
+		
+        // Additional methods
+		
+        // add() - Adds an item to the end of the list (similar to addLast())
+        list.add(50); // List: [10, 40, 50]
+        System.out.println("After add(): " + list); // Output: [10, 40, 50]
+		
+        // peekFirst() - Retrieves the first element without removing it (returns null if empty)
+        Integer peekFirst = list.peekFirst(); // peekFirst = 10
+        System.out.println("Peek First: " + peekFirst); // Output: Peek First: 10
+		
+        // peekLast() - Retrieves the last element without removing it (returns null if empty)
+        Integer peekLast = list.peekLast(); // peekLast = 50
+        System.out.println("Peek Last: " + peekLast); // Output: Peek Last: 50
+		
+        // remove() - Removes the first occurrence of the specified element
+        list.remove(Integer.valueOf(40)); // List: [10, 50]
+        System.out.println("After remove(Integer): " + list); // Output: [10, 50]
+		
+        // clear() - Removes all elements from the list
+        list.clear(); // List: []
+        System.out.println("After clear(): " + list); // Output: []
+    }
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 TODO:
