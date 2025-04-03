@@ -87,8 +87,9 @@ public class Car {
 
 ## static keyword
 <u><b>Use case Scenario :</b></u>
-+ jo property or method same rehne wale h multiple instances of an object unko hum static bana dete h.
++ jo property or method same rehne wale h multiple instances(object) of class, unko hum static bana dete h.
 + when we want to call method without creating on object.
++ Agar koi property ya method individual objects par depend nahi karti aur class level par share ki jati hai, tab hum usse `static` bana dete hain.
 
 + we make main class as static so that JVM can call it with class name without making its instance.
 + `this` for `super` keyword can't be used inside static function.
@@ -1565,11 +1566,124 @@ public class LinkedListExample {
 }
 ```
 
+# [HashMap](https://www.programiz.com/java-programming/hashmap)
+<u><b>Use case Scenario :</b></u>
+to Store key value pair
+
++ unordered, means elements are not placed in the way they entered.
++ provides **constant time complexity** (O(1)) for most operations like **get()**, **put()**, and **containsKey()**.
++ **value-related operations** in a `HashMap` can take more time than **key-related operations**
+
+```java
+import java.util.HashMap;
+
+public class HashMapExample {
+    public static void main(String[] args) {
+        // Creating a HashMap
+        HashMap<Integer, String> map = new HashMap<>();
+		
+        // put(K key, V value) - Adds key-value pairs to the map
+        map.put(1, "Apple");
+        map.put(2, "Banana");
+        map.put(3, "Cherry");
+		
+        // get(Object key) - Retrieves the value for the given key
+        System.out.println("Value for key 2: " + map.get(2)); // Output: Banana
+		
+        // containsKey(Object key) - Checks if a key exists
+        System.out.println("Contains key 3? " + map.containsKey(3)); // Output: true
+		
+        // containsValue(Object value) - Checks if a value exists
+        System.out.println("Contains value 'Apple'? " + map.containsValue("Apple")); // Output: true
+		
+        // remove(Object key) - Removes an entry by key
+        map.remove(1);
+        System.out.println("After removing key 1: " + map);
+		
+        // size() - Returns the number of key-value pairs
+        System.out.println("Size of map: " + map.size()); // Output: 2
+		
+        // isEmpty() - Checks if the map is empty
+        System.out.println("Is map empty? " + map.isEmpty()); // Output: false
+		
+        // keySet() - Returns a set of all keys
+        System.out.println("Keys: " + map.keySet()); // Output: [2, 3]
+		
+        // values() - Returns a collection of all values
+        System.out.println("Values: " + map.values()); // Output: [Banana, Cherry]
+		
+        // entrySet() - Returns a set of key-value pairs
+        System.out.println("Entries: " + map.entrySet());
+		
+        // Iterating using for-each loop
+        for (HashMap.Entry<Integer, String> entry : map.entrySet()) {
+            System.out.println(entry.getKey() + " -> " + entry.getValue());
+        }
+		
+        // clear() - Removes all entries
+        map.clear();
+        System.out.println("After clearing: " + map); // Output: {}
+    }
+}
+```
 
 
 
 
 
+# Stack
+
+```java
+public class StackUsingArray {
+    private int data[];
+    private int top;
+	
+    public StackUsingArray() {  // Constructor
+        this.data = new int[10];
+        this.top = -1;
+    }
+	
+    public StackUsingArray(int capacity) {  // Constructor with capacity parameter
+        this.data = new int[capacity];
+        this.top = -1;
+    }
+	
+    public boolean isEmpty() {
+        return (top == -1);
+    }
+	
+    public int size() {
+        return (top + 1);
+    }
+	
+    public int peek() throws StackEmptyException {
+        if (size() == 0) {
+            StackEmptyException e = new StackEmptyException();
+            throw e;
+        }
+        return data[top];
+    }
+	
+    public void push(int element) throws StackFullException {
+        if (size() == data.length) {
+            StackFullException e = new StackFullException();
+            throw e;
+        }
+        this.top++;
+        this.data[top] = element;
+    }
+	
+    public int pop() throws StackEmptyException {
+        if (size() == 0) {
+            StackEmptyException e = new StackEmptyException();
+            throw e;
+        }
+        int temp = data[top];
+        top--;
+        return temp;
+    }
+}
+```
 
 
 
