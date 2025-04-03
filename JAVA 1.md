@@ -966,294 +966,308 @@ public class LinkedList{
 # Linked List Operations in Java
 
 ## Linked List implementation
-
 ```java
 import java.util.Scanner;
 
-public class LinkedListBetter {
-    // Repeatedly take input and create linked list
-    public static Node<Integer> takeInput(Scanner s) {
-        int data = s.nextInt();
-        Node<Integer> head = null, tail = null;
+public class LinkedListBetter{
+    //repetedly take input and create linked list
+    public static Node<Integer> takeInput(Scanner s){
+        int data=s.nextInt();
+        Node<Integer> head=null,tail=null;
 		
-        while (data != -1) {
-            Node<Integer> newNode = new Node<Integer>(data);
-            if (head == null) {
-                head = newNode;
-                tail = newNode;
-            } else {
+        while (data!=-1) {
+            Node<Integer> newNode=new Node<Integer>(data);
+            if(head==null){
+                head=newNode;
+                tail=newNode;
+            }else{
                 tail.setNext(newNode);
-                tail = newNode;
+                tail=newNode;
             }
-            data = s.nextInt();
+            data=s.nextInt();
         }
         return head;
     }
-	
-    // Insert at the given position
-    public static Node<Integer> insert(Node<Integer> head, int pos, int data) {
-        Node<Integer> temp = head;
-        Node<Integer> newNode = new Node<>(data);
-        int count = 0;
+    // insert at given position
+    public static Node<Integer> insert(Node<Integer> head,int pos,int data){
+        Node<Integer> temp=head;
+        Node<Integer> newNode=new Node<>(data);
+        int count=0;
 		
-        if (pos == 0) {
+        if(pos==0){
             newNode.setNext(temp);
-            head = newNode;
+            head=newNode;
             return head;
-        } else {
-            while (count != pos && temp != null) { // Here temp != null because we also want to insert at the last position
-                temp = temp.getNext();
+        }else{
+            while (count!=pos && temp!=null) { //here temp!=null bcz we also want to insert at last position
+                temp=temp.getNext();
                 count++;
             }
-            if (temp != null) { // Insert after the found node
-                Node<Integer> rightLL = temp.getNext();
+            if(temp!=null){ // Insert after the found node
+                Node<Integer> rightLL=temp.getNext();
                 temp.setNext(newNode);
                 newNode.setNext(rightLL);
-            } else {
-                System.out.println("Position out of bound");
+            }else{
+                System.out.println("position out of bound");
             }
         }
         return head;
     }
 	
-    // Length of the linked list
-    private static int length(Node<Integer> head) {
-        Node<Integer> temp = head;
-        int count = 0;
-        while (temp != null) {
-            temp = temp.getNext();
+    //length of linked list
+    private static int length(Node<Integer> head){
+        Node<Integer> temp=head;
+        int count=0;
+        while(temp!=null){
+            temp=temp.getNext();
             count++;
         }
         return count;
     }
 	
-    // Delete node from the given position in linked list
-    private static Node<Integer> delete(Node<Integer> head, int pos) {
-        Node<Integer> temp = head, prev = null;
-        int count = 0;
-        if (head == null) {
+    // delete node from the given position in linked list
+    private static Node<Integer> delete(Node<Integer> head,int pos){
+        Node<Integer> temp=head,prev=null;
+        int count=0;
+        if(head==null){
             System.out.println("List is empty");
             return head;
-        } else if (pos == 0) {
-            head = temp.getNext();
+        }
+        else if(pos==0){
+            head=temp.getNext();
             return head;
-        } else {
-            while (count != pos && temp != null) {
-                prev = temp;
-                temp = temp.getNext();
+        }else{
+            while (count!=pos && temp!=null) {
+                prev=temp;
+                temp=temp.getNext();
                 count++;
             }
-            if (temp != null && temp.getNext() != null) {
+            if(temp!=null && temp.getNext()!=null){ 
                 prev.setNext(temp.getNext());
-            } else if (temp.getNext() == null) {
+            }else if(temp.getNext()==null){
                 prev.setNext(null);
-            } else {
-                System.out.println("Position is out of bound");
+            }
+            else{
+                System.out.println("positon is out of bound");
             }
         }
         return head;
     }
 	
-    // Print whole linked list
-    public static void printLL(Node<Integer> head) {
-        Node<Integer> temp = head;
-        while (temp != null) {
-            System.out.print(temp.getData() + "->");
-            temp = temp.getNext();
+    // print whole linked list
+    public static void printLL(Node<Integer> head){
+        Node<Integer> temp=head;
+        while (temp!=null) {
+            System.out.print(temp.getData()+"->");
+            temp=temp.getNext();
         }
         System.out.println();
     }
 	
-    // Print data of given position in linked list
-    private static void printAt(Node<Integer> head, int pos) {
-        int count = 0;
-        System.out.println("Enter the position to print value: ");
-        Node<Integer> temp = head;
-        while (count != pos && temp != null) {
-            temp = temp.getNext();
+    // print data of given position in linked list
+    private static void printAt(Node<Integer> head,int pos){
+        int count=0;
+        System.out.println("Enter the position to print value : ");
+        Node<Integer> temp=head;
+        while(count!=pos && temp!=null){
+            temp=temp.getNext();
             count++;
         }
-        if (count == pos && temp != null) {
+        if(count==pos && temp!=null){
             System.out.println("Data at position " + pos + ": " + temp.getData());
-        } else {
-            System.out.println("Position out of bound");
+        }else{
+            System.out.println("position out of bound");
         }
     }
 	
-    // Increase all values in linked list by 1
-    private static Node<Integer> increment(Node<Integer> head) {
-        Node<Integer> temp = head;
-        while (temp != null) {
-            int data = temp.getData();
+    //increase all value in linked list by 1
+    private static Node<Integer> increment(Node<Integer> head){
+        Node<Integer> temp=head;
+        while(temp!=null){
+            int data=temp.getData();
             data++;
             temp.setData(data);
-            temp = temp.getNext();
+            temp=temp.getNext();
         }
         return head;
     }
 	
-    // Searching the element (Last encounter)
-    private static int findNodeLast(Node<Integer> head, int element) {
-        Node<Integer> temp = head;
-        int pos = -1, count = 0;
+    //searching the element (Last encounter)
+    private static int findNodeLast(Node<Integer> head,int element){
+        Node<Integer> temp=head;
+        int pos=-1,count=0;
 		
-        while (temp != null) {
+        while (temp!=null) {
             count++;
-            if (temp.getData() == element) {
-                pos = count;
+            if(temp.getData()==element){
+                pos=count;
             }
-            temp = temp.getNext();
+            temp=temp.getNext();
         }
         return pos;
     }
 	
-    // Searching the element (First encounter)
-    private static int findNodeFirst(Node<Integer> head, int element) {
-        Node<Integer> temp = head;
-        int pos = 0;
-        while (temp != null) {
-            if (temp.getData() == element) {
+    //searching the element (first encounter)
+    private static int findNodeFirst(Node<Integer> head,int element){
+        Node<Integer> temp=head;
+        int pos=0;
+        while (temp!=null) {
+            if(temp.getData()==element){
                 return pos;
-            } else {
-                temp = temp.getNext();
+            }else{
+                temp=temp.getNext();
                 pos++;
             }
         }
         return -1;
     }
 	
-    // Append last N nodes to first and return head
-    private static Node<Integer> appendLastN(Node<Integer> head, int nth, int length) {
-        Node<Integer> temp = head, prevR = null, tempL = null, lasNode = null;
-        int count = 0;
+    //append last N nodes to first and return head
+    private static Node<Integer> appendLastN(Node<Integer> head,int nth,int length){
+        Node<Integer> temp=head,prevR=null,tempL=null,lasNode=null;
+        int count=0;
 		
-        if (nth == 0) {
+        if(nth==0){
             return head;
-        } else if (nth > length - 1) {
-            System.out.println("Provided position is out of bound");
+        }else if(nth>length-1){
+            System.out.println("provided position is out of bound");
             return head;
         }
 		
-        while (temp != null) {
-            if (count == nth) { // For target node
-                tempL = temp;
-            } else if (count == nth - 1 && count != 0) { // For node previous to target node
-                prevR = temp;
-            } else if (count == length - 1) { // For last node
-                lasNode = temp;
+        while (temp!=null) {
+            if(count==nth){ // for target node
+                tempL=temp;
+            }else if(count==nth-1 && count!=0){ // for node previous to target node
+                prevR=temp;
+            }else if(count==length-1){ // for last node
+                lasNode=temp;
             }
             count++;
-            temp = temp.getNext();
+            temp=temp.getNext();
         }
+        
         prevR.setNext(null);
         lasNode.setNext(head);
-        head = tempL;
+        head=tempL;
 		
         return head;
     }
 	
-    // Remove consecutive duplicate nodes
-    private static Node<Integer> removeConsecutiveDuplicate(Node<Integer> head) {
-        Node<Integer> temp = head;
-        if (temp == null) {
+    //remove consecutive duplicate nodes
+    private static Node<Integer> removeConsecutiveDuplicate(Node<Integer> head){
+        Node<Integer> temp=head;
+        if(temp==null){
             return head;
         }
-        while (temp != null && temp.getNext() != null) {
-            if (temp.getData() == temp.getNext().getData()) {
+        while (temp!=null && temp.getNext() != null) {
+            if(temp.getData()==temp.getNext().getData()){
                 temp.setNext(temp.getNext().getNext());
-            } else {
-                temp = temp.getNext();
+            }else{
+                temp=temp.getNext();
             }
         }
         return head;
     }
 	
-	//reverse LL Iteratively
-	private static Node<Integer> reverseLLIteratively(Node<Integer> head){
-		Node<Integer> currNode=head,prvNode=null,fwdNode=null;
+    //reverse LL Iteratively 
+    private static Node<Integer> reverseLLIteratively(Node<Integer> head){
+        Node<Integer> currNode=head,prvNode=null,fwdNode=null;
 		
-		while (currNode!=null) {
-			fwdNode=currNode.getNext(); //1->2 3->4->5->null where 3 is current and 2 is prev ,fwd store next of 3
-			currNode.setNext(prvNode);// we make 3 point to 2
-			prvNode=currNode; // shift previous node to 1 step forward and make current as new previous
-			currNode=fwdNode; // shift current node to 1 step forward and make forward as new current
-		}
-		head=prvNode; // after loop current reaches null and previous reaches to last node and last node is head of reversed LL
-		return head;
-	}
+        while (currNode!=null) {
+            fwdNode=currNode.getNext(); //1->2 3->4->5->null where 3 is current and 2 is prev ,fwd store next of 3
+            currNode.setNext(prvNode);// we make 3 point to 2
+            prvNode=currNode; // shift previous node to 1 step forward and make current as new previous
+            currNode=fwdNode; // shift current node to 1 step forward and make forward as new current
+        }
+        head=prvNode; // after loop current reaches null and previous reaches to last node and last node is head of reversed LL
+        return head;
+    }
 	
-    // check palindrome using slow and fast pointer method
-    private static boolean checkPalindrome(Node<Integer> head) {
-        if (head == null || head.getNext() == null) {
+    //find middle node (returns the node before mid for even length)
+    private static Node<Integer> findMid(Node<Integer> head){
+        if(head==null) return null;
+        Node<Integer> slow=head,fast=head.getNext();
+		
+        //move slow by one step and fast by two steps, to find mid element , by the end of loop slow is at mid point
+        while(fast!=null && fast.getNext()!=null){
+            slow=slow.getNext();
+            fast=fast.getNext().getNext();
+        }
+		
+        return slow;
+    }
+	
+    //check palindrome
+    private static boolean checkPalindrome(Node<Integer> head){
+        if(head==null || head.getNext()==null){
             return true; // Empty or single node list is always a palindrome
         }
         // step-1: Find the middle element using slow and fast pointer approach
-        Node<Integer> slow = head, fast = head;
+        Node<Integer> mid=findMid(head);
 		
-        while (fast != null && fast.getNext() != null) { //fast.getNext()==null when length is odd and fast.getNext().getNext()==null when length is even, but what we used is better approach
-            slow = slow.getNext();
-            fast = fast.getNext().getNext();
-        }
+        // step-2: split the list and reverse the second half
+        Node<Integer> secondHalf=mid.getNext();
+        mid.setNext(null); //This is the crucial step that was missing
 		
-        // step 2: reverse the second half of the list starting from the "slow" node
-        Node<Integer> secondHalf = reverseLLIteratively(slow);
+        // step 2: reverse the second half of the list starting from the mid(slow) node
+        secondHalf=reverseLLIteratively(secondHalf);
 		
-        // step 3: compare the first and second halves
-        Node<Integer> firstHalf = head;
+        // step 3 : compare the first and second halves
+        Node<Integer> firstHalf=head;
 		
-        while (secondHalf != null) {
-            if (!firstHalf.getData().equals(secondHalf.getData())) {
+        while (secondHalf!=null) {
+            if(!firstHalf.getData().equals(secondHalf.getData())){
                 return false;
             }
-            firstHalf = firstHalf.getNext();
-            secondHalf = secondHalf.getNext();
+            firstHalf=firstHalf.getNext();
+            secondHalf=secondHalf.getNext();
         }
 		
         return true;
     }
 	
     public static void main(String[] args) {
-        Scanner s = new Scanner(System.in);
-        Node<Integer> head = takeInput(s); // to take input and create linked list
+        Scanner s=new Scanner(System.in);
+        Node<Integer> head=takeInput(s); //to take input and create linked list
         printLL(head); // to print linked list
-        System.out.println("Length of linked list: " + length(head)); // print length of linked list
-		
-        // Various operations performed in the main method
+        System.out.println("Length of linked list "+length(head)); //to print length of linked list
+        
         System.out.println("Enter position to print value at given position");
-        int pos = s.nextInt();
-        printAt(head, pos);
+        int pos=s.nextInt();
+        printAt(head,pos);
 		
         System.out.println("Enter position to insert new data at a given position");
-        int pos2 = s.nextInt();
+        int pos2=s.nextInt();
         System.out.println("Enter the data to be inserted");
-        int data2 = s.nextInt();
-        head = insert(head, pos2, data2);
+        int data2=s.nextInt();
+        head=insert(head,pos2,data2);
         printLL(head);
 		
         System.out.println("Enter the position of node to be deleted");
-        int pos3 = s.nextInt();
-        head = delete(head, pos3);
+        int pos3=s.nextInt();
+        head=delete(head, pos3);
+        printLL(head);
+        
+        head=increment(head); // to incease all data values by 1
         printLL(head);
 		
-        head = increment(head); // increase all data values by 1
-        printLL(head);
-		
-        System.out.println("Enter the element you are searching for");
-        int element = s.nextInt();
-        int pos4 = findNodeFirst(head, element);
+        System.out.println("Enter the element you searching for");
+        int element=s.nextInt();
+        int pos4=findNodeFirst(head,element);
         printAt(head, pos4);
 		
         System.out.println("Enter the Nth node");
-        int nth = s.nextInt();
-        head = appendLastN(head, nth, length(head));
+        int nth=s.nextInt();
+        head=appendLastN(head,nth,length(head));
         printLL(head);
 		
-        head = removeConsecutiveDuplicate(head);
+        head=removeConsecutiveDuplicate(head);
         printLL(head);
 		
-		head=reverseLLIteratively(head); //to reverse linked list using Iterative method
+        head=reverseLLIteratively(head); //to reverse linked list using Iterative method
+        
+        System.out.println(checkPalindrome(head)); //checking palindrome
 		
-		System.out.println(checkPalindrome(head)); //checking palindrome
 		
         s.close();
     }
@@ -1501,6 +1515,124 @@ public class LinkedListRecursive {
 }
 ```
 
+
+# Implement `MergeSort` on LinkedList
+```java
+import java.util.Scanner;
+
+public class MergeSortLL {
+    // Make linked list
+    private static Node<Integer> makeLL(Scanner s) {
+        Node<Integer> head = null, tail = null;
+        int data = s.nextInt();
+		
+        while (data != -1) {
+            Node<Integer> newNode = new Node<Integer>(data);
+            if (head == null) {
+                head = newNode;
+                tail = newNode;
+            } else {
+                tail.setNext(newNode);
+                tail = newNode;
+            }
+            data = s.nextInt();
+        }
+        return head;
+    }
+	
+    // Print linked list
+    private static void printLL(Node<Integer> head) {
+        Node<Integer> temp = head;
+        if (temp == null) {
+            return;
+        }
+        System.out.print(temp.getData());
+        if (temp.getNext() != null) {
+            System.out.print(" -> ");
+        }
+        printLL(temp.getNext());
+    }
+	
+    // Find middle node (returns the node before mid for even length)
+    private static Node<Integer> findMid(Node<Integer> head) {
+        if (head == null) return null;
+        Node<Integer> slow = head, fast = head.getNext();
+		
+        while (fast != null && fast.getNext() != null) {
+            slow = slow.getNext();
+            fast = fast.getNext().getNext();
+        }
+		
+        return slow;
+    }
+	
+    // Sort and merge two linked lists
+    private static Node<Integer> mergeLL(Node<Integer> LL1, Node<Integer> LL2) {
+        Node<Integer> head = null, tail = null, t1 = LL1, t2 = LL2;
+		
+        // Handle case where one of the lists is empty
+        if (t1 == null) return t2;
+        if (t2 == null) return t1;
+		
+        // Initial comparison between the two lists
+        if (t1.getData() <= t2.getData()) {
+            head = t1;
+            tail = t1;
+            t1 = t1.getNext();
+        } else {
+            head = t2;
+            tail = t2;
+            t2 = t2.getNext();
+        }
+		
+        // Merge the remaining list
+        while (t1 != null && t2 != null) {
+            if (t1.getData() <= t2.getData()) {
+                tail.setNext(t1);
+                tail = t1;
+                t1 = t1.getNext();
+            } else {
+                tail.setNext(t2);
+                tail = t2;
+                t2 = t2.getNext();
+            }
+        }
+		
+        // Appending the remaining nodes of the non-empty list
+        if (t1 != null) tail.setNext(t1);
+        if (t2 != null) tail.setNext(t2);
+		
+        return head;
+    }
+	
+    // Merge sort on linked list
+    private static Node<Integer> mergeSortLL(Node<Integer> head) {
+        if (head == null || head.getNext() == null) {
+            return head;
+        }
+		
+        Node<Integer> mid = findMid(head); // Get middle node
+        Node<Integer> partHead2 = mid.getNext();
+        mid.setNext(null); // Split the linked list into two parts
+		
+        Node<Integer> partHead1 = head;
+		
+        partHead1 = mergeSortLL(partHead1); // Recursively sort first part
+        partHead2 = mergeSortLL(partHead2); // Recursively sort second part
+        return mergeLL(partHead1, partHead2); // Merge sorted halves
+    }
+	
+    public static void main(String[] args) {
+        Scanner s = new Scanner(System.in);
+        Node<Integer> head = makeLL(s);
+		
+        head = mergeSortLL(head);
+		
+        printLL(head);
+        s.close();
+    }
+}
+```
 
 
 # `java.util.LinkedList`
