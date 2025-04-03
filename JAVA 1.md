@@ -961,11 +961,11 @@ public class LinkedList{
 }
 ```
 
-**`TakeInput`** Time Complexity : O(n)
-
 # Linked List Operations in Java
 
 ## Linked List implementation
+
+**`TakeInput`** Time Complexity : O(n)
 ```java
 import java.util.Scanner;
 
@@ -1760,11 +1760,11 @@ public class HashMapExample {
 ```
 
 
-
-
-
 # Stack
 
+# Stack Implementation using Array
+
+`StackUsingArray.java`
 ```java
 public class StackUsingArray {
     private int data[];
@@ -1796,14 +1796,22 @@ public class StackUsingArray {
         return data[top];
     }
 	
-    public void push(int element) throws StackFullException {
+    public void push(int element){
         if (size() == data.length) {
-            StackFullException e = new StackFullException();
-            throw e;
+            doubleCapacity();
         }
         this.top++;
         this.data[top] = element;
     }
+    
+    private void doubleCapacity(){
+		int[] temp=data;
+		data=new int[temp.length*2];
+		
+		for(int i=0;i<temp.length;i++){
+			data[i]=temp[i];
+		}
+	}
 	
     public int pop() throws StackEmptyException {
         if (size() == 0) {
@@ -1817,14 +1825,190 @@ public class StackUsingArray {
 }
 ```
 
+`StackFullException.java`
+```java
+public class StackFullException extends Exception {
+}
+```
+
+`StackEmptyException.java`
+```java
+public class StackEmptyException extends Exception {
+
+}
+```
+
+`StackUse.java`
+```java
+public class StackUse {
+    public static void main(String[] args) throws StackFullException {
+        StackUsingArray s1 = new StackUsingArray();
+        
+        // Push elements into the stack
+        for (int i = 1; i <= 5; i++) {
+            s1.push(i);
+        }
+		
+        // Pop elements from the stack and print them
+        while (!s1.isEmpty()) {
+            try {
+                System.out.println(s1.pop());
+            } catch (Exception e) {
+                // Handle any exceptions (though unlikely in this example)
+            }
+        }
+    }
+}
+```
 
 
+# Stack Implementation using Linked List
+
+`Node.java`
+```java
+public class Node<T> {
+    private T data;
+    private Node<T> next;
+	
+    public Node(T data){
+        this.data = data;
+        this.next = null;
+    }
+	
+    public void setData(T data){
+        this.data = data;
+    }
+	
+    public void setNext(Node<T> next){
+        this.next = next;
+    }
+	
+    public T getData(){
+        return this.data;
+    }
+	
+    public Node<T> getNext(){
+        return this.next;
+    }
+}
+```
+
+`StackUsingLL.java`
+```java
+public class StackUsingLL<T> {
+    private Node<T> head;
+    private int size;
+	
+    public StackUsingLL(){
+        this.head = null;
+        size = 0;
+    }
+	
+    public int size(){
+        return size;
+    }
+	
+    public T top() throws StackEmptyException {
+        if(size == 0){
+            throw new StackEmptyException();
+        }
+        return head.getData();
+    }
+	
+    public boolean isEmpty(){
+        // return (size == 0 ? true : false );
+        return (size == 0);
+    }
+	
+    public void push(T data){
+        Node<T> newNode = new Node<>(data);
+        newNode.setNext(head); // make the new node point to the old head
+        head = newNode;  // update head to the new node
+        size++;
+    }
+	
+    public T pop() throws StackEmptyException {
+        if(size == 0){
+            throw new StackEmptyException();
+        }
+        T data = head.getData();
+        head = head.getNext();
+        size--;
+        return data;
+    }
+}
+```
+
+`StackEmptyException.java`
+```java
+public class StackEmptyException extends Exception {
+
+}
+```
+
+`StackUsingLLUse.java`
+```java
+public class StackUsingLLUse {
+    public static void main(String[] args) {
+        StackUsingLL<Integer> s1 = new StackUsingLL<>();
+        // push data into stack
+        for (int i = 0; i < 3; i++) {
+            s1.push(i + 1);
+        }
+		
+        // pop data from stack
+        while (!s1.isEmpty()) {
+            try {
+                System.out.println(s1.pop());
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
+        }
+    }
+}
+```
 
 
+# [`java.util.Stack`](https://www.programiz.com/java-programming/stack)
+
+```java
+import java.util.Stack;
+
+public class StackExample {
+    public static void main(String[] args) {
+        Stack<Integer> s1 = new Stack<>();
+		
+        // Push elements onto the stack
+        s1.push(10);  // Adds 10 to the stack
+        s1.push(20);  // Adds 20 to the stack
+        s1.push(30);  // Adds 30 to the stack
+        System.out.println("Stack after pushes: " + s1);  // Prints the stack
+		
+        // Peek at the top element (without removing it)
+        System.out.println("Top element: " + s1.peek());  // Prints the top element (30)
+		
+        // Pop an element from the stack (removes and returns it)
+        int poppedElement = s1.pop();
+        System.out.println("Popped element: " + poppedElement);  // Pops and prints 30
+        System.out.println("Stack after pop: " + s1);  // Prints the updated stack
+		
+        // Check if the stack is empty
+        System.out.println("Is stack empty? " + s1.isEmpty());  // Prints false
+		
+        // Check the size of the stack
+        System.out.println("Size of stack: " + s1.size());  // Prints the size (2 in this case)
+		
+        // Search for an element in the stack (returns the 1-based index)
+        int position = s1.search(20);  
+        System.out.println("Position of 20 in stack: " + position);  // Prints the position (1-based)
+		
+        // Try popping all elements
+        while (!s1.isEmpty()) {
+            System.out.println("Popped element: " + s1.pop());
+        }
+        System.out.println("Stack after popping all elements: " + s1);  // Should print an empty stack
+    }
+}
+```
 
 
-
-
-TODO:
-Stack
-Queue
