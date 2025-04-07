@@ -114,6 +114,43 @@ public class Main {
 //In this example, the `greet()` method is static, and it's called using `MyClass.greet()` instead of creating an object of `MyClass`.
 ```
 
+i.e. main class is static so we made `ArrayList` global but also static so we use it inside main but we can also define inside main without making it static.
+```java
+import java.util.ArrayList;
+
+// Main class
+public class ArrayListExample {
+    // 🔹 Static (global) ArrayList - shared across all classes
+    static ArrayList<String> list = new ArrayList<>();
+	
+    public static void main(String[] args) {
+        // 🔹 Accessing static ArrayList directly inside static main()
+        list.add("Hello from main()");
+        list.add("Another from main");
+		
+        // 🔹 Print current state of list
+        System.out.println("Inside main: " + list);
+		
+        // 🔹 Creating object of another class
+        OtherClass obj = new OtherClass();
+		
+        // 🔹 Calling non-static method that modifies the same static list (static class can access non static method and variable)
+        obj.addToList("Hello from OtherClass");
+		
+        // 🔹 Print list again after modification from other class
+        System.out.println("After OtherClass: " + list);
+    }
+}
+
+// 🔹 Another class to show access from non-static context
+class OtherClass {
+    public void addToList(String item) {
+        // 🔹 Accessing static ArrayList from another class using class name because ArrayList is static
+        ArrayListExample.list.add(item);
+    }
+}
+```
+
 ## super keyword
 
 + **Calling a Parent Class Method and Property:** If the child class has a method with the same name as the one in the parent class, super allows you to call the parent class method.
@@ -2007,6 +2044,287 @@ public class StackExample {
             System.out.println("Popped element: " + s1.pop());
         }
         System.out.println("Stack after popping all elements: " + s1);  // Should print an empty stack
+    }
+}
+```
+
+
+
+# Queue 
+
+# Queue Implementation using Array
+
+```java
+public class QueueUsingArray {
+    private int[] data;
+    private int rear;
+    private int front;
+    private int size;
+	
+    public QueueUsingArray() {
+        this.data = new int[10];
+        this.rear = -1;
+        this.front = -1;
+        this.size = 0;
+        // Note: default capacity is set to 10
+    }
+	
+    public QueueUsingArray(int capacity) {
+        this.data = new int[capacity];
+        this.rear = -1;
+        this.front = -1;
+        this.size = 0;
+        // Note: allows creating queue with custom initial capacity
+    }
+	
+    public boolean isEmpty() {
+        return (size == 0);
+        // Note: simple check using size field for constant time operation
+    }
+	
+    public int size() {
+        return size;
+        // Note: size tracks the current number of elements in the queue
+    }
+	
+    public int front() throws QueueEmptyException {
+        if (front == -1) {
+            throw new QueueEmptyException();
+            // Note: -1 front indicates the queue is empty
+        }
+        return data[front];
+        // Note: returns element at front index without removing it
+    }
+	
+    public void enqueue(int data) throws QueueFullException {
+        if (size == this.data.length) {
+            // throw new QueueFullException();
+            doubleCapacity();
+            // Note: dynamically increases capacity instead of throwing an error
+        }
+        if (size == 0) {
+            front = 0;
+            // Note: first element added, front must be initialized
+        }
+		
+        size++;
+        // rear = (rear + 1) % this.data.length; instead of below rear++ and if we can write this
+        rear++;
+        if (this.rear == this.data.length) {
+            rear = 0;
+        }
+        // Note: handles circular indexing manually
+        this.data[rear] = data;
+        // Note: assigns new data at the calculated rear position
+    }
+	
+    private void doubleCapacity() {
+        int[] temp = data;
+        data = new int[temp.length * 2];
+        int index = 0;
+		
+        // this copy data from front to last
+        for (int i = front; i < temp.length; i++) {
+            data[index] = temp[i];
+            index++;
+        }
+		
+        // this copy data from start to front-1
+        for (int i = 0; i <= front - 1; i++) {
+            data[index] = temp[i];
+            index++;
+        }
+		
+        front = 0;
+        rear = temp.length;
+        // Note: resets front to 0 and rear to the last valid index in old array
+        // Now queue is linear in memory again
+    }
+	
+    public int dequeue() throws QueueEmptyException {
+        if (front == -1) {
+            throw new QueueEmptyException();
+            // Note: underflow check - queue is empty
+        }
+		
+        int temp = data[front];
+		
+        // front = (front + 1) % this.data.length; instead of below front++ and if we can write this
+        front++;
+        if (this.front == this.data.length) {
+            front = 0;
+        }
+        // Note: handles circular increment of front
+		
+        size--;
+		
+        if (size == 0) {
+            front = -1;
+            rear = -1;
+            // Note: reset queue if it becomes empty
+        }
+		
+        return temp;
+        // Note: returns the removed element
+    }
+}
+```
+
+```java
+public class QueueFullException extends Exception{
+	
+	public QueueFullException(){
+		super("Queue is full");
+	}
+}
+```
+
+```java
+public class QueueEmptyException extends Exception{
+	
+	public QueueEmptyException(){
+		super("Queue is empty");
+	}
+}
+```
+
+```java
+public class QueueUse {
+    public static void main(String[] args) {
+        QueueUsingArray q1 = new QueueUsingArray();
+		
+        // Enqueue elements
+        for (int i = 1; i <= 10; i++) {
+            try {
+                q1.enqueue(i);
+            } catch (QueueFullException e) {
+                System.out.println("Failed to enqueue " + i + ": " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("Unexpected error during enqueue: " + e.getMessage());
+            }
+        }
+		
+        // Dequeue elements
+        while (!q1.isEmpty()) {
+            try {
+                System.out.println(q1.dequeue());
+            } catch (QueueEmptyException e) {
+                System.out.println("Failed to dequeue: " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("Unexpected error during dequeue: " + e.getMessage());
+            }
+        }
+    }
+}
+```
+
+
+# Queue Implementation using Linked List
+
+`Node.java`
+```java
+public class Node<T> {
+    private T data;
+    private Node<T> next;
+	
+    public Node(T data){
+        this.data = data;
+        this.next = null;
+    }
+	
+    public void setData(T data){
+        this.data = data;
+    }
+	
+    public void setNext(Node<T> next){
+        this.next = next;
+    }
+	
+    public T getData(){
+        return this.data;
+    }
+	
+    public Node<T> getNext(){
+        return this.next;
+    }
+}
+```
+
+
+```java
+public class QueueUsingLL<T> {
+    private Node<T> front;
+    private Node<T> rear;
+    private int size;
+	
+    public QueueUsingLL() {
+        this.front = null;
+        this.rear = null;
+        this.size = 0;
+    }
+	
+    public int size() {
+        return this.size;
+    }
+	
+    public boolean isEmpty() {
+        return (size == 0);
+    }
+	
+    public T front() throws Exception {
+        if (size == 0) { // when list is empty
+            throw new Exception("Queue is empty");
+        }
+        return front.getData();
+    }
+	
+    public void enqueue(T data) {
+        Node<T> newNode = new Node<T>(data);
+        if (this.rear == null) {
+            front = newNode;
+            rear = newNode;
+        } else {
+            rear.setNext(newNode);
+            rear = newNode;
+        }
+        size++;
+    }
+	
+    public T dequeue() throws Exception {
+        if (size == 0) { // when list is empty
+            throw new Exception("Queue is empty");
+        }
+        T temp = front.getData();
+        front = front.getNext();
+        if (size == 1) { // when removing last element
+            front = null;
+            rear = null;
+        }
+        size--;
+		
+        return temp;
+    }
+}
+```
+
+
+```java
+public class QueueUse {
+    public static void main(String[] args) {
+        QueueUsingLL<Integer> q1 = new QueueUsingLL<>();
+        
+        for (int i = 1; i <= 10; i++) {
+            q1.enqueue(i);
+        }
+		
+        while (!q1.isEmpty()) {
+            try {
+                System.out.println(q1.dequeue());
+            } catch (Exception e) {
+                // TODO: handle exception
+                System.out.println(e.getMessage());
+            }
+        }
     }
 }
 ```
