@@ -42,8 +42,32 @@ if (condition1 && condition2) {
 ```
 above code: it check condition 1 and if it is true then check condition 2 otherwise returns false without checking condition 2
 
+
+### `System.arraycopy():` 
++ Used to copy elements from one array to another **quickly and efficiently**.
+```java
+System.arraycopy(Object src, int srcPos, Object dest, int destPos, int length);
+```
+### Parameters:
+- `src`: Source array
+- `srcPos`: Starting position in the source array
+- `dest`: Destination array
+- `destPos`: Starting position in the destination array
+- `length`: Number of elements to copy
+
+
+
 # In built methods :
 **`strip()`** vs **`trim()`**: both remove white spaces and **`\n`** but strip is new and remove all kind of whitespaces like tab .
+
+
+Note:
++ `javac *.java` to compile all java files at once.
++ `javac Filename.java` to compile single file.
++ `java Filename.java` to execute file.
++ orcale.com for documentation.
++ programiz.com to check in-built methods.
+
 
 
 
@@ -240,7 +264,7 @@ public class Main {
 ```
 
 
-
+---
 # Interface
 
 + Use interface keyword (parent class)
@@ -255,9 +279,8 @@ public class Main {
 	2. An **interface** can extend more than one **interface**.
 		When you **`extend`** an interface, you're creating a new interface that inherits the methods of the interfaces you're extending.
 + To inherit interface class we use implement keyword.
-+ (child class) which uses implement either use abstract to make class abstract or implement all methods of parent class.
-+ mostly not contain data member but if then it is of type final and static. (to store constant)
 
+mostly not contain data member but if then it is of type final and static. (to store constant)
 i.e.
 ```java
 public interface VehicleInterface{
@@ -266,6 +289,77 @@ public interface VehicleInterface{
 	public void print();  //method
 }
 ```
+
+You cannot create an object of an interface directly because it is abstract and incomplete. However, you can use the interface in the following ways:
+By implementing it in a class and creating an object of that class.
+i.e.
+```java
+interface A {
+    void show();
+}
+
+class B implements A {
+    public void show() {
+        System.out.println("Hello");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        A obj = new B(); // ✅ using interface reference
+        obj.show();      // Output: Hello
+    }
+}
+```
+
+
+If a class implements an interface, it must either:
+- Use `abstract` keyword (and skip method implementation),
+- Or implement **all methods** from the interface.
+i.e.
+```java
+interface Animal {
+    void sound();
+    void sleep();
+}
+
+// Abstract class: partially implements interface, so must be abstract
+abstract class Dog implements Animal {
+    public void sound() {
+        System.out.println("Dog barks: Woof!");
+    }
+    // sleep() is not implemented
+}
+
+// Concrete class: fully implements all interface methods
+class Cat implements Animal {
+    public void sound() {
+        System.out.println("Cat meows: Meow~");
+    }
+	
+    public void sleep() {
+        System.out.println("Cat sleeps peacefully.");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        // You can't create an object of abstract class directly
+        // Dog d = new Dog();              // ❌ Error
+        // Animal b = new Dog();           // ❌ Error
+		
+        // You can create object of concrete class that implements interface
+        Animal a = new Cat();              // ✅ Valid
+        a.sound();                         // Output: Cat meows: Meow~
+        a.sleep();                         // Output: Cat sleeps peacefully.
+    }
+}
+```
+
+
+
+
+---
 
 
 | Feature                | **Static Binding**                         | **Dynamic Binding**                         | **Method Overloading**                     | **Method Overriding**                       |
@@ -371,7 +465,7 @@ class Child extends Parent {
 ```
 
 
-
+---
 # Polymorphism (multiple forms)
 
 i.e. vehicle class is parent and car class is child then 
@@ -488,7 +582,7 @@ public class Main {
 **Dynamic Method Dispatch**: (only for method overriding)
 - In the line **`Vehicle v = new Car();`**, the reference **`v`** is of type **`Vehicle`**, but it actually points to a **`Car`** object.
 
-
+---
 # Exception Handling
 
 ### Basic Steps for Handling Exceptions:
@@ -527,7 +621,6 @@ public class ExceptionType extends Exception {
 }
 ```
 
-
 ### Handling exception using **`try-catch`** block
 
 in main block
@@ -541,11 +634,36 @@ try {
 }
 ```
 
+
+i.e.
+```java
+public class MyClass {
+    public void someMethod() throws Exception {
+        boolean someCondition = true; // Just for demo
+        if (someCondition) {
+            throw new Exception("Something went wrong!");
+        }
+    }
+	
+    public static void main(String[] args) {
+        MyClass obj = new MyClass();
+        try {
+            obj.someMethod();
+        } catch (Exception e) {
+            System.out.println("Caught exception: " + e.getMessage());
+        }
+    }
+}
+```
+
+i.e. : Check Queue implementation using Linked list
+
 **NOTE :** 
 + We are not allowed to catch generalized exception before specific exception.
 
 
 
+---
 # Generics
 
 <u><b>Use case Scenario :</b></u>
@@ -833,6 +951,11 @@ public class SimplePair<K, V> implements Pair<K, V> {
 
 
 
+
+# [Collection Framework](https://youtu.be/rzA7UJ-hQn4)
+
+
+
 ---
 # DSA
 
@@ -887,6 +1010,7 @@ public class ArrayListUse{
 
 
 
+---
 # LinkedList
 
 ## Singly Linked list
@@ -1797,6 +1921,7 @@ public class HashMapExample {
 ```
 
 
+---
 # Stack
 
 # Stack Implementation using Array
@@ -2099,23 +2224,20 @@ public class QueueUsingArray {
     public void enqueue(int data) throws QueueFullException {
         if (size == this.data.length) {
             // throw new QueueFullException();
-            doubleCapacity();
-            // Note: dynamically increases capacity instead of throwing an error
+            doubleCapacity(); // dynamically increases capacity instead of throwing an error
         }
-        if (size == 0) {
+        if (size == 0) { // first element added, front must be initialized
             front = 0;
-            // Note: first element added, front must be initialized
         }
 		
         size++;
         // rear = (rear + 1) % this.data.length; instead of below rear++ and if we can write this
         rear++;
-        if (this.rear == this.data.length) {
+        if (this.rear == this.data.length) { // handles circular indexing manually
             rear = 0;
         }
-        // Note: handles circular indexing manually
-        this.data[rear] = data;
-        // Note: assigns new data at the calculated rear position
+        
+        this.data[rear] = data; // assigns new data at the calculated rear position
     }
 	
     private void doubleCapacity() {
@@ -2142,30 +2264,26 @@ public class QueueUsingArray {
     }
 	
     public int dequeue() throws QueueEmptyException {
-        if (front == -1) {
+        if (front == -1) {  // underflow check - queue is empty
             throw new QueueEmptyException();
-            // Note: underflow check - queue is empty
         }
 		
         int temp = data[front];
 		
         // front = (front + 1) % this.data.length; instead of below front++ and if we can write this
         front++;
-        if (this.front == this.data.length) {
+        if (this.front == this.data.length) { // handles circular increment of front
             front = 0;
         }
-        // Note: handles circular increment of front
 		
         size--;
 		
-        if (size == 0) {
+        if (size == 0) { // reset queue if it becomes empty
             front = -1;
             rear = -1;
-            // Note: reset queue if it becomes empty
         }
 		
-        return temp;
-        // Note: returns the removed element
+        return temp; // returns the removed element
     }
 }
 ```
@@ -2330,3 +2448,335 @@ public class QueueUse {
 ```
 
 
+
+# [`java.util.queue`](https://www.programiz.com/java-programming/queue)
+
+Since the Queue is an interface, we cannot provide the direct implementation of it.
+
+In order to use the functionalities of Queue, we need to use classes that implement it:
++ `ArrayDeque`
++ `LinkedList`
++ `PriorityQueue`
+
+```java
+import java.util.*;
+
+public class QueueExample {
+    public static void main(String[] args) {
+        Queue<String> q = new LinkedList<>();
+		
+        // 1️⃣ add() – Adds element, throws exception if fails
+        q.add("A");
+        q.add("B");
+		
+        // 2️⃣ offer() – Adds element, returns false if fails (better for capacity-restricted queues)
+        q.offer("C");
+		
+        // Queue: [A, B, C]
+		
+        // 3️⃣ peek() – Returns head without removing, returns null if empty
+        System.out.println("Peek: " + q.peek()); // Output: A
+		
+        // 4️⃣ element() – Same as peek() but throws exception if empty
+        System.out.println("Element: " + q.element()); // Output: A
+		
+        // 5️⃣ poll() – Removes and returns head, returns null if empty
+        System.out.println("Poll: " + q.poll()); // Output: A
+		
+        // 6️⃣ remove() – Removes and returns head, throws exception if empty
+        System.out.println("Remove: " + q.remove()); // Output: B
+		
+        // Remaining Queue: [C]
+        System.out.println("Queue: " + q); // Output: [C]
+    }
+}
+```
+
+
+
+
+# Tree
+
+# Tree implementation using ArrayList
+
+```java
+import java.util.ArrayList;
+
+public class TreeNode<T> {
+    public T data;
+    public ArrayList<TreeNode<T>> children;
+	
+    public TreeNode(T data){
+        this.data = data;
+        children = new ArrayList<>();
+    }
+}
+```
+
+```java
+public class TreeUse {
+    public static void main(String[] args) {
+        TreeNode<Integer> root = new TreeNode<Integer>(4);
+        TreeNode<Integer> node1 = new TreeNode<Integer>(2);
+        TreeNode<Integer> node2 = new TreeNode<Integer>(3);
+        TreeNode<Integer> node3 = new TreeNode<Integer>(5);
+        TreeNode<Integer> node4 = new TreeNode<Integer>(6);
+        
+        root.children.add(node1);
+        root.children.add(node2);
+        root.children.add(node3);
+		
+        node2.children.add(node4);
+    }
+}
+```
+
+
+```java
+import java.util.*; // added for Queue
+
+public class TreeUse {
+    
+    // DFS-style recursive tree input
+    public static TreeNode<Integer> takeInput() {
+        Scanner s = new Scanner(System.in);
+        
+        // Ask for node data
+        System.out.println("Enter next node data");
+        int r = s.nextInt();
+        
+        // Create current node
+        TreeNode<Integer> root = new TreeNode<Integer>(r);
+        
+        // Ask how many children this node has
+        System.out.println("Enter number of children for " + r);
+        int childCount = s.nextInt();
+		
+        // Recursively build child subtrees
+        for (int i = 0; i < childCount; i++) {
+            TreeNode<Integer> child = takeInput();
+            root.children.add(child);
+        }
+		
+        return root;
+    }
+	
+    // DFS-style tree printing (flat view)
+    private static void print(TreeNode<Integer> root) {
+        String s = root.data + ":";
+		
+        // Append all immediate children
+        for (int i = 0; i < root.children.size(); i++) {
+            s = s + root.children.get(i).data + ",";
+        }
+        System.out.println(s);
+		
+        // Recursively print each child subtree
+        for (int i = 0; i < root.children.size(); i++) {
+            print(root.children.get(i));
+        }
+    }
+	
+    // ASCII Tree Printer (Pretty structure view)
+    public static void printBetter(TreeNode<Integer> root) {
+        printBetterHelper(root, "", true);
+    }
+	
+    /**
+     * Recursively prints tree with ASCII branches
+     * 
+     * @param node Current node
+     * @param prefix Indentation + lines to show depth/branching
+     * @param isTail True if node is last child (for └──), else false (for ├──)
+     */
+    private static void printBetterHelper(TreeNode<Integer> node, String prefix, boolean isTail) {
+        if (node == null) return;
+		
+        // Print current node with proper branch symbol
+        System.out.println(prefix + (isTail ? "└── " : "├── ") + node.data);
+		
+        // Handle all children except the last
+        for (int i = 0; i < node.children.size() - 1; i++) {
+            printBetterHelper(node.children.get(i), prefix + (isTail ? "    " : "│   "), false);
+        }
+		
+        // Handle last child with a └──
+        if (node.children.size() > 0) {
+            printBetterHelper(node.children.get(node.children.size() - 1), prefix + (isTail ? "    " : "│   "), true);
+        }
+    }
+	
+    // BFS-style tree print (level-wise display)
+    public static void printLevelWise(TreeNode<Integer> root) {
+        if (root == null) return;
+		
+        Queue<TreeNode<Integer>> queue = new LinkedList<>();
+        queue.add(root);
+		
+        while (!queue.isEmpty()) {
+            TreeNode<Integer> currentNode = queue.poll();
+            String output = currentNode.data + ":";
+			
+            for (int i = 0; i < currentNode.children.size(); i++) {
+                output += currentNode.children.get(i).data;
+                if (i != currentNode.children.size() - 1) {
+                    output += ",";
+                }
+                queue.add(currentNode.children.get(i));
+            }
+			
+            System.out.println(output);
+        }
+    }
+	
+    // count total number of nodes in tree
+    private static int numNodes(TreeNode<Integer> root){
+        if(root == null){
+            return 0;
+        }
+        return numNodesHelper(root);
+    }
+
+    private static int numNodesHelper(TreeNode<Integer> root){
+        int count = 1;
+        for(int i = 0; i < root.children.size(); i++){
+            count += numNodes(root.children.get(i));
+        }
+        return count;
+    }
+
+    // sum of all nodes
+    private static int sumOfNodes(TreeNode<Integer> root){
+        if(root == null) return 0;
+
+        int sum = 0;
+        sum += root.data;
+        for(int i = 0; i < root.children.size(); i++){
+            sum += sumOfNodes(root.children.get(i));
+        }
+        return sum;
+    }
+
+    // find node with maximum value
+    private static int maxNode(TreeNode<Integer> root){
+        if(root == null) return Integer.MIN_VALUE;
+        
+        int max = root.data;
+        for(TreeNode<Integer> child : root.children){
+            max = Math.max(max, maxNode(child));
+        }
+        return max;
+    }
+
+    // returns number of nodes greater than the given number
+    private static int numNodesGreater(TreeNode<Integer> root){
+        Scanner s = new Scanner(System.in);
+        int num = s.nextInt();
+        return numNodesGreaterHelper(root, num);
+    }
+    
+    private static int numNodesGreaterHelper(TreeNode<Integer> root, int num){
+        if (root.data == null) return 0;
+
+        int count = 0;
+        if (root.data > num) count++;
+
+        for(TreeNode<Integer> child : root.children) {
+            count += numNodesGreaterHelper(child, num);
+        }
+        return count;
+    }
+
+    // calculates height of the tree
+    private static int getHeight(TreeNode<Integer> root) {
+        if (root == null) return 0;
+    
+        int maxChildHeight = 0; // Track tallest child height
+    
+        for (TreeNode<Integer> child : root.children) {
+            int childHeight = getHeight(child);
+            maxChildHeight = Math.max(maxChildHeight, childHeight);
+        }
+    
+        return maxChildHeight + 1; // Height = 1 (self) + tallest child
+    }
+    
+    // Entry point of program
+    public static void main(String[] args) {
+        TreeNode<Integer> root = takeInput();
+        
+        System.out.println("Basic Tree Print");
+        print(root); // DFS-style flat tree print
+        
+        System.out.println("ASCII Tree Print");
+        printBetter(root); // Tree structure with branches
+        
+        System.out.println("Level-wise Tree Print");
+        printLevelWise(root); // BFS-style level-wise print
+
+        System.out.println("Number of nodes");
+        System.out.println(numNodes(root)); // print number of nodes
+
+        System.out.println("Sum of all nodes");
+        System.out.println(sumOfNodes(root)); // print sum of all nodes
+
+        System.out.println("Largest node");
+        System.out.println(maxNode(root)); // print node with maximum value
+
+        System.out.println("Number of nodes greater than given value");
+        System.out.println(numNodesGreater(root)); // print number of nodes greater than the given value
+
+        System.out.println("Height of tree");
+        System.out.println(getHeight(root)); // print height of tree
+    } 
+}
+```
+
+Above `printBetter` use ASCII **branches like └──, ├──, │**. to print tree
+i.e.
+└── 1
+    ├── 2
+    │   ├── 4
+    │   └── 5
+    └── 3
+
+`private static void printBetterHelper(TreeNode<Integer> node, String prefix, boolean isTail)`
+
+`printBeterHelper` is just a wrapper function. It calls the recursive helper with:
+
+ Parameters:
+- **`node`** – Current node we’re printing.
+- **`prefix`** – Indentation + lines (`│` or   ) that represent vertical branches.
+- **`isTail`** – Is this node the last child of its parent? (Used to decide whether to draw `└──` or `├──`
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+TODO : encapsulation example
