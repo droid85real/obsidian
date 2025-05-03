@@ -11,22 +11,23 @@ Babel in ReactJS converts modern JavaScript and JSX into browser-compatible code
 + go to the directory and `npx create-react-app helloworld`
 + and `npm run start` to start hosting locally.
 
+to update `npm install -g npm@latest`
++ `npm -v` to check latest npm version
++ `node -v` to check nodejs version
+
+
 ### Files You Should Keep
 
 - `package.json` and `package-lock.json` (Handles dependencies)
-    
 - `public/index.html` (Main HTML entry point)
-    
 - `src/index.js` (App entry point)
-    
 - `src/App.js` (Main component)
 
-Note :
+>Note :
 `package.json` : It records all the dependencies , scripts and metadata about the project.
 
 
-
-
+---
 # Fragments 
 + Fragments are used to form a group
 + When returning multiple elements from a component, without fragments, you need to wrap them in a parent element like a `<div>`. This can be unnecessary and result in extra nodes in the DOM.
@@ -89,7 +90,7 @@ const MyComponent=()=>(
 ```
 - **Arrow functions** with a single expression implicitly return that expression without needing the `return` keyword.
 
-- **Arrow functions with curly braces (`{}`)** require an explicit `return` statement.
+**Arrow functions with curly braces (`{}`)** require an explicit `return` statement.
 ```js
 const MyComponent = () => {
   return (
@@ -459,7 +460,7 @@ const App = () => {
 
   return (
     <>
-      <table style={{ borderCollapse: "collapse", margin: "20px auto" }} border="1" cellPadding="10">
+      <table style={{ borderCollapse: "collapse", margin: "20px auto" }} border="1">
         <thead>
           <tr>
             <th>Name</th>
@@ -488,3 +489,102 @@ root.render(
   </React.StrictMode>
 );
 ```
+
+
+# TODO: Pending work
+
+**Rendering components based on condition**
+
+**preventdefault (synthetic event)**
++ synthetic events are wrapper around the event object of the real DOM
++ we have to call preventDefault to stop the default behaviour of a synthetic event
+
+**Refs**
++ Refs are used to directly access DOM elements
++ Refs are created using **`React.createRef()`** and attached to the element via the ref attribute
++ we can use **`ref.current.value`** to access or modify the value of the input element associated with that ref
+
+Flaticons for icons
+
+**array destructuring**
+```js
+const[,,animal]=["Horse","cat","cow"];
+console.log(animal); //output: cow
+```
+
+Note :
++ Events in react are named using camelCase rather than lower case.
+
+
+## **Why Use State in React**
+
+- **Stores dynamic data** (e.g., form inputs, counters).
+- **Triggers re-renders** when updated.
+- **Component-specific memory** — each component manages its own state.
+- Makes UI **interactive** and responsive.
+- Without state = static UI.
+
+Class Based Components
+
+#### week 2 | Topic 1 |
+Lec 13
++ pendingDefault
+Lec 16
++ input value atribute
++ extract value from input using createref , react.createref
++ then assign createref to input
++ then access it using inputref.currentvalue
+Lec 19
++ template literals (backticks)
++ ${ } blabla ${ }
+
+problem 25, 26, 27 can be used to show reactcreateref 
+
+#### week 3 | Topic 1 |
+
+Problem 6
+Problem 8
+
+Lec 9
++ states
++ destructuring
+
+Lec 11
++ Bind
++ `this` get lost so we bind
++ two ways to bind
++ use arrow function it binds this automatically
+
+Lec 13
++ Setstate
++ using this.state to set data and then doing destructure in render and in addstar using setstate to update state and re-render
++ two ways to write setstate
+
+Lec 16
++ restricting increment and decrement of addstar
++ setState is asyn in nature so if u need current value of state , then call it inside the call back of setstate
++ batching: consecutive calling multiple times this.setstate , then react create batch and process only the last this.setstate
++ but if we use second form of this.setstate , and in this update of state depends on prev state so each call is considered but rendering only happen once
++ skipped test
+
+
+#### week 3 | Topic 2 |
+
+Lec 1
++ favourite button
+Lec 2
++ add to cart
++ movielist
+Lec 3
+ + props (from parent to child only)
+Lec 6
++ default value props
++ props can't be modified (states can be)
+Lec 8
++ passing data through props
+Lec 9 
++ displaying movielist with props
+Lec11
++ handling increase star
+
+

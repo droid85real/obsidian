@@ -13,6 +13,19 @@
     - Dollar signs (`$`)
     Examples: `MyClass123`, `Helper_Class`, `My$Helper`
 
++ **Class** are either **public or default** but can not be private or protected.
+
+
+
+Note:
++ `javac *.java` to compile all java files at once.
++ `javac Filename.java` to compile single file.
++ `java Filename.java` to execute file.
++ orcale.com for documentation.
++ programiz.com to check in-built methods.
+
+
+---
 # Access Modifiers
 
 | **Access Modifier**           | **Top-Level Class** | **Same Package (Class Member)** | **Subclass (Same Package)** | **Subclass (Different Package)** | **World (Other Classes)** |
@@ -28,10 +41,8 @@
 3. **`default (package-private)`** → Accessible only within the **same package**.
 4. **`private`** → Accessible only within the **same class** (not even in subclasses).
 
-+ **Class** are either **public or default** but can not be private or protected.
 
-
-
+---
 # Loops
 
 **Note :**
@@ -42,6 +53,11 @@ if (condition1 && condition2) {
 ```
 above code: it check condition 1 and if it is true then check condition 2 otherwise returns false without checking condition 2
 
+
+
+---
+# In built methods :
+**`strip()`** vs **`trim()`**: both remove white spaces and **`\n`** but strip is new and remove all kind of whitespaces like tab .
 
 ### `System.arraycopy():` 
 + Used to copy elements from one array to another **quickly and efficiently**.
@@ -54,20 +70,6 @@ System.arraycopy(Object src, int srcPos, Object dest, int destPos, int length);
 - `dest`: Destination array
 - `destPos`: Starting position in the destination array
 - `length`: Number of elements to copy
-
-
-
-# In built methods :
-**`strip()`** vs **`trim()`**: both remove white spaces and **`\n`** but strip is new and remove all kind of whitespaces like tab .
-
-
-Note:
-+ `javac *.java` to compile all java files at once.
-+ `javac Filename.java` to compile single file.
-+ `java Filename.java` to execute file.
-+ orcale.com for documentation.
-+ programiz.com to check in-built methods.
-
 
 
 
@@ -115,10 +117,18 @@ public class Car {
 + when we want to call method without creating on object.
 + Agar koi property ya method individual objects par depend nahi karti aur class level par share ki jati hai, tab hum usse `static` bana dete hain.
 
+Use a `public static` variable in a class to define a global variable accessible across multiple classes.
+i.e.
+```java
+public class Main {
+    public static int globalCount = 0; // global variable
+}
+```
+
 + we make main class as static so that JVM can call it with class name without making its instance.
-+ `this` for `super` keyword can't be used inside static function.
++ `this` for `super` keyword can't be used inside static method.
 + constructor can't be static
-+ static function can not use non static function and variable.
++ static method can not use non static function and variable.
 + static method is accessed using class name not object.
 ```java
 class MyClass {
@@ -175,6 +185,26 @@ class OtherClass {
 }
 ```
 
+
+**static block**
++ A **static block** in Java is a block of code that runs **once when the class is loaded**, even **before the `main()` method** or any object is created.
+
+```java
+public class Example {
+    static int num; 
+	
+    static {  //static block
+        num = 10;
+        System.out.println("Static block executed.");
+    }
+	
+    public static void main(String[] args) {
+        System.out.println("Main method: num = " + num);
+    }
+}
+```
+
+
 ## super keyword
 
 + **Calling a Parent Class Method and Property:** If the child class has a method with the same name as the one in the parent class, super allows you to call the parent class method.
@@ -188,7 +218,9 @@ class OtherClass {
 + used to initialize objects
 + constructor name same as class name
 + no return type
-+ Automatically called when an object is created
++ Automatically called at the time of object creation to initialize the object.
++ Constructor overloading is allowed.
++ When we do not explicitly define constructor for a class, then java creates a default constructor for the class
 
 # Encapsulation
 
@@ -196,14 +228,15 @@ class OtherClass {
 + hiding of data using getter and setter
 
 
+---
 # Inheritance
 
 + Used for acquiring properties of other class.
-+ Uses extend keyword.
-+ When child class constructor is called to create object ,it also calls the parent class constructor which creates parent object too.(in inheritance).
-+ You can not extend more than one class but can implement multiple interface in a class.
++ Uses `extend` keyword.
 + The class being inherited from is called the **superclass**, and the class that inherits is called the **subclass**.
++ You can not extend more than one class but can implement multiple interface in a class.
 
+i.e.
 ```java
 class Superclass {
     // Superclass fields and methods
@@ -216,11 +249,139 @@ class Subclass extends Superclass {
 ```
 
 
-**Scenario 01:**
-Suppose a vehicle has private property and it is accessible using getter and setter.
-Now the car is extending vehicle . so the car also have that private property but can't directly access it. can access using getter and setter.
+When child class constructor is called to create object ,it also calls the parent class constructor which creates parent object too.
+i.e.
+```java
+class A {
+    A() {
+        System.out.println("Parent class constructor called.");
+    }
+}
+
+class B extends A {
+    B() {
+        // Implicitly calls A() constructor first, before executing B's constructor
+        System.out.println("Child class constructor called.");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        B obj = new B();  // Creating object of child class B
+        //output :
+        // Parent class constructor called.
+		// Child class constructor called.
+    }
+}
+
+```
 
 
+i.e.
+```java
+// Superclass (Parent Class)
+class Animal {
+    void speak() {
+        System.out.println("Animal makes a sound.");
+    }
+}
+
+// Subclass (Child Class)
+class Dog extends Animal {
+    // Inherits the speak() method from Animal
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Dog myDog = new Dog();
+        myDog.speak();  // Output: Animal makes a sound.
+    }
+}
+```
+
+
+
+**Scenario 01:** Accessing private member of superclass using getter/setter
++ Suppose a vehicle has private property and it is accessible using getter and setter. Now the car is extending vehicle . so the car also have that private property but can't directly access it. but can access using getter and setter.
+
+```java
+// Superclass
+class Vehicle {
+    private int speed;
+
+    public int getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(int speed) {
+        this.speed = speed;
+    }
+}
+
+// Subclass
+class Car extends Vehicle {
+    public void showSpeed() {
+        // Can't access `speed` directly here because it's private in Vehicle
+        System.out.println("Speed from getter: " + this.getSpeed());
+    }
+
+    public void updateSpeed(int newSpeed) {
+        // Setting the private property via setter
+        this.setSpeed(newSpeed);
+    }
+}
+
+// Main Class to Run
+public class Main {
+    public static void main(String[] args) {
+        Car myCar = new Car();
+        myCar.updateSpeed(80);     // Setting speed using setter
+        myCar.showSpeed();         // Getting speed using getter
+    }
+}
+```
+
+**for above :**
+- In Java, when `Car` extends `Vehicle`, it inherits all **public/protected methods** of `Vehicle`.
+- Even though `speed` is `private`, `Car` can access it using the **inherited** `getSpeed()` and `setSpeed()` methods.
+- You can use `this.getSpeed()` because `Car` **inherits** the method — it’s treated like `Car`’s own.
+- Or use `super.getSpeed()` if you want to **explicitly refer to the superclass** version.
+- No need to create a `Vehicle` object — `Car` _is-a_ `Vehicle`.
+
+
+**Scenario 02:** Accessing protected member of superclass
+
+```java
+class A {
+    protected int x = 10;  // Protected data member
+
+    protected void display() {  // Protected method
+        System.out.println("Display from class A");
+    }
+}
+
+class B extends A {
+    void callDisplay() {
+        System.out.println("Value of x: " + x);  // Accessing protected data member
+        display();  // Calling the inherited protected method
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        B obj = new B();
+        obj.callDisplay();  // Output: Value of x: 10
+                            // Output: Display from class A
+    }
+}
+```
+
+**for above :**
++ `B` inherit protected data member `x` and method `display()` from `A` and it treat it as `B`'s own property and method.
++ The `x` and `display()` are accessible inside `B` and are treated as if they are part of `B`.
+
+
+---
 # Abstraction
 
 <u><b>Use case Scenario :</b></u>
@@ -233,24 +394,34 @@ When you want a method should(forced) be implemented in every subclass but defin
 + Can have constructor.
 + Can have static method.
 + If a method is abstract then the class is also have to be abstract. (parent class)  or (if a class contains **at least one abstract method**, the class itself **must be declared as abstract**.)
-+ A class that inherits from an abstract class must provide implementations for the abstract methods, unless it is also abstract. (child class)
 
+- Cannot create an **object** of an **abstract class** directly.
+- Acts as an **incomplete blueprint** — may have concrete methods, but missing abstract ones.
+- You **must extend** it and **implement all abstract methods** in a concrete subclass to create objects.
+
+
+A class that inherits from an abstract class must provide implementations for the abstract methods, unless it is also abstract. (child class)
 i.e.
 ```java 
 abstract class Animal {
-    // Abstract method (no implementation)
-    abstract void sound();
+    abstract void sound(); // Abstract method (no implementation only defined)
     
-    // Concrete method
-    void sleep() {
+    void sleep() { // Concrete method
         System.out.println("This animal sleeps.");
     }
 }
 
 class Dog extends Animal {
-    // Providing implementation for the abstract method
-    void sound() {
+    void sound() { // Providing implementation for the abstract method
         System.out.println("Woof!");
+    }
+}
+
+// Abstract Cat class that doesn't implement sound() is declared abstract
+abstract class Cat extends Animal {
+    // Concrete method specific to cats
+    void scratch() {
+        System.out.println("The cat scratches the furniture.");
     }
 }
 
@@ -259,6 +430,9 @@ public class Main {
         Animal myDog = new Dog();
         myDog.sound();  // Woof!
         myDog.sleep();  // This animal sleeps.
+	    
+        // Can't create an instance of Cat since it's abstract
+        // Cat myCat = new Cat(); // Compile-time error
     }
 }
 ```
@@ -879,7 +1053,7 @@ Java automatically converts primitive types like int or double to their correspo
 
 Wildcards allow for more flexibility in generics. There are two types of wildcards:
 
-- **Unbounded Wildcard (`?`)**: Represents any type.
+- **Unbounded Wildcard (`?`)**: Represents any type. Used when you don't care about the type and want to accept any object.
 - **Upper Bounded Wildcard (`? extends T`)**: Restricts the wildcard to be a subtype of `T`.
 - **Lower Bounded Wildcard (`? super T`)**: Restricts the wildcard to be a supertype of `T`.
 ```java
