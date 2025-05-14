@@ -404,7 +404,7 @@ A class that inherits from an abstract class must provide implementations for th
 i.e.
 ```java 
 abstract class Animal {
-    abstract void sound(); // Abstract method (no implementation only defined)
+    abstract void sound(); // Abstract method (no implementation only declared)
     
     void sleep() { // Concrete method
         System.out.println("This animal sleeps.");
@@ -758,7 +758,7 @@ public class Main {
 
 ---
 # Exception Handling
-
+Exception in Java is an error condition that occurs when something wrong happens during the program execution.
 ### Basic Steps for Handling Exceptions:
 
 1. **Throwing an Exception**:  
@@ -791,7 +791,7 @@ public void readFile() throws ExceptionType {
 
 ```java
 public class ExceptionType extends Exception {
-
+	
 }
 ```
 
@@ -836,6 +836,285 @@ i.e. : Check Queue implementation using Linked list
 + We are not allowed to catch generalized exception before specific exception.
 
 
+### Exception hierarchy
+```
+Throwable
+├── Error (Unchecked)
+│   ├── VirtualMachineError
+│   │   ├── OutOfMemoryError
+│   │   └── StackOverflowError
+│   ├── AssertionError
+│   └── LinkageError
+│       ├── NoClassDefFoundError
+│       └── UnsatisfiedLinkError
+│
+└── Exception (Checked)
+    ├── IOException
+    │   ├── FileNotFoundException
+    │   ├── EOFException
+    │   └── SocketException
+    │       └── ConnectException
+    ├── SQLException
+    ├── InterruptedException
+    ├── ParseException
+    ├── ClassNotFoundException
+    ├── InvocationTargetException
+    └── RuntimeException (Unchecked)
+        ├── ArithmeticException
+        ├── NullPointerException
+        ├── IllegalArgumentException
+        │   └── NumberFormatException
+        ├── IndexOutOfBoundsException
+        │   ├── ArrayIndexOutOfBoundsException
+        │   └── StringIndexOutOfBoundsException
+        ├── ClassCastException
+        ├── SecurityException
+        ├── UnsupportedOperationException
+        ├── IllegalStateException
+        ├── ConcurrentModificationException
+        ├── NoSuchElementException
+        └── MissingResourceException
+```
+
+
+
+https://www.geeksforgeeks.org/exceptions-in-java/
+
+TODO : multiple exception from chatgpt example
+
+---
+# Multithreading
+
++ Once a thread object is created, you invoke the `start()` method to begin its execution. The `start()` method internally calls the `run()` method.
++ **run( )**: The entry point for the thread
+
+**Creating a Thread by Extending the `Thread` Class**
+```java
+public class BasicThread extends Thread {
+	@Override
+    public void run() {
+        System.out.println("Thread is running");
+    }
+	
+    public static void main(String[] args) {
+        BasicThread t1 = new BasicThread(); // create thread instance
+        t1.start(); // start thread
+    }
+}
+```
+
+
+**Creating a Thread by Implementing the `Runnable` Interface**
+```java
+public class MyTask implements Runnable {
+    @Override
+    public void run() {
+        System.out.println("Task is running in a separate thread");
+    }
+	
+    public static void main(String[] args) {
+        MyTask task = new MyTask();
+        Thread t1 = new Thread(task);  // Passing Runnable to Thread
+        t1.start();  // Start the thread to execute the task
+    }
+}
+```
+
+**MIX Of BOTH**
+```java
+class Thread1 extends Thread {
+	public void run() {
+		for (int i = 1; i <= 10; i++) {
+			System.out.println("i=" + i);
+		}
+	}
+}
+
+class Thread2 implements Runnable {
+	public void run() {
+		for (int k = 1; k <= 10; k++) {
+			System.out.println("k=" + k);
+		}
+	}
+}
+
+public class CreatingThread {
+	
+	public static void main(String[] args) {
+		Thread1 t1 = new Thread1(); // extends Thread
+		Thread t2 = new Thread(new Thread2()); // Thread2 implements Runnable
+		
+		System.out.println("Starting 1st");
+		t1.start();
+		
+		System.out.println("Starting 2nd");
+		t2.start();
+		
+		System.out.println("End of main");
+	}
+}
+```
+
+## Thread Lifecycle
+#### **Key Concepts to Learn:**
+
+- **Thread States:**
+    - **New:** When a thread is created but not yet started.
+    - **Runnable:** After calling `start()`, the thread enters this state, ready for CPU allocation.
+    - **Blocked:** When a thread is waiting for a resource that another thread is holding.
+    - **Waiting:** When a thread is waiting indefinitely for some condition or event.
+    - **Timed Waiting:** When a thread is waiting for a specific time period (e.g., `Thread.sleep()`).
+    - **Terminated:** When a thread finishes its execution.
+
+**Code to understand Thread States**
+```java
+class MyThread extends Thread{
+	
+	public void run(){
+		System.out.println("Thread is running");
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			System.out.println(e.getMessage());
+		}
+	}
+}
+
+public class ThreadStatesExample {
+	public static void main(String[] args) throws InterruptedException {
+		MyThread t1=new MyThread();
+		System.out.println(t1.getState());
+		t1.start();
+		System.out.println(t1.getState());
+		Thread.sleep(100);
+		System.out.println(t1.getState());
+		t1.join();
+		System.out.println(t1.getState());
+    }
+}
+```
+
+
+- **Thread Life Cycle Methods:**
+    - `void start()`: method causes the JVM to initiate a new **native thread** (in the operating system's thread pool) to begin executing the `run()` method. 
+    - `join()`: Waits for a thread to finish before continuing. When one thread calls the `join()` method of another thread, it pauses the execution of the current thread until the thread being joined has completed its execution.
+
+| **Method**                  | **Description**                                                                                                                                                                            | **Life Cycle State Affected**   |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------- |
+| `start()`                   | Starts the thread; moves from **New** to **Runnable**                                                                                                                                      | New → Runnable                  |
+| `run()`                     | Code executed by the thread (usually overridden)                                                                                                                                           | Runnable → Running (internally) |
+| `sleep(long millis)`        | Pauses the thread for a specified time                                                                                                                                                     | Running → Timed Waiting         |
+| `join()`                    | Waits for another thread to die                                                                                                                                                            | Running → Waiting               |
+| `join(long millis)`         | Waits for another thread to die, with timeout                                                                                                                                              | Running → Timed Waiting         |
+| `yield()`                   | Hints the scheduler to pause and give other threads a chance to run.<br>It **does not change the state**, but may result in the thread being moved **back to Runnable** so others can run. | Still Runnable                  |
+| `wait()` (from `Object`)    | Makes the thread wait until notified                                                                                                                                                       | Running → Waiting               |
+| `wait(long timeout)`        | Waits for a limited time                                                                                                                                                                   | Running → Timed Waiting         |
+| `notify()` / `notifyAll()`  | Wakes up threads waiting on the object's monitor                                                                                                                                           | Waiting → Runnable              |
+| `interrupt()`               | Interrupts a thread if it's in a blocking state                                                                                                                                            | Affects Waiting/Sleep/Join      |
+| `isAlive()`                 | Checks if the thread is alive (not yet dead)                                                                                                                                               | Any state                       |
+| `isInterrupted()`           | Checks if the thread has been interrupted                                                                                                                                                  | Any state                       |
+| `setPriority(int priority)` | Sets thread’s priority (1 to 10)                                                                                                                                                           | Runnable (affects scheduling)   |
+| `getPriority()`             | Gets thread’s priority                                                                                                                                                                     | Any state                       |
+| `setName(String)`           | Assigns a name to the thread                                                                                                                                                               | Any state                       |
+| `getName()`                 | Returns the thread’s name                                                                                                                                                                  | Any state                       |
+| `setDaemon(boolean)`        | Marks thread as a daemon thread                                                                                                                                                            | Must be called before `start()` |
+| `isDaemon()`                | Checks if the thread is a daemon                                                                                                                                                           | Any state                       |
+| `currentThread()`           | Static method to get a reference to the currently running thread                                                                                                                           | Running                         |
+
+>NOTE:
+>`wait()`, `notify()`, and `notifyAll()` are methods from `java.lang.Object`, not `Thread`, but they are critical for thread synchronization and lifecycle transitions.
+
+
+
+```
+                 +------------------+
+                 |      New         |
+                 |------------------|
+                 | Thread created   |
+                 +------------------+
+                         |
+                         v
+                 +------------------+
+                 |    Runnable      |
+                 |------------------|
+                 | start() called   |
+                 +------------------+
+                         |
+                         v
+                 +------------------+
+                 |     Running      |
+                 |------------------|
+                 | CPU time allocated|
+                 +------------------+
+                         |
+       +-----------------+-----------------+
+       |                 |                 |
+       v                 v                 v
++---------------+ +---------------+ +---------------+
+|   Waiting     | |  Timed Waiting| |    Blocked    |
+|---------------| |---------------| |---------------|
+| wait()        | | sleep(time)   | | I/O operation |
+| join()        | | wait(time)    | | synchronized  |
+| park()        | | join(time)    | | block()       |
++---------------+ +---------------+ +---------------+
+       |                 |                 |
+       +-----------------+-----------------+
+                         |
+                         v
+                 +------------------+
+                 |      Dead        |
+                 |------------------|
+                 | run() completes  |
+                 | stop() called    |
+                 +------------------+
+```
+
+
+## Thread Synchronization
+
+When multiple threads access shared resources, data inconsistency may occur. **Synchronization** is the mechanism used to control the access of multiple threads to shared resources.
+
+#### **Key Concepts to Learn:**
+
+- **What is Synchronization?**
+    - Synchronization ensures that only one thread can access a **critical section** of code at a time, preventing race conditions.
+
+- **`synchronized` Keyword:**
+    - You can use the `synchronized` keyword to lock a method or block of code so that only one thread can execute it at a time.
+```java
+public synchronized void increment() {
+    counter++;
+}
+```
+
+- **Deadlocks:**
+    - A deadlock occurs when two or more threads are blocked forever, waiting for each other. It’s crucial to understand how to avoid deadlocks.
+
+- **Reentrant Locks:**
+    - Instead of using the `synchronized` keyword, you can use explicit locks such as `ReentrantLock` for more advanced locking mechanisms.
+
+
+
+### **6. Thread Pooling and Executor Framework**
+
+### **7. Fork/Join Framework (Advanced)**
+### **8. Handling Exceptions in Threads**
+
+### **Recommended Study Plan**
+
+1. **Week 1:** Basics of Threads (Creation, Lifecycle, `Runnable`, `Thread` class)
+    
+2. **Week 2:** Thread Synchronization (Race Conditions, `synchronized`, Deadlocks)
+    
+3. **Week 3:** Thread Communication (`wait()`, `notify()`, `notifyAll()`, Producer-Consumer Problem)
+    
+4. **Week 4:** Thread Pooling and Executor Framework
+    
+5. **Week 5:** Fork/Join Framework (Advanced Parallelism)
+    
+6. **Week 6:** Exception Handling, Best Practices, and Common Pitfalls
+    
+7. **Week 7-8:** Hands-on projects using multiple conc
 
 ---
 # Generics
