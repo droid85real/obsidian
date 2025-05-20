@@ -14,6 +14,7 @@
     Examples: `MyClass123`, `Helper_Class`, `My$Helper`
 
 + **Class** are either **public or default** but can not be private or protected.
++ Nested Class can be public, protected , default , private
 
 
 
@@ -72,6 +73,198 @@ System.arraycopy(Object src, int srcPos, Object dest, int destPos, int length);
 - `length`: Number of elements to copy
 
 
+---
+# Nested and Inner class
+https://www.programiz.com/java-programming/nested-inner-class
+
++ A class within another class.
+
+#### 1. Member Inner Class (defined inside a class but outside any method)
+Syntax
+```java
+class Outer{
+	//...
+	class Inner{ //inner class
+		//...
+	}
+}
+```
++ Outer class can only be public or default
++ Inner class can be public, protected, default ,private, abstract , final
+
+i.e.
+```java
+class Outer{
+	class Inner{
+		void show(){
+			System.out.println("Member inner class");
+		}
+	}
+	public static void main(String[] args){
+		Outer outer=new Outer();
+		Outer.Inner inner=outer.new Inner();
+		inner.show();
+		// new Outer().new Inner().show(); //using anonymous object
+	}
+}
+```
+
+
+#### 2. Static Nested Class (declared with `static`)
+Syntax
+```java
+class Outer{
+	//...
+	static class StaticNested{
+		//...
+	}
+}
+```
++ Inner class can be public, protected, default ,private, abstract , final , static
++ static nested class cannot access the member variable of the outer class.
++ static nested class does not require an instance of the outer class but you still need to create an object to call non-static methods inside it.
+
+i.e.
+```java
+class Outer{
+	static class StaticInner{
+		void show(){
+			System.out.println("Static nested class");	
+		}
+		staic void display(){
+			System.out.println("static method inside static nested class");	
+		}
+	}
+	
+	public static void main(String[] args){
+		StaticInner inner=new StaticInner();
+		inner.show();
+		// Outer.StaticInner.show(); we can do this without creating Outer or Inner class cause display is static
+	}
+}
+```
+
+#### 3. Local Inner Class (defined inside a method)
+Syntax
+```java
+class Outer{
+	//...
+	void method{
+		//...
+		class LocalInner{
+			//...
+		}
+	}
+}
+```
+Inner class can be final , abstract , default
+
+i.e.
+```java
+class Outer{
+	void outerMethod(){
+		//Local inner class defined inside method
+		class LocalInner{
+			void show(){
+				System.out.println("Local Inner Class");
+			}
+		}
+		LocalInner inner=new LocalInner(); // Local inner class instantiated within the method
+		inner.show();
+	}
+	public static void main(String[] args){
+		new Outer().outerMethod(); // call outerMethod where LocalInner is used
+	}
+}
+```
+
+
+#### 4. Anonymous Class
+
+
+---
+# Anonymous object
++ An anonymous object that is created without explicitly assigning it to a reference variable. These objects are typically used when you need to use the object only  once.
++ One time method calls.
+
+Syntax
+```java
+new MyClass().myMethod();
+```
+In this case:
+`new MyClass()` creates an anonymous object
+`.myMethod()` calls a method on that object.
+
+i.e.
+```java
+new Scanner(System.in).nextLine();
+```
+
+---
+# Anonymous class
+https://takeuforward.org/java/java-anonymous-class/
+https://youtu.be/bRbt5XR5t7U
+https://www.programiz.com/java-programming/anonymous-class
+
++ It is a special, nameless inner class that is defined and instantiated in a single expression.
++ You instantiate the anonymous class at the same time as you define it.
++ Single use
++ Is always going to be a **subclass** 
+	+ by **implementation** of an interface.
+	+ by extending an abstract class
+
+Syntax
+```java
+new SuperClassOrInterface(){
+	//Override methods
+}
+```
+where
++ `SuperClassOrInterface` is the class or interface you're either extending or implementing.
++ You override methods of that class/interface directly in the body `{}`
+
+#### Anonymous class extending a class 
+```java
+abstract class Animal{
+	abstract void makeSound();
+}
+
+public class Test{
+	public static void main(String[] args){
+		Animal dog=new Animal(){ // Anonymous class defined here
+			@Override
+			void makeSound(){
+				System.out.println("Woof!");
+			}
+		};
+		dog.makeSound(); //calling the method of anonymous class
+	}
+}
+
+```
+
+
+#### Anonymous class implementing an interface
+```java
+interface Greeting{
+	void sayHello();
+}
+public class Test{
+	public static void main(String[] args){
+	// Anonymous class implementing Greeting interface
+		Greeting g=new Greeting(){ // Anonymous class defined here
+			@Override
+			public void sayHello(){
+				System.out.println("Hello there!");
+			}
+		};
+		g.sayHello(); //calling the method of anonymous class
+	}
+}
+```
+
+>**Note:** 
++ Anonymous classes are defined inside an expression. So, semicolon is used at the end of anonymous classes to indicate the end of the expression.
 
 ---
 # Searching and Sorting
@@ -126,9 +319,34 @@ public class Main {
 ```
 
 + we make main class as static so that JVM can call it with class name without making its instance.
-+ `this` for `super` keyword can't be used inside static method.
++ `this` cannot be used in a static method, because it refers to the current instance and static methods do not belong to a specific instance.
++ `super` can be used inside static methods, but only to access static members(fields and methods) of the parent class.
 + constructor can't be static
+
 + static method can not use non static function and variable.
+```java
+class MyClass {
+    int instanceVariable = 10;
+    // Non-static method
+    public void nonStaticMethod() {
+        System.out.println("This is a non-static method. Instance variable: " + instanceVariable);
+    }
+    // Static method
+    public static void staticMethod() {
+        // Cannot directly call non-static method from static context
+        // nonStaticMethod(); // This would result in a compilation error
+        
+        // Correct way: Create an instance of the class
+        MyClass obj = new MyClass();
+        obj.nonStaticMethod(); // Now we can call the non-static method
+    }
+    public static void main(String[] args) {
+        // Calling the static method
+        staticMethod();
+    }
+}
+```
+
 + static method is accessed using class name not object.
 ```java
 class MyClass {
@@ -880,7 +1098,10 @@ Throwable
 
 https://www.geeksforgeeks.org/exceptions-in-java/
 
-TODO : multiple exception from chatgpt example
+TODO : 
++ multiple exception from chatgpt example
++ multiple catch
++ how jvm handle error and exception
 
 ---
 # Multithreading
@@ -1094,7 +1315,7 @@ public synchronized void increment() {
     - Instead of using the `synchronized` keyword, you can use explicit locks such as `ReentrantLock` for more advanced locking mechanisms.
 
 
-
+TODO:
 ### **6. Thread Pooling and Executor Framework**
 
 ### **7. Fork/Join Framework (Advanced)**
