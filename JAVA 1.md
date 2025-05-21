@@ -267,6 +267,351 @@ public class Test{
 + Anonymous classes are defined inside an expression. So, semicolon is used at the end of anonymous classes to indicate the end of the expression.
 
 ---
+# Functional Interface
+https://youtu.be/Gs8ZPKCFlTc
++ Functional interface is an interface that contain only one abstract method
++ Can have multiple default or static methods but only **one abstract method**.
++ Functional interface are primarily used with **lambda expressions**, **methods reference** and **constructor references** .
++ Marked optionally with `@FunctionalInterface` annotation.
+	+ It generate compile time error if more than one abstract method is added.
+	+ To tell compiler that the interface is intended to be functional.
+
+Functional interface executed using concrete class implementation
+```java
+@FunctionalInterface
+interface MyFun{
+	void execute();
+}
+
+class MyFunImpl implements MyFun{ // concrete class implementing the interface
+	public void execute(){
+		System.out.println("Executed using concrete class implementation");
+	}
+}
+
+public class Main{
+	public static void main(String[] args){
+		MyFun mfi=new MyFunImpl();
+		mfi.execute();
+	}
+}
+
+```
+
+Functional interface executed using anonymous class
+```java
+@FunctionalInterface
+interface MyFunctionalInterface{
+	void execute(); // only one abstract method
+}
+class Main{
+	public static void main(String[] args){
+		MyFunctionalInterface mfi=new MyFunctionalInterface(){ //anonymous class
+			@Override
+			public void execute(){
+				System.out.println("Executed using anonymous inner class");
+			}
+		};
+		mfi.execute(); // calling method of anonymous class
+	}
+}
+```
+
+Functional interface executed using lambda expression
+```java
+@FunctionalInterface
+interface MyFun{
+	void execute(); //only one abstract method
+}
+
+public class Main{
+	public static void main(String[] args){
+		MyFun mf=()->System.out.println("Executed via lambda expression"); //lambda implementation of MyFun
+		mf.execute(); //call the method
+	}
+}
+```
+#### Default inside Functional Interface
++ `default`(in context of interfaces) is a method modifier that **allows a method to have a body inside an interface**.
++ A default method is a concrete method.
++ Marked with `default` keyword
++ Inherited by class, called via object, can override
+
+```java
+@FunctionalInterface
+interface MyFun{
+	void execute(); // by default abstract and public
+	
+	default void greet(){ // default concrete method
+		System.out.println("Default greeting from interface");	
+	}
+}
+
+class MyFunImpl implements MyFun{
+	public void execute(){
+		System.out.println("Executing something...");
+	}
+}
+
+public class Main{
+	public static void main(String[] args){
+		MyFun obj=new MyFunImpl();
+		obj.execute();  //from class
+		obj.greet(); // from interface default
+	}
+}
+```
+
+
+#### Static Method in an interface
++ Introduced in java 8
++ Is a method with body
++ Must be called using the interface name, not an object
++ Cannot be overridden
++ Not inherited by class
+
+```java
+interface MathOperations{
+	static int add(int a,int b){ //static method
+		return a+b;
+	}
+	
+	void operate(); // functional method // public and abstract by default
+}
+
+public class Main{
+	public static void main(String[] args){
+		int result=MathOperations.add(5,3); //calling static method
+		System.out.println("Result: "+result);
+	}
+}
+```
+
+
+#### Sealed Classes and Sealed Interfaces
+Used to
+- Enforce **strict hierarchy** rules
+- Prevent **unexpected extensions** (security, domain logic, etc.)
+- Improve **readability** and **maintainability**
+- Works nicely with **switch expressions** and **pattern matching**
+
+Syntax: With Classes
+```java
+public sealed class Animal permits Dog, Cat {
+    // base logic
+}
+
+final class Dog extends Animal {
+    // allowed ✅
+}
+
+non-sealed class Cat extends Animal {
+    // allowed ✅, but opens up to further inheritance
+}
+```
+
+| Keyword      | Meaning                                                          |
+| ------------ | ---------------------------------------------------------------- |
+| `sealed`     | Limits which classes/interfaces can extend or implement the type |
+| `permits`    | Explicitly lists the allowed subtypes                            |
+| `final`      | No one can extend this class any further                         |
+| `non-sealed` | Removes restriction — this subtype **can be extended** further   |
+
+Syntax: With Interfaces too
+```java
+public sealed interface Shape permits Circle, Rectangle {}
+
+final class Circle implements Shape {
+    // ✅ allowed
+}
+
+non-sealed class Rectangle implements Shape {
+    // ✅ allowed and can be further extended
+}
+```
+
+
+>NOTE:
+ All permitted classes must be: 
++ In same module (or same package if not using modules) 
++ Either `final`,`sealed` or `non-sealed` (failing to do so result in compiler error)
++ Explicitly listed in `permits` clause
+
+
+---
+# Lambda Expression
++ Lambda expression is used with functional interfaces.
++ Introduced in java 8
++ A lambda expression is a short block of code which takes in parameters and returns a value
+
+Syntax
+`(parameters) -> expression`
+
+or
+```java
+(parameters) -> {
+    // code block
+    return value;
+}
+```
+
+Use Cases
++ Iterating over collections (`forEach`)
++ Filtering, mapping, and reducing with streams
++ Passing behaviour as data
+
+#### Lambda Expression with Zero Parameters
+
+i.e.
+```java
+@FunctionalInterface
+interface Task{
+	void execute(); // public and abstract by default
+}
+
+public class Main{
+	public static void main(String[] args){
+		Task sayHello=()->System.out.println("Hello"); // lambda expression
+		sayHello.execute(); //Output: Hello
+	}
+}
+```
+
+i.e. if you want to return something
+```java
+@FunctionalInterface
+interface Supplier{
+	String get();
+}
+
+public class Main{
+	public static void main(String[] args){
+		Supplier greeting=()->"Hello there";
+		System.out.println(greeting.get()); //Output: Hello there
+	}
+}
+```
+
+
+#### Lambda Expression with One Parameter
+```java
+@FunctionalInterface
+interface Printer {
+    void print(String message);
+}
+public class Main{
+	public static void main(String[] args){
+		Printer p=message->System.out.println("Printing: "+message);
+		p.print("Hello, there"); //Output: Printing: Hello, there
+	}
+}
+```
+If there's **only one parameter**, you **can omit parentheses** around it: `message -> ...`
+
+#### Lambda Expression in `ArrayList`'s `forEach()` 
+i.e. to print every item in the list and even numbers
+```java
+import java.util.ArrayList;
+
+public class Main{
+	public static void main(String[] args){
+		ArrayList<Integer> numbers=new ArrayList<>();
+		numbers.add(1);
+		numbers.add(2);
+		numbers.add(3);
+		numbers.add(4);
+		numbers.forEach(n->System.out.println("Number: "+n)); //use lambda to print each number
+		numbers.forEach(n->{ //use lambda expression to print even numbers
+			if(n%2==0){
+				System.out.println("Even: "+n);
+			}
+		});
+	}
+}
+```
+
+#### Lambda with functional interface
+```java
+@FunctionalInterface
+interface MyFun{
+	int operation(int a,int b); //with return type and parameter
+}
+
+public class Main{
+	public static void main(String[] args){
+		MyFun add=(a,b)->a+b; 
+		MyFun mul=(a,b)->a*b;
+		
+		System.out.println("Sum: "+add.operation(5,3));
+		System.out.println("Product: "+mul.operation(5,2));
+	}
+}
+```
+Java **infers types** from the context, so `int` can often be skipped: `(a,b)`
+
+
+# Lambda on primitive and object
+- Primitive arrays need to be converted to `Stream` for lambda usage.
+- Stream gives you access to `forEach`, `map`, `filter`, etc.
+##### **1. For Primitive Arrays (like `int[]`, `double[]`)**
+Use: `Arrays.stream(...)`  
+Because: Primitive arrays can't be boxed into a `List` easily, and Java has special streams for them (`IntStream`, `DoubleStream`, etc.)
+
+```java
+import java.util.Arrays;
+
+public class PrimitiveArrayExample {
+    public static void main(String[] args) {
+        int[] numbers = {1, 2, 3, 4, 5};
+        // Using lambda with primitive array
+        Arrays.stream(numbers)
+              .forEach(n -> System.out.println("Number: " + n));
+    }
+}
+```
+`Arrays.stream(int[])` returns an `IntStream` that supports lambda operations.
+
+##### **2. For Non-Primitive Arrays (like `String[]`, `Integer[]`, etc.)**
+Use: `Arrays.asList(...)` or `Stream.of(...)`  
+Because: These are object arrays, so they can be boxed into a collection or stream easily.
+
+i.e. with `Arrays.asList()`
+```java
+import java.util.Arrays;
+
+public class ObjectArrayExample1 {
+    public static void main(String[] args) {
+        String[] words = {"Java", "Lambda", "Cool"};
+        // Using lambda with Arrays.asList()
+        Arrays.asList(words)
+              .forEach(w -> System.out.println("Word: " + w));
+    }
+}
+```
+
+i.e. with `Stream.of()`
+```java
+import java.util.stream.Stream;
+
+public class ObjectArrayExample2 {
+    public static void main(String[] args) {
+        String[] words = {"Java", "Lambda", "Cool"};
+        // Using lambda with Stream.of()
+        Stream.of(words)
+              .forEach(w -> System.out.println("Word: " + w));
+    }
+}
+```
+
+
+
+
+TODO:
+lambda expression for interface chatgpt example
+method reference
+
+
+---
 # Searching and Sorting
 
 # [Binary Search](https://www.w3schools.com/dsa/dsa_algo_binarysearch.php)
@@ -423,6 +768,7 @@ public class Example {
 ```
 
 
+---
 ## super keyword
 
 + **Calling a Parent Class Method and Property:** If the child class has a method with the same name as the one in the parent class, super allows you to call the parent class method.
@@ -430,6 +776,7 @@ public class Example {
 + **Calling the Parent Class Constructor:** super() can be used to call the constructor of the parent class when creating an object of the child class.
 + i.e. **`super()`**
 
+---
 # Constructor
 
 **Constructor Format** :  `<Access Modifier> <Constructor Name> (parameters)`
@@ -440,11 +787,16 @@ public class Example {
 + Constructor overloading is allowed.
 + When we do not explicitly define constructor for a class, then java creates a default constructor for the class
 
+TODO: constructor overloading
+
+
+---
 # Encapsulation
 
 + All properties and methods related to that class at one place .
 + hiding of data using getter and setter
 
+TODO: encapsulation example
 
 ---
 # Inheritance
@@ -661,7 +1013,7 @@ public class Main {
 
 + Use interface keyword (parent class)
 + Its a pure abstract (only abstract methods)
-+ All methods are abstract (by default).
++ All methods are abstract and public (by default).
 + Can also have default or static methods.
 + All properties (field) are either public , static or final.
 + In Java, interfaces cannot **`implement`** other interfaces
@@ -747,8 +1099,6 @@ public class Main {
     }
 }
 ```
-
-
 
 
 ---
@@ -3445,12 +3795,3 @@ i.e.
 
 
 
-
-
-
-
-
-
-
-
-TODO : encapsulation example
