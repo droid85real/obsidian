@@ -16,7 +16,10 @@
 + **Class** are either **public or default** but can not be private or protected.
 + Nested Class can be public, protected , default , private
 
-
+### Naming Conventions Recap:
+- **Classes**: `ParentClass`, `ChildClass` (PascalCase)
+- **Methods**: `display`, `main` (camelCase)
+- **Variables**: Same as methods, follow camelCase.
 
 Note:
 + `javac *.java` to compile all java files at once.
@@ -54,6 +57,19 @@ if (condition1 && condition2) {
 ```
 above code: it check condition 1 and if it is true then check condition 2 otherwise returns false without checking condition 2
 
+#### For-each
+i.e. using for-each loop to print each element of an array
+```java
+class Main{
+	public static void main(String[] args){
+		int arr[]={1,2,3,4,5};
+		
+		for(int e : arr){ //for-each
+			System.out.println(e+""); //Output: 1 2 3 4 5
+		}
+	}
+}
+```
 
 
 ---
@@ -131,7 +147,7 @@ class Outer{
 		void show(){
 			System.out.println("Static nested class");	
 		}
-		staic void display(){
+		static void display(){
 			System.out.println("static method inside static nested class");	
 		}
 	}
@@ -139,7 +155,8 @@ class Outer{
 	public static void main(String[] args){
 		StaticInner inner=new StaticInner();
 		inner.show();
-		// Outer.StaticInner.show(); we can do this without creating Outer or Inner class cause display is static
+		// Outer.StaticInner.show(); we cannot do this without creating Outer or Inner class cause show is not static
+		Outer.StaticInner.display();
 	}
 }
 ```
@@ -173,7 +190,7 @@ class Outer{
 		inner.show();
 	}
 	public static void main(String[] args){
-		new Outer().outerMethod(); // call outerMethod where LocalInner is used
+		new Outer().outerMethod(); // call outerMethod where LocalInner is used (anonymous object)
 	}
 }
 ```
@@ -205,13 +222,15 @@ new Scanner(System.in).nextLine();
 https://takeuforward.org/java/java-anonymous-class/
 https://youtu.be/bRbt5XR5t7U
 https://www.programiz.com/java-programming/anonymous-class
+https://youtu.be/LNpUj80JLGI
+https://youtu.be/4YnGBOyA2Q4
 
 + It is a special, nameless inner class that is defined and instantiated in a single expression.
 + You instantiate the anonymous class at the same time as you define it.
 + Single use
 + Is always going to be a **subclass** 
 	+ by **implementation** of an interface.
-	+ by extending an abstract class
+	+ by **extending** an abstract class
 
 Syntax
 ```java
@@ -267,8 +286,24 @@ public class Test{
 + Anonymous classes are defined inside an expression. So, semicolon is used at the end of anonymous classes to indicate the end of the expression.
 
 ---
+# Functional Programming
+ https://youtu.be/tPeLYpSQ37k
+ + We have functional interface, lambda expression, method reference to support functional programming style(paradigm) in java
+ + Functional programming in Java emphasizes treating functions as first-class citizens, enabling functions to be 
+	 + passed as arguments, returned as values, and assigned to variables. 
+	 + This paradigm promotes immutability, pure functions, and declarative style, enhancing code readability, maintainability, and testability.
+
+Functional programming in Java refers to using functions as first-class citizens — meaning we can:
+- Pass functions (via lambdas or method references)
+- Return functions (using functional interfaces)
+- Avoid mutability and side effects
+- Embrace expressions over statements (e.g., stream pipelines instead of loops)
+
+---
 # Functional Interface
 https://youtu.be/Gs8ZPKCFlTc
+https://www.geeksforgeeks.org/java-functional-interfaces/
+
 + Functional interface is an interface that contain only one abstract method
 + Can have multiple default or static methods but only **one abstract method**.
 + Functional interface are primarily used with **lambda expressions**, **methods reference** and **constructor references** .
@@ -284,7 +319,7 @@ interface MyFun{
 }
 
 class MyFunImpl implements MyFun{ // concrete class implementing the interface
-	public void execute(){
+	public void execute(){ // cause by default methods in interface are abstract and public
 		System.out.println("Executed using concrete class implementation");
 	}
 }
@@ -295,7 +330,6 @@ public class Main{
 		mfi.execute();
 	}
 }
-
 ```
 
 Functional interface executed using anonymous class
@@ -331,6 +365,8 @@ public class Main{
 	}
 }
 ```
+The lambda `()->System.out.println(...)` is the implementation of the single method in `MyFun`
+
 #### Default inside Functional Interface
 + `default`(in context of interfaces) is a method modifier that **allows a method to have a body inside an interface**.
 + A default method is a concrete method.
@@ -388,7 +424,55 @@ public class Main{
 ```
 
 
-#### Sealed Classes and Sealed Interfaces
+#### Built-In Java Functional Interface
+
+| Interface             | Method Signature                      | Description                                                                                        |
+| --------------------- | ------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| **Runnable**          | `void run()`                          | Executes code on a thread, no input/output.<br>Only contains the `run()` method                    |
+| **Callable**          | `V call()`                            | Like Runnable, but returns a result and can throw exceptions.<br>Only contains the `call()` method |
+| **Comparable**        | `int compareTo(T o)`                  | Compares current object with another. Used in sorting.<br>Only contains the `compareTo()` method   |
+| **Comparator**        | `int compare(T o1, T o2)`             | Compares two different objects. Used in sorting collections.                                       |
+| **ActionListener**    | `void actionPerformed(ActionEvent e)` | Used in GUI for button or event handling.<br>Only contains the `actionPerformed()` method          |
+| **Predicate**         | `boolean test(T t)`                   | Tests a condition (like filters).                                                                  |
+| **Function<T,R>**     | `R apply(T t)`                        | Takes input `T`, returns output `R`                                                                |
+| **Consumer**          | `void accept(T t)`                    | Takes input `T`, performs an action (no return)                                                    |
+| **Supplier**          | `T get()`                             | Provides a result of type `T` (no input)                                                           |
+| **BiFunction<T,U,R>** | `R apply(T t, U u)`                   | Takes `T` and `U`, returns `R`                                                                     |
+| **UnaryOperator**     | `T apply(T t)`                        | A special `Function` where input and output are same type.                                         |
+| **BinaryOperator**    | `T apply(T t1, T t2)`                 | A special `BiFunction` where all types are the same.                                               |
+
+##### Runnable
+i.e.
+```java
+public class LambdaRunnableDemo{
+	public static void main(String[] args){
+		Runnable r=()->System.out.println("Thread is running");
+		new Thread(r).start();
+	}
+}
+```
+
+##### Comparator 
+i.e.
+
+# Types of Functional Interfaces in Java
+- Java 8 added the `java.util.function` package with a bunch of **ready-to-use lambdas** (Predicate, Function, etc.)
+#### 1. Consumer 
+
+#### 2. Predicate
+#### 3. Function
+#### 3. Supplier
+A `Supplier<T>` is a function that takes no input and returns a value of type `T` when you call `.get()`
+Use case:  for lazy loading or injecting dependencies later
+
+TODO: incomplete
+
+
+
+
+
+---
+# Sealed Classes and Sealed Interfaces
 Used to
 - Enforce **strict hierarchy** rules
 - Prevent **unexpected extensions** (security, domain logic, etc.)
@@ -436,6 +520,7 @@ non-sealed class Rectangle implements Shape {
 + In same module (or same package if not using modules) 
 + Either `final`,`sealed` or `non-sealed` (failing to do so result in compiler error)
 + Explicitly listed in `permits` clause
+
 
 
 ---
@@ -612,7 +697,8 @@ lambda expression for interface chatgpt example
 # Method Reference
 https://youtu.be/ar5jQQRWxFM
 https://www.geeksforgeeks.org/method-references-in-java-with-examples/
-+ Method reference are a shorthand notation of a lambda expression to call a method directly.
++ Method reference are a shorthand notation of a lambda expression to call a single method directly.
++ They allow you to refer to methods or constructors without invoking them.
 
 ```java
 //lambda expression
@@ -632,7 +718,8 @@ Key Benefits
 
 ##### 1. Reference to a static method
 
- Syntax: `ClassName::staticMethodName`
+Syntax: `ClassName::staticMethodName`
+Use case: You have a static method you want to pass as behaviour
 
 i.e.
 ```java
@@ -672,6 +759,25 @@ class Demo{
 ##### 2. Reference to an instance method of a particular object
 
 Syntax: `insttance::instanceMethodName`
+Use case: when you want to use method from specific object
+i.e.
+```java
+import java.util.Arrays;
+
+class Printer{
+	void print(String msg){
+		System.out.println(msg);
+	}
+}
+public class Main{
+	public static void main(String[] args){
+		Printer p=new Printer();
+		//intead of writing msg->p.print(msg)
+		Arrays.asList("one","two").forEach(p::print);
+	}
+}
+```
+
 
 i.e.
 ```java
@@ -689,12 +795,308 @@ class Demo{
 ```
 
 
-##### Reference to an instance method of an arbitrary object of a particular type
+##### 3. Reference to an instance method of an arbitrary object of a particular type
 
 Syntax: `ClassName::instanceMethodName`
+Use case: Each element in a collection has that method. You want to apply it to each
 
-TODO: incomplete
+```java
+import java.util.Arrays;
+import java.util.List;
 
+public class Main{
+	public static void main(String[] args){
+		List<String> list=Arrays.asList("one","two");
+		
+		//intead of writing s->s.toUpperCase()
+		list.stream().map(String::toUpperCase).forEach(System.out::println);
+	}
+}
+```
+
+
+
+##### 4. Reference to a  constructor
+
+Syntax: `ClassName::new`
+Use case: when you want to create new objects dynamically like in streams, dependency injection, factories etc
+
+```java
+import java.util.function.Supplier;
+
+class Demo{
+	Demo{
+		System.out.println("New demo created");
+	}
+}
+
+public class Main{
+	public static void main(String[] args){
+		//Instead of writing ()->new Demo()
+		Supplier<Demo> s=Demo::new;
+		s.get(); //Triggers constructor
+	}
+}
+```
+Whenever someone calls `.get()`, run `new Demo()` and return it.
+`Supplier<T>` takes no input and returns a value of type `T` when you call `.get()`
+
+.i.e.
+```java 
+interface MessageCreator{
+	Message createMessage(String msg);
+}
+
+class Message{
+	Message(String msg){
+		System.out.println(msg);
+	}
+}
+
+public class ConstructorReferenceDemo{
+	public static void main(String[] args){
+		MessageCreator creator=Message::new;
+		creator.createMessage("hello");
+	}
+}
+```
+`Message::new` is a **constructor reference**.
++ which(constructor) creates and returns a `Message` object — so the return type must be `Message` in interface
+It matches the method in the `MessageCreator` interface:
+So Java links the `createMessage(String)` method to the constructor `Message(String)`.
+
+
+---
+# Java Base64 Encode and Decode
+https://www.baeldung.com/java-base64-encode-and-decode
+Base64 in Java is a way of **encoding binary data into an ASCII string format** using a **set of 64 characters** (A-Z, a-z, 0-9, +, /). It's **not encryption**, just a way to make data safely transferable or storable.
++ binary to text encoding scheme
++ Takes 3 bytes of binary data and turns it into 4 ASCII characters
++ It's part of the `java.util.Base64` class (added in java 8)
+
+i.e. Base64 Encode and Decode
+```java
+import java.util.Base64;
+
+class Base64ConvertExample{
+	public static void main(String[] args){
+		String str="Example of base 64 conversion";
+		byte[] b=str.getBytes();
+		System.out.println("bytearray: "+b);
+		//Converting into Base64 (Encoding)
+		String base64=Base64.getEncoder().encodeToString(b);
+		System.out.println("encoded string: "+base64);
+		//Converting Base64 to binary (Decoding)
+		byte[] decodedBytes=Base64.getDecoder().decode(base64);
+		String s=new String(decodedBytes); //s is decoded string
+		System.out.print(s);
+	}
+}
+```
+
+In Base64 encoding, the length of an output encoded string must be a multiple of four. If necessary , the encoder adds one or two padding characters(=) at the end of the output as needed in order to meet this requirement.
+Upon decoding the decoder discards these extra padding characters
+
+.i.e. skipping padding while encoding
+```java
+import java.util.Base64;
+
+class Base64ConvertExample {
+    public static void main(String[] args) {
+        String originalString = "Example of base 64 conversion";
+        // Encode
+        String encodedString =Base64.getEncoder().withoutPadding().encodeToString(originalString.getBytes());
+        System.out.println("Encoded: " + encodedString);
+        // Decode
+        byte[] decodedBytes = Base64.getDecoder().decode(encodedString);
+        String decodedString = new String(decodedBytes);
+        System.out.println("Decoded: " + decodedString);
+    }
+}
+```
+
+
+---
+# Try with Resources
++ Is a try block that declares and initializes one or more resources (objects that implement `AutoCloseable` or `Closeable`)
++ These resources are automatically closed at the end of the statement, even if an exception is thrown
++ try-with-resources block can still have the catch and finally
+
+```java
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
+class TryWithResourcesExample{
+	public static void main(String[] args){
+		try(BufferedReader reader=new BufferedReader(new FileReader("file.txt"))){
+			String line;
+			while((line=reader.readLine())!=null){
+				System.out.println(line);
+			}
+		}catch(IOException e){
+			e.printStackTrace();
+		}
+	}	
+}
+```
+No need to call `reader.close()` — Java handles it for you.
+
+
+---
+# yield keyword in switch expression (java 14+)
+https://dev.java/learn/language-basics/switch-expression/
+https://www.geeksforgeeks.org/scala-yield-keyword/
+https://www.geeksforgeeks.org/switch-statement-in-java/
+
++ Used to **pause the function** and send a value to the caller.
++ No fall-through between cases in switch expression.
++ Think of `yield` as the **equivalent of `return` inside a switch block** — but only **within switch expressions** .
+
+i.e.
+```java
+class YieldTest {
+    public enum Day {
+        SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY
+    }
+
+    public static void main(String[] args) {
+        Day[] dayNow = Day.values(); // create array of enum using enum values
+
+        for (Day currDay : dayNow) { // for-each
+            boolean result = switch (currDay) {
+                case MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY -> {
+                    System.out.println(currDay + " is a weekday");
+                    yield true;
+                }
+                case SATURDAY, SUNDAY -> {
+                    System.out.println(currDay + " is a holiday");
+                    yield false;
+                }
+            };
+            System.out.println("Result: " + result);
+            System.out.println(result ? "students are present" : "students are absent");
+            System.out.println();
+        }
+    }
+}
+```
+- `break` is illegal in **switch expressions** with `->` and it does not return value so we  can't use it here.
+- `break` is for exiting **switch statements**, not expressions.
+- If you had used **`return`** inside your `switch`, it would have exited the entire `main()` method **immediately**, so none of this would have printed:
+```java
+System.out.println("Result: "+result);
+System.out.println(result ? "student's are present": "student's are absent");
+System.out.println();
+```
+
+
+---
+# Text Blocks
+https://www.geeksforgeeks.org/text-blocks-in-java-15/
++ It allows you to write multi-line string literals in a more readable and clean way using double quotes `"""`
+- **Begins and ends** with triple double quotes: `"""`
+- Automatically handles **newlines and indentation**.
+- Great for **HTML, JSON, SQL**, or other multi-line content.
+
+```java
+String textBlock = """
+    This is a text block.
+    It spans multiple lines.
+    No need for \n or + for concatenation.
+    """;
+```
+
+
+---
+# Annotations 
+https://www.programiz.com/java-programming/annotations
+https://www.geeksforgeeks.org/annotations-in-java/
+
++ These are metadata for our program source code that provide additional information about the program and this information is used by compiler and JVM
++ Syntax: `@AnnotationName`
+
+There are 5 categories of annotations as listed:
+##### 1. Marker Annotations
++ **Definition**: An annotation with no elements/parameters
++ **Purpose**: Used to mark or flag something. The presence of the annotation alone gives information
+
+i.e.
+```java
+@override
+public void run(){}
+```
+
+##### 2. Single Value Annotation
+- **Definition:** Contains **only one element**.
+Syntax:
+`@AnnotationName(elementName = "elementValue")`
+
+If there is only one element, it is a convention to name that element as value.
+`@AnnotationName(value = "elementValue")`
+
+In this case, the element name can be excluded as well. The element name will be value by default.
+`@AnnotationName("elementValue")`
+
+##### 3. Full Annotations
+- **Definition:** Annotation with **multiple elements** (key-value pairs).
+Syntax: `@TestAnnotation(owner=”Rahul”, value=”Class Geeks”)`
+
+##### 4. Type Annotations
+- **Definition:** Used to **annotate types** such as class, interface, type parameters, etc.
+Syntax: `@NonNull String str;`
+This declaration specifies non-null variable `str` of type `String` to avoid `NullPointerException`.
+
+##### 5. Repeating Annotations
+- **Definition:** Allows using the **same annotation multiple times** on the same element.
++ For an annotation to be repeatable it must be annotated with the **@Repeatable** annotation, which is defined in the `java.lang.annotation` package.
+
+---
+# Local Variable Type Inference
+https://www.baeldung.com/java-10-local-variable-type-inference
+https://www.geeksforgeeks.org/local-variable-type-inference-or-lvti-in-java-10/
++ Introduced in java 10
++ It allows you to declare local variables without explicitly specifying their type, and the compiler infers the type based on the context.
+
+Syntax: `var variableName = expression;`
+The type of `variableName` is inferred from the right-hand side `expression`.
+
+i.e.
+```java
+var message = "Hello, Java";  // Inferred as String
+var number = 42;              // Inferred as int
+var list = new ArrayList<String>();  // Inferred as ArrayList<String>
+```
+### Rules & Limitations
+
+1. **Only for local variables**:
+    - Inside methods
+    - In loops (e.g., `for` loops)
+    - Not allowed for instance variables or method parameters/return types.
+
+2. **Cannot be used without initialization**:
+    `var name;  // ❌ Compilation error`
+
+3. **Type is fixed after assignment**:
+```java
+var value = 10;    // int
+value = "hello";   // ❌ Error: incompatible types
+```
+
+---
+# Records
+
+
+
+
+
+
+---
+TODO: 
++ Annotation
++ java module system
++ Records
++ Stream api
 
 ---
 # Searching and Sorting
@@ -710,7 +1112,7 @@ TODO: incomplete
 
 ---
 
-## this keyword
+## `this` keyword
 + In Java, the `this` keyword refers to the current instance of a class. 
 + to get reference of current object
 + It is used to refer to instance variables, methods, or the current object. 
@@ -727,14 +1129,15 @@ public class Car {
 }
 ```
 
-
-## final keyword
+---
+## `final` keyword
 + to finalise(fix) value .
 + final function can not be override.
 + final class can not be inherited by other class 
 + final class can not inherit other class
 
-## static keyword
+---
+## `static` keyword
 <u><b>Use case Scenario :</b></u>
 + jo property or method same rehne wale h multiple instances(object) of class, unko hum static bana dete h.
 + when we want to call method without creating on object.
@@ -752,6 +1155,26 @@ public class Main {
 + `this` cannot be used in a static method, because it refers to the current instance and static methods do not belong to a specific instance.
 + `super` can be used inside static methods, but only to access static members(fields and methods) of the parent class.
 + constructor can't be static
+
++ static method is accessed using class name not object.
+```java
+class MyClass {
+    // Static method
+    static void greet() {
+        System.out.println("Hello from the static method!");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        // Accessing the static method using the class name
+        MyClass.greet();
+    }
+}
+
+//In this example, the `greet()` method is static, and it's called using `MyClass.greet()` instead of creating an object of `MyClass`.
+```
+
 
 + static method can not use non static function and variable.
 ```java
@@ -775,25 +1198,6 @@ class MyClass {
         staticMethod();
     }
 }
-```
-
-+ static method is accessed using class name not object.
-```java
-class MyClass {
-    // Static method
-    static void greet() {
-        System.out.println("Hello from the static method!");
-    }
-}
-
-public class Main {
-    public static void main(String[] args) {
-        // Accessing the static method using the class name
-        MyClass.greet();
-    }
-}
-
-//In this example, the `greet()` method is static, and it's called using `MyClass.greet()` instead of creating an object of `MyClass`.
 ```
 
 i.e. main class is static so we made `ArrayList` global but also static so we use it inside main but we can also define inside main without making it static.
@@ -854,7 +1258,7 @@ public class Example {
 
 
 ---
-## super keyword
+## `super` keyword
 
 + **Calling a Parent Class Method and Property:** If the child class has a method with the same name as the one in the parent class, super allows you to call the parent class method.
 
@@ -1333,6 +1737,7 @@ class Overloading {
 ### 2. Runtime Polymorphism or Function Overriding or Method Overriding
 
 + Function overriding occurs when a child class provides its own implementation of a method already defined in the parent class, replacing the parent's version.
++ method overriding means the child class method should have the same method signature as the parent class method
 + Occurs in a subclass that inherits from a parent class.
 + if called then first it check if child has that method if not then parent class
 
