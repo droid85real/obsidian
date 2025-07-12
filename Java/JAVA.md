@@ -17,8 +17,8 @@
 + Nested Class can be public, protected , default , private
 
 ### Naming Conventions Recap:
-- **Classes**: `ParentClass`, `ChildClass` (PascalCase)
-- **Methods**: `display`, `main` (camelCase)
+- **Classes, Interface**: `ParentClass`, `ChildClass` (PascalCase)
+- **Methods**: `display`, `mainSum` (camelCase)
 - **Variables**: Same as methods, follow camelCase.
 
 Note:
@@ -1260,10 +1260,65 @@ public class Example {
 ---
 ## `super` keyword
 
-+ **Calling a Parent Class Method and Property:** If the child class has a method with the same name as the one in the parent class, super allows you to call the parent class method.
+ **Calling a Parent Class Method and Property:** 
+ + If the child class has a method with the same name as the one in the parent class, super allows you to call the parent class method.
+OR
++ if a child class overrides a method from the parent class, you can still explicitly call the parent version using `super.methodName()`
++ You cannot access private methods or fields of the parent class using super.
 
-+ **Calling the Parent Class Constructor:** super() can be used to call the constructor of the parent class when creating an object of the child class.
-+ i.e. **`super()`**
+i.e.
+```java
+class Parent {
+    void greet() {
+        System.out.println("Hello from Parent");
+    }
+}
+
+class Child extends Parent {
+    void greet() {
+        System.out.println("Hello from Child");
+        super.greet(); // Calls the Parent's greet method
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Child c = new Child(); // 🔥 Object created here
+        c.greet();             // Calls overridden method in Child
+    }
+}
+
+//output
+//Hello from Child
+//Hello from Parent
+```
+
+**Calling the Parent Class Constructor:** 
++ super() can be used to call the constructor of the parent class when creating an object of the child class.
+i.e. 
+```java
+class Parent {
+    Parent() {
+        System.out.println("Parent constructor called");
+    }
+}
+
+class Child extends Parent {
+    Child() {
+        super(); // 👈 Explicit call to Parent's constructor
+        System.out.println("Child constructor called");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Child c = new Child(); // 🔥 Object created here
+    }
+}
+//output
+//Parent constructor called
+//Child constructor called
+```
 
 ---
 # Constructor
@@ -1274,7 +1329,7 @@ public class Example {
 + no return type
 + Automatically called at the time of object creation to initialize the object.
 + Constructor overloading is allowed.
-+ When we do not explicitly define constructor for a class, then java creates a default constructor for the class
++ When we do not explicitly define constructor for a class, then java creates a default constructor for the class to initialize data member or instance variable with initial value like null, zero etc
 
 TODO: constructor overloading
 
@@ -1708,7 +1763,8 @@ why? bcz
 Your code can be reused for any subclass of `vehicle`. For example, `vehicle v = new Truck()` or `vehicle v = new Bike()` would work the same way. You can write methods that treat all vehicles in a unified way, no matter their specific type.
 
 ### 1. Compile Time polymorphism or Function overloading or Static Polymorphism
- + same method name but with different parameter.
+ + same method name but with different parameter(type).
+ + same method name but with different numbers of parameters.
 
 ```java
 class Overloading {
@@ -1737,10 +1793,33 @@ class Overloading {
 ### 2. Runtime Polymorphism or Function Overriding or Method Overriding
 
 + Function overriding occurs when a child class provides its own implementation of a method already defined in the parent class, replacing the parent's version.
-+ method overriding means the child class method should have the same method signature as the parent class method
++ method overriding means the child class method should have the same method signature(same name, same return type and same parameter) as the parent class method.
 + Occurs in a subclass that inherits from a parent class.
 + if called then first it check if child has that method if not then parent class
 
+i.e. Let’s say both the **`Vehicle`** class and the `Car` class have a **`print()`** method.
+
+```java
+class Vehicle {
+    void print() {
+        System.out.println("Printing Vehicle details");
+    }
+}
+
+class Car extends Vehicle {
+    @Override
+    void print() {
+        System.out.println("Printing Car details");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Vehicle v = new Car();  // Vehicle reference to a Car object
+        v.print(); //This will call the print() method from the Car class (runtime polymorphism)
+    }
+}
+```
 
 i.e. vehicle is parent class and car is child class
 ```java
@@ -1762,7 +1841,7 @@ class Car extends Vehicle {
     void isConvertible() {
         System.out.println("This car is convertible.");
     }
-
+    
     @Override
     void move() {
         System.out.println("Car is driving");
@@ -1772,47 +1851,62 @@ class Car extends Vehicle {
 public class Main {
     public static void main(String[] args) {
         Vehicle v = new Car();  // Vehicle reference to a Car object
-        
         v.move();  // Calls Car's move() method (runtime polymorphism)
-
+        //output: Car is driving
+		
         // If we want to call Car-specific methods
         if (v instanceof Car) {
             Car car = (Car) v;  // Cast to Car
             car.isConvertible();  // Now you can call Car-specific methods
+            //output: This car is convertible.
         }
+        //or make Car type object instead of Vehicle type
+        Car c=new Car();
+        c.isConvertable();//output: This car is convertible.
     }
 }
-
-```
-
-
-i.e. Let’s say both the **`Vehicle`** class and the `Car` class have a **`print()`** method.
-
-```java
-class Vehicle {
-    void print() {
-        System.out.println("Printing Vehicle details");
-    }
-}
-
-class Car extends Vehicle {
-    @Override
-    void print() {
-        System.out.println("Printing Car details");
-    }
-}
-
-public class Main {
-    public static void main(String[] args) {
-        Vehicle v = new Car();  // Vehicle reference to a Car object
-        v.print();  // This will call the print() method from the Car class
-    }
-}
-
 ```
 
 **Dynamic Method Dispatch**: (only for method overriding)
 - In the line **`Vehicle v = new Car();`**, the reference **`v`** is of type **`Vehicle`**, but it actually points to a **`Car`** object.
+
+```java
+class Shape{
+	void draw(){
+		System.out.println("Drawing a shape");
+	}
+}
+class Rectangle extends Shape{
+	@Override
+	void draw(){
+		System.out.println("Drawing a rectangle");
+	}
+}
+class Circle extends Shape{
+	@Override
+	void draw(){
+		System.out.println("Drawing a circle");
+	}
+}
+public class Main{
+	public static void main(String args[]){
+		Shape shape=new Shape();
+		Rectangle rectangle=new Rectangle();
+		Circle circle=new Circle();
+		
+		Shape shapeRef;
+		
+		shapeRef=shape;
+		shapeRef.draw(); //output: Drawing a shape
+		
+		shapeRef=rectangle;
+		shapeRef.draw();//output: Drawing a rectangle
+		
+		shapeRef=circle;
+		shapeRef.draw();//output: Drawing a circle
+	}
+}
+```
 
 ---
 # Exception Handling
@@ -1833,6 +1927,8 @@ Exception in Java is an error condition that occurs when something wrong happens
 
 
 ### Throwing exception
+
+https://www.geeksforgeeks.org/exceptions-in-java/
 
 using **`throw`** keyword
 ```java
@@ -1935,13 +2031,153 @@ Throwable
 ```
 
 
+### Custom Exception
 
-https://www.geeksforgeeks.org/exceptions-in-java/
+i.e.
+```java
+public class TestCustomException {
+    public static void validateAge(int age) throws InvalidAgeException {
+        if (age < 18) {
+            throw new InvalidAgeException("Age must be 18 or above.");
+        }
+    }
+
+    public static void main(String[] args) {
+        try {
+            validateAge(16);
+        } catch (InvalidAgeException e) {
+            System.out.println("Caught Exception: " + e.getMessage());
+        }
+    }
+}
+
+// This class is package-private (no modifier), which is allowed
+class InvalidAgeException extends Exception {
+    public InvalidAgeException(String message) {
+        super(message);
+    }
+}
+```
+
+
 
 TODO : 
 + multiple exception from chatgpt example
 + multiple catch
 + how jvm handle error and exception
+
+---
+### File Handling 
+https://www.scholarhat.com/tutorial/java/file-handling-in-java
+
+
+#### Creating File
+i.e.
+```java
+import java.io.File; 
+import java.io.IOException;
+
+public class CreateFile {  
+  public static void main(String[] args) {  
+    try {  
+      File myObj = new File("filename.txt");  
+      if (myObj.createNewFile()) {  
+        System.out.println("File created: " + myObj.getName());  
+      } else {  
+        System.out.println("File already exists.");  
+      }  
+    } catch (IOException e) {
+      System.out.println("An error occurred.");
+      e.printStackTrace();  
+    }  
+  }  
+} 
+```
+
+### Write to a File
+i.e.
+```java
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class WriteToFile {  
+  public static void main(String[] args) {  
+    try {  
+      FileWriter myWriter = new FileWriter("filename.txt");
+      myWriter.write("Files in Java might be tricky, but it is fun enough!");
+      myWriter.close();
+      System.out.println("Successfully wrote to the file.");
+    } catch (IOException e) {
+      System.out.println("An error occurred.");
+      e.printStackTrace();
+    } 
+  }  
+} 
+```
+
+### Read a file 
+i.e.
+```java
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
+public class ReadFile {  
+  public static void main(String[] args) {  
+    try {
+      File myObj = new File("filename.txt");
+      Scanner myReader = new Scanner(myObj);  
+      while (myReader.hasNextLine()) {
+        String data = myReader.nextLine();
+        System.out.println(data);
+      }
+      myReader.close();
+    } catch (FileNotFoundException e) {
+      System.out.println("An error occurred.");
+      e.printStackTrace();
+    } 
+  }  
+} 
+```
+
+### Get file info 
+i.e.
+```java
+import java.io.File;  // Import the File class
+
+public class GetFileInfo {   
+	public static void main(String[] args) {
+	    File myObj = new File("filename.txt");
+		if (myObj.exists()) {
+			System.out.println("File name: " + myObj.getName());
+		    System.out.println("Absolute path: " + myObj.getAbsolutePath());
+		    System.out.println("Writeable: " + myObj.canWrite());
+		    System.out.println("Readable " + myObj.canRead());
+		    System.out.println("File size in bytes " + myObj.length());
+		}else{
+			System.out.println("The file does not exist.");
+		}
+	}
+}
+```
+
+### Delete a File
+i.e.
+```java
+import java.io.File; 
+
+public class DeleteFile {
+  public static void main(String[] args) { 
+    File myObj = new File("filename.txt"); 
+    if (myObj.delete()) { 
+      System.out.println("Deleted the file: " + myObj.getName());
+    } else {
+      System.out.println("Failed to delete the file.");
+    } 
+  } 
+}
+```
+
 
 ---
 # Multithreading
@@ -1950,6 +2186,9 @@ TODO :
 + **run( )**: The entry point for the thread
 
 **Creating a Thread by Extending the `Thread` Class**
++ Consumes more system resources due to inheritance
++ Can not be shared among multiple threads
+i.e.
 ```java
 public class BasicThread extends Thread {
 	@Override
@@ -1966,6 +2205,9 @@ public class BasicThread extends Thread {
 
 
 **Creating a Thread by Implementing the `Runnable` Interface**
++ Consumes less system resources as it's an interface
++ Can be shared among multiple threads 
+i.e.
 ```java
 public class MyTask implements Runnable {
     @Override
@@ -2000,7 +2242,6 @@ class Thread2 implements Runnable {
 }
 
 public class CreatingThread {
-	
 	public static void main(String[] args) {
 		Thread1 t1 = new Thread1(); // extends Thread
 		Thread t2 = new Thread(new Thread2()); // Thread2 implements Runnable
