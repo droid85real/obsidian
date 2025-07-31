@@ -13,11 +13,12 @@ https://youtu.be/q8EevlEpQ2A
 
 # Frequently used git commands 
 + `git status`  displays the state of the working directory and the staging area
-+ `git add .` to add all files and folder to staging area
-+ `git commit -m "msg"` to commit changes to git with message
++ `git add .` to add all files and folder to staging area (Local)
++ `git commit -m "msg"` to commit changes to git with message (Local)
 + `git reset` to reset staging area
 + `git log` used to track a branch's commit history
 + `git log --oneline` more concise view of log
++ `git push` sends your commits to Github(remote repo)
 + `git ls-files --others --exclude-standard` it show all files that Git is not currently tracking but are in your working directory 
 + `git config --list` view all of your Git config settings
 + `git clone httpsorssshlink` to create a clone on local device
@@ -66,22 +67,53 @@ now either merge or rebase
  **or**
 - `git rebase origin/main` → clean, but requires care
 
+---
 ### 🔹 `git pull`
 - **Does a `fetch` + `merge`** (or `rebase`, depending on config).
 - Downloads changes and **automatically applies them** to your current branch.
 - It's more immediate, but also more dangerous if you're not ready to merge changes.
 + `git pull remotename branchname` here branch name is optional
 
+---
+### 🔹 `git push`
++ Uploads your local commits to the remote repository (e.g., GitHub).
++ Updates the branch on the remote with your latest local commits.
++ Common after `git commit`
+
+**Basic Usage**
+`git push` Pushes current branch to its upstream remote
+`git push origin main` Pushes current branch to its upstream remote (use this , be more specific by telling branch name you using)
+
+**First time push (sets upstream tracking)**
+`git push -u origin main`
+- `-u` (or `--set-upstream`) links your local branch to the remote one.
+- After this, future pushes can just be `git push`.
+
+**Push to different branch name**
+`git push origin local-branch:remote-branch`
+
+ **Force push (⚠️ dangerous):**
+`git push --force`
++ Overwrites remote history with your local commits.
++ Use only when you understand the consequences (e.g., rewriting history after a rebase).
+
+**Push all branches**
+`git push -all`
+
+
+---
 ## `.gitignore`
 `.gitignore` file specifies intentionally untracked files that Git should ignore.
 
 + create file `.gitignore` and inside it mention all files you don't want to track. Like .env , node_modules etc
 
+---
 # `.gitkeep`
 `.gitkeep` file is used to keep empty directories in Git, as Git doesn’t track empty directories by default. It ensures that the directory structure is included in the repository.
 
 + create empty folder and inside it create `.gitkeep` file.
 
+---
 # Branch
 + `git branch` to get list of all branches
 + `git branch newbranchname` to create a new branch
@@ -92,8 +124,9 @@ now either merge or rebase
 + `git merge --abort` to abort merge
 + `git branch -m oldbranchname newbranchname` to rename branch
 + `git branch -d branchname` to delete branch
++ `git branch -vv` To check if the local branch is tracking a remote
 
-
+---
 ## diff
  shows the differences between two commits
 
@@ -108,6 +141,7 @@ now either merge or rebase
 + `git diff branchname1..branchname2 difference between branches
 + `git diff commitcode1 commitcode2`
 
+---
 ## stack
 `stash` allows you to temporarily save changes that are not yet ready to commit. 
 If you need to switch branches but don’t want to commit your changes, use `git stash` to save them. Later, you can apply or pop the stashed changes back with `git stash apply` or `git stash pop`.
@@ -122,6 +156,7 @@ If you need to switch branches but don’t want to commit your changes, use `git
 + `git stash apply stash@{0} branchname` to apply the stash to a specific branch
 + `git stash clear` clear the stash
 
+---
 ## tag
 A Git tag is a reference to a specific point in Git history, typically used to mark release points (e.g., v1.0, v2.0)
 + tags are immutable but can be deleted and replaced

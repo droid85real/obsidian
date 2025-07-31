@@ -506,6 +506,10 @@ console.log(someNegative); // true
 const arr=["a","b","c"];
 for(const value of arr.values()){
 	console.log(value);
+	// Output:
+	//a
+	//b
+	//c
 }
 ```
 
@@ -519,6 +523,25 @@ for(const val of arr){
 //a
 //b
 //c
+```
+
+```js
+const arr=["a","b","c"];
+for(let i in arr){
+	console.log(i); // for index
+	console.log(arr[i]); //for element
+}
+```
+
+```js
+const arr=["a","b","c"];
+for(let i of arr){
+	console.log(i); 
+	//Output: 
+	//a
+	//b
+	//c
+}
 ```
 
 ##### keys
@@ -616,11 +639,170 @@ console.log(arr.toString()); //Output: "1,2,3"
 
 
 
+The **rest** and **spread** operators in JavaScript look the same (`...`), but they serve **opposite purposes** depending on context:
+
+#### `Rest Operator(...)`
++ Collects multiple elements into a single variable.
++ Used in function parameters and destructuring.
+```js
+// Function parameter
+function sum(...numbers){
+	return numbers.reduce((acc,curr)=>acc+curr,0);
+}
+sum(1,2,3); //6
+
+// Array destructuring
+const [first,...rest]=[10,20,30,40];
+console.log(rest); // [20,30,40]
+
+// Object destructuring
+const {a,...others}={a:1, b:2, c:3};
+console.log({a}); // {a:1}
+console.log(a); // 1
+console.log(others); // {b:2, c:3}
+```
+
+
+#### `Spread Operator(...)`
++ Expands elements of an array or object.
++ Used to copy, merge or pass values.
+```js
+// Function args
+const nums=[1,2,3];
+Math.max(...nums); //3
+
+// Array merging
+const arr1=[1,2];
+const arr2=[3,4];
+const merged=[...arr1,...arr2]; //[1,2,3,4]
+
+// Object merging
+const obj1={a: 1};
+const obj2={b: 2};
+const combined={...obj1,...obj2}; // {a: 1,b: 2}
+```
+
+
+---
+# Object
+
+#### Object Creation
+```js
+const student={
+	name: 'Alexa',
+	age: 10,
+	hobby: 'Dancing',
+	show: function(){
+		console.log('This is the student details section');
+	},
+	100: 'hundred', 
+};
+
+console.log(student);
+console.log(student.name);
+console.log(student["name"]);
+console.log(student[100]);
+student.show();
+```
+
+object creation using new keyword then adding properties
+```js
+const person=new Object(); // creates an object
+
+person.firstName="John";
+person.lastName="Doe";
+person.age=50;
+
+console.log(person); //Output: { firstName: 'John', lastName: 'Doe', age: 50 }
+```
+
+
+
+working
 
 
 TODO: length,split,hasownproperty
 
-week6,topic3,lec20 
+week6,topic3,lec44
+## 3. Adding/Updating Properties
 
+javascript
 
+CopyEdit
+
+`let person = { name: "Bob", age: 35 };  // Adding a new property person.city = "New York";  // Updating an existing property person.age = 36;  console.log(person);  // { name: 'Bob', age: 36, city: 'New York' }`
+
+---
+
+## 4. Deleting Properties
+
+Use the `delete` operator:
+
+javascript
+
+CopyEdit
+
+`let person = { name: "Charlie", age: 40, city: "London" };  delete person.city;  console.log(person);  // { name: 'Charlie', age: 40 }`
+
+---
+
+## 5. Object Methods
+
+An object can have **methods**, which are functions that belong to the object.
+
+javascript
+
+CopyEdit
+
+``let car = {   make: "Toyota",   model: "Corolla",   year: 2020,   displayInfo: function() {     return `${this.year} ${this.make} ${this.model}`;   } };  console.log(car.displayInfo());  // Output: 2020 Toyota Corolla``
+
+---
+
+## 6. Object Destructuring
+
+javascript
+
+CopyEdit
+
+`let person = { name: "Emma", age: 28 };  // Destructuring let { name, age } = person;  console.log(name);  // Output: Emma console.log(age);   // Output: 28`
+
+### Renaming variables during destructuring:
+
+javascript
+
+CopyEdit
+
+`let person = { name: "David", age: 30 };  // Renaming variables let { name: firstName, age: yearsOld } = person;  console.log(firstName);  // Output: David console.log(yearsOld);   // Output: 30`
+
+---
+
+## 7. Nested Objects
+
+javascript
+
+CopyEdit
+
+`let user = {   name: "Jake",   address: {     street: "123 Main St",     city: "Los Angeles",     zip: "90001"   } };  console.log(user.address.city); // Output: Los Angeles`
+
+---
+
+## 8. The `this` Keyword
+
+Inside an object method, `this` refers to the object itself.
+
+javascript
+
+CopyEdit
+
+`let person = {   firstName: "Sophia",   lastName: "Lee",   fullName: function() {     return this.firstName + " " + this.lastName;   } };  console.log(person.fullName());  // Output: Sophia Lee`
+
+---
+
+Let me know if you want to expand this into more advanced topics like prototypes, classes, or object inheritance!
+
+pgsql
+
+CopyEdit
+
+``You can paste this into a file named `javascript-objects.md` and it will render nicely in any Markdown viewer or editor (like VSCode, GitHub, Obsidian, etc.). Let me know if you want a downloadable version instead!``
 
