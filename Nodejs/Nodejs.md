@@ -295,6 +295,7 @@ week2 topic1
 + Lec 4 nodemailer
 
 
+---
 # Events
 
 In Node.js, the `req` object, representing an incoming HTTP request, emits several events during its lifecycle. These events allow you to interact with the request data and process it as it arrives. The most commonly used events are:
@@ -359,6 +360,7 @@ inside body (json)
 ```
 
 
+---
 # [Event Emitter](https://nodejs.org/en/learn/asynchronous-work/the-nodejs-event-emitter)
 
 https://youtu.be/vw0rb1EnEvQ
@@ -381,6 +383,7 @@ To apply **SOC** and **SRP** in Node.js:
     - Isolate business logic from the data layer and use a repository pattern.
 
 
+---
 # Why use `Express`
 
 **What is it?**  
@@ -414,10 +417,11 @@ server.listen(3100, () => {
 + `node filename.js` to run the file
 
 
+---
 ## **Middleware**
 
 + In Node.js, middleware refers to functions that are executed during the request-response cycle. 
-+ They have access to the `request` and `response` objects, and they can modify or log information, perform operations (like authentication, logging, data parsing), or pass control to the next middleware function.
++ They have access to the `request`, `response` and `next` objects, and they can modify or log information, perform operations (like authentication, logging, data parsing), or pass control to the next middleware function.
 + order matter while execution.
 
 https://www.geeksforgeeks.org/middleware-in-express-js/
@@ -495,6 +499,7 @@ server.listen(3100, () => {
 ```
 
 
+---
 ## **HTTP headers**
 https://www.geeksforgeeks.org/http-headers/
 https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers
@@ -625,6 +630,8 @@ The three parts of the MVC software-design pattern can be described as follows:
 3. Controller: Routes commands to the model and view parts.
  🧠 In Node.js (with Express), you can organize your project in MVC style for clarity and separation of concerns.
 
+
+---
 ### **REST API**
 
 **Architectural style** for designing networked applications.
@@ -635,6 +642,7 @@ The three parts of the MVC software-design pattern can be described as follows:
 - **Stateless** – every request from client to server must contain all the information to understand the request.
 
 
+---
 ### **Web API**
 
 More **generic** term. Any API that’s accessible over the web.
@@ -661,19 +669,151 @@ project/
 - `userModel.js` → Handles database-related logic.
 
 
-week 3 | topic 1 |
-+ lec7 creating view
+---
 
+http is stateless so session provide additional information
 
+Sessions are used to persist user data cross multiple requests. This is crucial for functionalities like login/logout ,shopping cart etc
+
+A session stores data on the server about the user where as cookies stores data on the client/browser
 
 ---
 ## Inventory App
+used
++ express
++ ejs
++ ejs-layout
++ mvc pattern
++ express-validator
++ multer
 
+Start
 + `npm init` to initialise app 
 + `npm i express` we will we working with express.js
 + create file structure where index.js is main entry point.
 + change `"type": "module",` in `package.json` and stick with ES6 import/Export 
 
+For template literals in product.html to dynamically load data we use `npm ejs`
+https://www.npmjs.com/package/ejs
++ `npm i ejs` to install 
++ then setup view engine in index.js
++ also rename `product.html` to `product.ejs`
++ and use `res.render(view,data)` to send data dynamically in `product.controller.js`
++ `res.render(view,data)` in here data is key value pair and is optional
++ use `<%= %>` to assign variable in `product.ejs`
+
+Separate `nav` from `main` in `product.ejs`
+https://www.npmjs.com/package/express-ejs-layouts
++ `npm i express-ejs-layouts` To install ejs layout
++ setup `express-ejs-layout` in index.js
++ split `product.ejs` into `nav.ejs` and `layout.ejs` in views
++ to include nav and body in `layout.ejs` use
+	+ `<%- include('nav') %>` for nav
+	+ `<%- body %>` for rest of body
+
+Add new product form
++ inside product.controler.js we make another `getAddForm` (function) so user can get form to add product in product.controller.js
++ then, in index.js set routing using `server.get(route,functioncall)` in index.js
++ add another function `addNewForm(req,res)` which submit new product in product.controller.js
++ then add routing `server.post('/',productController.addNewForm)` in index.js
++ parse data and update on submit
+	+ to parse `server.use(express.urlencoded({extended:true}));` in index.js
+	+ and to add data we create `static add()` in product.model.js
+	+ and pass data to it we use `addNewForm()` in product.controller.js and call it at index.js
+	+ and to input data we used `new-product.ejs` using form html
+
+Validating form data, server side and html form and also repopulate on error
++ validating data at `addNewForm()` in product.controller.js
++ and then passing `errorMessage` and `formData` (to repopulate) if error>0, through `getAddForm()` to `new-product.ejs` using `res.render(route,data)` in product.controller.js
++ also passing `errorMessage` and `formData` initially as null and empty in `getAddForm()` in product.controller.js
++ and looping over `errorMessage` and set `formData` in value of form to repopulate in `new-product.ejs`
+
+Shifting validation code to middleware level
++ for SOP and lose coupling
++ shift validation code from `addNewForm()` (product.controller.js) to validate.middleware.js
++ and add middleware in index.js
+	+  `server.post('/',valdationMiddleware,productController.addNewForm); `
+
+Using express-validator for validating data instead of our own validator
+https://www.npmjs.com/package/express-validator
++ `npm i express-validator` To install express validator
++ remove old validation code in validate.middleware.js and 
++ express validator requires three steps 
+1.setup rules
++ using `body` object from `express-validator`
+2.run those rules
++ running rules can be async so we use promise
++ `Promise.all()` it takes an array of promises and execute all of them and `await` is for waiting for execution to end
++ and `await` requires `async`
+3.check if there any errors after running the rules
++ using `validationResult` from express-validator
++ `validationResult` return all the errors that appeared while running the rules 
++ and then pass that error to `new-product.ejs` through `errorMessage` in `res.render()` in `validation.middleware.js`
+
+Update Product that already exist
++ `getUpdateProductView()` in product.controller.js so if product exist it return view or else error
+	+ we used `req.params.id` to get access to id parameter
++ create static `getProductById()` in product.model.js to return product by id
++ create `update-product.ejs` in views
+	+ it shows old data of product and have id input hidden
++ and provide routing in index.js i.e. `server.get("/update-product:id,middleware")`
++ add update button in `product.ejs`
+	+  which send id embedded with URL
+
++ and now to update the data 
++ create `server.post("/update-product",productController.postUpdateProduct);` in index.js
++ in `update-product.ejs` in form action 
+	+ `<form action="/update-product" method="post">`
++ in product.controller.js create `postUpdateProduct()` to pass data and redirect
++ in product.model.js create `static update()` to update the product data
+
+Adding Delete product button and functionality
++ add delete button in `products.ejs`
++ add routing in index.js `server.get("/delete-product/:id",productController.deleteProduct);`
++ add `deleteProduct()` in product.controller.js which checks if product is present then delete or else throw status code 401 not found
++ add `static delete()` in product.model.js
+
+Confirm before delete
++ `onClick("deleteProduct('')")` in `products.ejs`
++ then add main.js in public
++ link main.js using script tag in `products.ejs`
++ in product.model.js , at `add()` we changed id generator to take current time as id
+
+Add and Upload files instead of image URL using Multer
+https://www.npmjs.com/package/multer
++ `npm i multer` To install `multer`
++ make changes in `new-product.ejs` and `add-product.ejs`
+	+ changing `<input type="file" accept="images/*" />` to accept only all images
+	+ and `<form enctype="multipart/form-data" >` To accept file as well as some text
++ create `upload.middleware.js` and config `multer` so files uploaded are stored inside `public/images` using `diskStorage()`
+	+ `diskStorage()` have two call back function , destination(to tell the storage location) and filename (to tell filename)
++ apply middleware in index.js at `server.post('/',uploadFile.single("imageUrl"),valdationMiddleware,productController.addNewForm);`
+
+| `Multer` changes how the uploaded data appears in  |  `req`:     |
+| -------------------------------------------------- | ----------- |
+| Text fields (e.g., `name`, `description`, `price`) | `req.body`  |
+| Single file upload (e.g., `imageUrl`)              | `req.file`  |
+| Multiple files (e.g., `images[]`)                  | `req.files` |
+
++ make changes to product.model.js to accept `imageUrl` from `req.file` instead of `req.body` in `static add()`
++ similar changes to `update-product.ejs` and update in product.model.js and  `postUpdateProduct()` in product.controller.js and also apply middleware in index.js `server.post("/update-product/",uploadFile.single("imageUrl"),productController.postUpdateProduct);`
 
 
-current: creating controller
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+week 3 | topic 3 |
++ lec2
+

@@ -792,17 +792,10 @@ Inside an object method, `this` refers to the object itself.
 
 javascript
 
-CopyEdit
-
 `let person = {   firstName: "Sophia",   lastName: "Lee",   fullName: function() {     return this.firstName + " " + this.lastName;   } };  console.log(person.fullName());  // Output: Sophia Lee`
 
 ---
 
-Let me know if you want to expand this into more advanced topics like prototypes, classes, or object inheritance!
 
-pgsql
-
-CopyEdit
-
-``You can paste this into a file named `javascript-objects.md` and it will render nicely in any Markdown viewer or editor (like VSCode, GitHub, Obsidian, etc.). Let me know if you want a downloadable version instead!``
-
+week 6 | topic 4 
++ lec1
