@@ -418,6 +418,39 @@ server.listen(3100, () => {
 
 
 ---
+### **Common `req` Properties in Express.js**
+
+| Property            | Type                | Description                                                                                                                                            |
+| ------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `req.body`          | `object`            | Contains data sent in the **body** of the request (e.g. POST, PUT). Requires body-parser middleware (like `express.json()` or `express.urlencoded()`). |
+| `req.params`        | `object`            | Contains **route parameters** from the URL path (e.g. `/users/:id`).                                                                                   |
+| `req.query`         | `object`            | Contains URL **query parameters** (e.g. `?name=John&age=25`).                                                                                          |
+| `req.file`          | `object`            | Contains **single uploaded file** (used with `multer` middleware).                                                                                     |
+| `req.files`         | `array` or `object` | Contains **multiple uploaded files** (also with `multer`).                                                                                             |
+| `req.headers`       | `object`            | Contains HTTP **headers** sent by the client.                                                                                                          |
+| `req.cookies`       | `object`            | Contains cookies sent by the client. Requires middleware like `cookie-parser`.                                                                         |
+| `req.signedCookies` | `object`            | Contains signed cookies (if using `cookie-parser` with a secret).                                                                                      |
+| `req.ip`            | `string`            | The IP address of the client making the request.                                                                                                       |
+| `req.originalUrl`   | `string`            | The original request URL.                                                                                                                              |
+| `req.method`        | `string`            | HTTP method used (GET, POST, PUT, DELETE, etc.).                                                                                                       |
+| `req.url`           | `string`            | URL of the request, relative to the app’s root.                                                                                                        |
+| `req.path`          | `string`            | The path part of the request URL.                                                                                                                      |
+| `req.hostname`      | `string`            | Hostname of the request.                                                                                                                               |
+
+### **Common `res` Methods in Express**
+| Method             | Purpose                                     | Example Use Case                               | Notes & Tips                                               |
+| ------------------ | ------------------------------------------- | ---------------------------------------------- | ---------------------------------------------------------- |
+| `res.send()`       | Sends **string**, **Buffer**, or **object** | `res.send("OK")`, `res.send({ msg })`          | Auto-detects content type; flexible but not ideal for APIs |
+| `res.json()`       | Sends JSON with correct `Content-Type`      | `res.json({ token, message })`                 | ✅ Best for APIs                                            |
+| `res.status()`     | Sets the HTTP status code                   | `res.status(404).send("Not found")`            | Chain with `.send()` or `.json()`                          |
+| `res.sendStatus()` | Sets status code and sends the status text  | `res.sendStatus(403)` → `"Forbidden"`          | Shortcut for status + text                                 |
+| `res.redirect()`   | Redirects to another URL                    | `res.redirect('/login')`                       | Mostly for web apps                                        |
+| `res.render()`     | Renders a view template (e.g., EJS, Pug)    | `res.render("profile", { user })`              | Used only if you're using a view engine                    |
+| `res.set()`        | Sets response headers                       | `res.set("X-Powered-By", "none")`              | For custom headers                                         |
+| `res.cookie()`     | Sets a cookie on client                     | `res.cookie("token", jwt, { httpOnly: true })` | Must use `cookie-parser` middleware                        |
+
+
+---
 ## **Middleware**
 
 + In Node.js, middleware refers to functions that are executed during the request-response cycle. 
@@ -648,7 +681,7 @@ The three parts of the MVC software-design pattern can be described as follows:
 More **generic** term. Any API that’s accessible over the web.
 
 - REST API is **a type** of Web API.
-- Web API could also use **`GraphQL`**, **SOAP**, or **`WebSockets`**, not just REST.
+- Web API could also use **`GraphQL`**, **SOAP**, or **`WebSockets`**, not just **REST**.
 
 Example: REST API in Node.js using MVC
 
@@ -670,22 +703,18 @@ project/
 
 
 ---
-
-http is stateless so session provide additional information
-
-Sessions are used to persist user data cross multiple requests. This is crucial for functionalities like login/logout ,shopping cart etc
-
-A session stores data on the server about the user where as cookies stores data on the client/browser
-
 ---
-## Inventory App
+## Inventory App Project
 used
 + express
-+ ejs
-+ ejs-layout
-+ mvc pattern
-+ express-validator
-+ multer
++ ejs (for dynamic content)
++ ejs-layout (to separate web page components)
++ mvc pattern (architecture style)
++ express-validator (for form validation)
++ multer (to upload file)
++ express-session (for session)
++ cookie-parser (for cookies)
++ dotenv (for env support)
 
 Start
 + `npm init` to initialise app 
@@ -798,6 +827,519 @@ https://www.npmjs.com/package/multer
 + make changes to product.model.js to accept `imageUrl` from `req.file` instead of `req.body` in `static add()`
 + similar changes to `update-product.ejs` and update in product.model.js and  `postUpdateProduct()` in product.controller.js and also apply middleware in index.js `server.post("/update-product/",uploadFile.single("imageUrl"),productController.postUpdateProduct);`
 
+User registration and login
+registration
++ create user.model.js inside it define constructor
++ create `register.ejs` define html form for user registration
++ create user.controller.js and inside it define `getRegistrationForm()` and inside it `res.render("ejs fileName which needs to be rendered")`
++ in index.js create instance of `UserController` and define routing `server.get("/register",usersController.getRegistrationForm);`
+
++ inside user.controller.js define `postRegistrationForm()` to pass data to `user.model.js` and redirect to login
++ inside user.model.js define `addUser()` to add new user and add user sample data
++ to post data define `server.post("/register",usersController.postRegistrationForm);`
+
++ create `userRegisterValidation.middleware.js` and setup and configure user validation using `express-validator`
++ make changes to `register.ejs` so it can show error and repopulate old data when error occur
++ in index.js, change to `server.post("/register",userRegisterValidationMiddleware,usersController.postRegistrationForm);`
++ in user.controller.js , change `getRegistrationForm` so it sends `errorMessage` and `formData` initially to `null` and `{}`
++ in user.controller.js ,in `postRegistrationForm()`, check if user already exist .
++ in index.js define `server.post("/login",usersController.postLogin);` to post login data
+
+
+login
++ similar steps for login
++ create view `login.ejs`
++ create `getLogin()` to render `login.ejs` in user.controller.js
++ in index.js define routing `server.get("/login",usersController.getLogin);`
++ create `postLogin()` in user.Controller.js to check posted data and grant login
+
+
+Session and logout feature
+https://www.npmjs.com/package/express-session
++ `npm i express-session` To install express session
++ in index.js ,setup `express-session`
++ user.controller.js ,in `postLogin()` , save user data to session using `req.session`
++ create auth.middleware.js which check if every request made by client have session id, if not then redirect to login
++ in index.js ,apply middleware to secure add-product, update-product and delete-product request only be done by logged in user
++ add logout button in `nav.ejs` using `locals` of `ejs`
++ place, config `users` globally in `res.locals` for all views, after express-session config in index.js
++ destroy session on `logout()` in user.controller.js
++ and define routing in index.js `server.get("/logout",usersController.logout,);`
+
+Cookies
+https://www.npmjs.com/package/cookie-parser
++ `npm i cookie-parser` To install cookie parser
++ create `lastSeen.middleware.js` and inside it setup cookie and `res.cookie(nameOfCookie,Data,options)`
++ in `products.ejs `, make changes to show last seen
++ in index.js before express-session config , config cookie-parser and `setLastVisit` middleware
+
++ destroy cookie on `logout()` in user.controller.js
++ set cookie on get product request only in index.js
+
+Secure secret key, add .env support
+https://www.npmjs.com/package/dotenv
++ `npm install dotenv` To install `dotenv`
++ change security code in session cause it is exposed in git 
++ create .env and setup session-token code there
++ create .`env.example` for example for other dev
++ config `dotenv` in index.js like this `dotenv.config();`
++ and use `secret:process.env.SESSION_SECRET` to secure session secret key in config session in index.js
+
++ `npm audit` To check for vulnerability
+
+inside .gitignore define below so we ignore rest file but keep .gitkeep 
+```
+src/public/images/*
+!src/public/images/.gitkeep
+```
+
+
+
+
+
+---
+---
+### `express-session` For session
+https://www.npmjs.com/package/express-session
++ http is stateless so session provide additional information
++ Sessions are used to persist user data cross multiple requests. This is crucial for functionalities like login/logout ,shopping cart etc
++ A session stores data on the server about the user where as cookies stores data on the client/browser
+
++ `npm i express-session` To install express session
+
+configure session middleware for the express app
+``` js
+//inside index.js
+app.use(session({
+  secret: 'your-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { maxAge: 1000 * 60 * 60 }// 1 hour
+}));
+```
+
+- `secret`: Signs the cookie to prevent tampering.
+- `resave: false`: Don’t resave if session is unchanged.
+- `saveUninitialized: false`: Avoid saving empty sessions (e.g., anonymous visits).
+- `cookie.maxAge`: Session lifespan (in ms). After this, session expires.
+You can also use:
+- `secure: true` → cookie sent only over HTTPS
+- `httpOnly: true` → prevents JavaScript access (helps stop XSS attacks)
+- `sameSite: 'strict' | 'lax' | 'none'` → controls cross-site cookie behaviour
+
++ save user data to session using `req.session`
+
+
+---
+---
+TODO:  Session Store
+By default, sessions are stored **in-memory**, which is **not recommended** for production. Instead, use:
+- `connect-mongo` → store sessions in MongoDB
+- `connect-redis` → store sessions in Redis
+- `express-mysql-session` → store sessions in MySQL
+
+---
+---
+### `res.locals` (Express)
+- Temporary object to pass data from Express backend to views.
+- Lives only during the current request–response cycle.
+
+```js
+app.use((req, res, next) => {
+  res.locals.user = req.session.user || null;
+  next();
+});
+```
+This middleware attaches the currently logged-in user to `res.locals`, so you can **access `user` in all EJS templates without explicitly passing it every time**.
+
+use case:
++ Make data (like session user, flash messages, etc.) available in all EJS views without passing in `res.render()` every time.
+
+- Use it in EJS as just `user`, not `res.locals.user`.
+- `res.locals` is **backend-side** (Express).
+- Views access it as `user`, not `res.locals.user`.
+
+---
+### locals (EJS)
+
+- Internal object used by EJS to hold all view variables.
+- You can use `<%= title %>` or `<%= locals.title %>` (both work).
+- Comes from either `res.render('view', { ... })` or `res.locals`.
+- You rarely write `locals.` — it's handled behind the scenes.
+
+---
+### `cookie-parser` For Cookies 
++ Cookies in Node.js are key-value pairs stored on the client’s browser
++ sent with each request to the server. 
++ They are commonly used for sessions, user preferences, authentication, etc.
+
+https://www.npmjs.com/package/cookie-parser
+`cookie-parser` is a middleware for Express that **parses cookies** from the HTTP `Cookie` header and makes them **easily accessible via `req.cookies`**.
++ `npm i cookie-parser` To install cookie parser
++ use `req.cookies` To access, `res.cookie()` to set, `res.clearCookie()` to delete
++ use `cookie-parser('secret key)` To signed cookies
++ `res.cookie(nameOfCookie,Data,options)`
+
+```js
+import express from 'express';
+import cookieParser from 'cookie-parser';
+
+const app = express();
+
+// Optional: add a secret string to sign cookies
+app.use(cookieParser('mySecretKey'));
+
+// Reading cookies
+app.get('/get', (req, res) => {
+  console.log(req.cookies);         // Unsigned cookies
+  console.log(req.signedCookies);   // Signed cookies
+  res.send('Check your console');
+});
+
+// Setting a cookie
+app.get('/set', (req, res) => {
+  res.cookie('user', 'droid85', { maxAge: 900000, httpOnly: true });
+  res.send('Cookie has been set');
+});
+
+// Setting a signed cookie
+app.get('/set-signed', (req, res) => {
+  res.cookie('token', 'abc123', { signed: true });
+  res.send('Signed cookie set');
+});
+
+// Deleting a cookie
+app.get('/delete', (req, res) => {
+  res.clearCookie('user');
+  res.send('Cookie deleted');
+});
+
+```
+
+---
+### `dotenv` For env support
+https://www.npmjs.com/package/dotenv
++ `npm install dotenv` To install `dotenv`
++ create .env and setup session-token code there i.e. `VARIABLE_NAME=longSecretKey`
++ create .`env.example` for example for other dev
++ config `dotenv` in index.js like this `dotenv.config();`
++ and use `secret:process.env.VARIABLE_NAME` to secure session secret key in config session in index.js
+
+---
+### `npm audit` 
+- Scans all your **dependencies and their sub-dependencies**
+- Checks them against the **NPM vulnerability database**
+- Tells you:
+    - What’s vulnerable
+    - What severity (low → critical)
+    - What to upgrade/fix
+
+---
+### `npm audit fix`
+- Automatically updates vulnerable packages **only if safe**  
+    (doesn't break server or known compatibility)
+- Leaves the rest for you to **manually decide** if needed
+
+---
+
+|Feature|MVC (EJS-based)|REST API (JSON-based)|
+|---|---|---|
+|**Rendering**|Server renders views (HTML)|Frontend handles rendering (React, etc.)|
+|**Frontend-Backend**|Tightly coupled|Decoupled (can serve mobile/web/other apps)|
+|**Scalability**|Limited|High — plug into multiple clients|
+|**Data format**|HTML|JSON (standard for web APIs)|
+|**Best for**|Small apps, internal tools, admin panels|Public APIs, large systems, SPAs|
+
+
+>Note:
+>// ✅ Always define static routes like "/filter" BEFORE dynamic ones like "/:id"
+
+
+
+
+---
+---
+## E-comm project using REST API
+Uses
++ express
++ body-parser (to parse json data)
++ multer (to upload image)
++ dotenv (for env support)
++ 
+
+
+
+**Start**
++ `npm init` to initialise app 
++ `git init` To initialise git
++ create repo in github and use ssh
++ create `.gitignore` and `.env` 
++ `npm i express` To install express
++ create file structure where index.js is main entry point.
++ create basic server with express in index.js and `node index` To run
++ change `"type": "module",` in `package.json` and stick with ES6 import/Export
++ `git status` and then `git add .` then `git commit -m "msg"` then `git push` 
+
+Basic Folder Structure
+├── index.js                  // Entry point
+├── .env                     // Environment config
+├── .gitignore               // Ignore node_modules, .env  etc
+└── src/
+    └── modules/
+        └── product/
+            ├── product.routes.js       // Routing logic
+            └── product.controllers.js  // Business logic
+
+
++ in index.js , `server.use("/api/products",productRoutes);` To redirect all product related request to `productRoutes` 
++ define `productRoutes` in product.routes.js using `express.Router()`
++ and for routing `productRoutes.httpMethodName("route",productController.middlewareName);` and here routes have already completed `/api/products`
++ define different middleware inside product.controller.js like
+	+ `getAllProducts() , postAddProduct(), rateProduct(), getOneProduct(), filterProduct()`
+
++ create product.model.js ,define constructor , sample products and `static getAll()`
++ in product.controller.js , in `getAllProducts()` use `getAll()` and `res.send(products);`
++ now check "http://localhost:3000/api/products" you will get all the products
+
+**Use body-parser to parse json data** 
+https://www.npmjs.com/package/body-parser
++ `npm i body-parser` To install body-parser
++ in index.js ,  config body-parser ,`server.use(bodyParser.json());`
++ in product.model.js define static add() to add new product and call this in `postAddProduct()` and set route in `product.route.js` on post req 
+
++ now test post, in product.controller.js in `postAddProduct()` use `console.log(req.body)`
++ open postman , httpmethod: post, url: http://localhost:3000/api/products , body>raw>json 
+```json
+  {
+    "name": "Puma Sports T-shirt",
+    "desc": "Breathable, sweat-wicking t-shirt for gym and outdoor workouts.",
+    "price": 899,
+    "imageUrl": "https://dummyimage.com/200x200/ff0066/ffffff&text=Puma+Tee",
+    "category": "Clothing",
+    "sizes": [
+      "S",
+      "M",
+      "L"
+    ]
+  }
+```
+
+
+**Add and Upload files instead of image URL using Multer**
+https://www.npmjs.com/package/multer
++ `npm i multer` To install `multer`
++ create `fileUpload.middleware.js`
++ create `fileUpload.middleware.js` and config `multer` so files uploaded are stored inside `src/uploads` using `diskStorage()`
+	+ `diskStorage()` have two call back function , destination(to tell the storage location) and filename (to tell filename)
++ apply middleware in product.routes.js at `productRoutes.post("/",uploadFile.single("imageUrl"),productController.postAddProduct,);`
+
+| `Multer` changes how the uploaded data appears in  |  `req`:     |
+| -------------------------------------------------- | ----------- |
+| Text fields (e.g., `name`, `description`, `price`) | `req.body`  |
+| Single file upload (e.g., `imageUrl`)              | `req.file`  |
+| Multiple files (e.g., `images[]`)                  | `req.files` |
+
++ make changes to product.model.js to accept `imageUrl` from `req.file` instead of `req.body` in `static add()` and sizes to array.
++ test `addProduct()` using postman
+	+  httpreq: post , url: http://localhost:3000/api/products
+	+ body>form-data>
+
+
+inside .gitignore define below so we ignore rest file but keep .gitkeep 
+```
+src/uploads/*
+!src/uploads/.gitkeep
+```
+
+**Get One Product API**
++ create `static get()` in product.model.js and create `getOneProduct()` in product.controller.js and call it in product.routes.js at `productRoutes.get("/:id",productController.getOneProduct);`
+
+**Get Filtered Products** 
++ create `static filter()` in product.model.js and create `getFilteredProduct()` which use `req.query` to get filters in product.controller.js and define route in product.routes.js which calls `getFilteredProduct()` i.e. `productRoutes.get("/filter",productController.getFilteredProducts);`
++ and always define static routes first then dynamic route like /:id
+
++ Test it in postman httpReq: GET, url: http://localhost:3000/api/products/filter?minPrice=10&maxPrice=20000&category=Clothing
+
+
+**Basic User signup, signin**
++ create user.model.js , user.controller.js , user.routes.js in user folder
++ define `server.use("/api/users",userRoutes);` in index.js to redirect all user related req to user.routes.js
++ define user.routes.js for routes
+	+ initialize `express.Routes()`
+	+ create instance of `UserController()`
+	+ `userRoutes.httpMethodName("route",middleware)` to call method like signUp and signIn on that route
+	+ in user.controller.js , we create middleware like signUp and signIn and pass req and send res
++ in user.model.js ,define methods `SignUp()` and `SignIn()` to actually handle user creation and loggin 
+
++ Test using postman
+	+ httpReq: POST , URL: http://localhost:3000/api/users/signin
+	+ body>raw>json
+```json
+{ 
+  "name": "Test User",
+  "email": "test@example.com",
+  "password": "Password1",
+  "type": "buyer"
+}
+```
+
+
+**Basic Authentication using req.headers***
++ create `basicAuthorizer.middleware.js` , 
+- Middleware Entry Point:  `const basicAuthorizer=(req,res,next)=>{`
+    The function receives `req`, `res`, and `next` to control route access.
+    
+- Check Authorization Header (HTTP header validation)_:
+    - Look for `Authorization` header in the request. Using `req.headers`
+    - If missing → respond with `401 Unauthorized`.
+    
+- Extract and Decode Base64 Credentials (Base64 decoding with `Buffer`)_:
+    - Remove the `"Basic"` prefix.
+    - Decode the Base64 string into a `utf8` string in the format: `email:password`.
+    
+- Parse Credentials (String splitting)_:
+    - Use `.split(":")` to extract `email` and `password` values.
+    
+- User Lookup (Simple in-memory user validation)_:
+    - Call `UserModel.findByEmail(email)` to find the user.
+    - If not found → respond with `401 Incorrect Credentials`.
+    
+- Password Validation
+    - Compare decoded password with the stored password.
+    - If mismatch → respond with `401 Incorrect Password`.
+    
+- Access Granted:
+    - If credentials match → call `next()` to continue to the protected route.
+
++ apply basicAuth middleware in index.js `server.use("/api/products",basicAuthorizer,productRoutes);`
+
++ Test it in postman
+	+ httpReq: get , URL: http://localhost:3000/api/products
+	+ Authorization (BasicAuth), then fill username:email and password:password
+
+
+**JWT implementation**
++ in user.controller.js , in `postSignIn()` , create JWT , when user credential matches.
+	+ sign token , `jwt.sign(payload, secretOrPrivateKey, [options, callback])`
+	+ and return token 
++ Test on postman
+	+ httpReq: POST , URL: http://localhost:3000/api/users/signin
+	+ body>raw>json
+```json
+{
+  "email": "test@example.com",
+  "password": "Password1"
+}
+```
+
++ Verify JWT 
+	+ create `jwt.middleware.js` , and check if req.headers have token 
+		+ if no token then return unauthorized
+		+ and if token present then verify token using `jwt.verify(token, secretOrPublicKey, [options, callback])` which returns payload
+		+ if error occur then send unauthorised 
+		+ call `next()` middleware
+	+ apply jwtAuth middleware instead of basicAuth in index.js `server.use("/api/products",jwtAuth,productRoutes);`
+
++ Test in postman
+	+ To signUp
+	+ httpReq: POST , URL: http://localhost:3000/api/users/signup
+	+ body>raw>json>
+``` json
+{
+  "name": "Test User",
+  "email": "test@example.com",
+  "password": "Password1",
+  "type": "buyer"
+}
+```
+
++ To signIn (token creation)
++ httpReq: POST, URL: http://localhost:3000/api/users/signin
++ body>raw>json
+```json
+{
+  "email": "test@example.com",
+  "password": "Password1"
+}
+```
+
++ To load products after jwt auth (token verification)
++ httpReq: GET , URL: http://localhost:3000/api/products/filter?minPrice=10&maxPrice=20000&category=Clothing
++ Headers>Key: Authorization , Value: token received from logging
+
+
+**Rate Products** 
++ in product.model.js,  create `static rateProduct()` which first validate user, using UserModel.findByEmail(), which get userEmail from req.user=payload on verification of jwt, which is defined in jwt.middleware.js.
++ then validate product and checks if user have already rated product before if so then update rating if no rating by that user exist then create rating
++ in product.controller.js , create postRateProduct() middleware , which handle passing of req.query and sending status and res.
++ in product.routes.js , `productRoutes.post("/rate",productController.postRateProduct);`
+	+ call postRateProduct() for route "http://localhost:3000/api/products/rate"
+
++ Test on postman
+	+ To signin
+	+ httpReq: POST , URL: http://localhost:3000/api/users/signin
+	+ Body>raw>json
+```json
+{
+    "email": "seller@com.com",
+    "password": "Password1"
+}
+```
+
++ To test rating
++ httpReq: POST , URL: http://localhost:3000/api/products/rate?productId=1&rating=5
++ Headers>key: Authorization, Value: token received from logging(from above)
+
+
+**Cart Feature**
++ create cart.routes.js , cart.model.js , cart.controller.js
++ in index.js , add `server.use("/api/cart",jwtAuth,cartRoutes);` To redirect all cart related req to cart.routes.js
++ in cart.routes.js , initialize express router , create instance of cart controller and define routes for get req to call getCart middleware and for post req on that route to call postAddCart middleware.
++ in cart.controller.js , define `postAddCart()` whose work is to pass productId,quantity from query and userId from req.user.userId (JWT verification payload) to add in cart.model.js and
++ `getCart()` to get cart related to authenticated user
++ in cart.model.js , define `add()` To add cart item
++ and `get()` To get cart related to specific user
+
++ To delete cart
++ 
+
+Test on postman
++ To signin
++ httpReq: POST , URL: http://localhost:3000/api/users/signin
++ BODY>raw>json
+```json
+{
+    "email": "seller@com.com",
+    "password": "Password1"
+}
+```
+
++ To post product to cart
++ httpReq: POST , URL: http://localhost:3000/api/cart?productId=2&quantity=1
++ Headers>key: Authorization , value: Token received from loggin
+
+
++ To get cartItem
++ httpReq: GET, URL: http://localhost:3000/api/cart
++ Headers>key: Authorization , value : Token received from loggin
+
+
+
+
+
+
+
+
+
+delete
+
+
+
+
+
+
+week 6 | Topic 1 | 
++ lec6
 
 
 
@@ -813,7 +1355,93 @@ https://www.npmjs.com/package/multer
 
 
 
+---
 
-week 3 | topic 3 |
-+ lec2
+TODO:
++ express-validator to validate data before adding product
++ In a real-world scenario, you'd **hash passwords on sign up** and **compare hashes** on login using `bcrypt.compare()`.
++ Move from req.query to req.body for post req at postAddcart and in rating.
++ instead of using same post req to add and update cartIteam ,split it into post (to add) and put (to update)
++ deleteCartItem, one cart on every one user, contain multiple products. and user and product validation and cart validation before delete.
 
+
+
+---
+TODO: in depth 
+ejs (for dynamic content)
+ejs-layout (to separate web page components)
+express-validator (for form validation)
+Multer (to upload file)
+cookie-parser
+express-session
+body-parser
+
+
+
+
+
+---
+### JWT (JSON Web Token)
+https://www.geeksforgeeks.org/web-tech/json-web-token-jwt/
+https://www.jwt.io
+https://www.npmjs.com/package/jsonwebtoken
+
++ A JWT is a self-contained token that contains information (called claims) about the user and is digitally signed so it can't be tampered with.
+
+**Structure**
+```
+xxxxx.yyyyy.zzzzz
+|     |     |
+|     |     └── Signature (to verify integrity)
+|     └─────── Payload (user data)
+└───────────── Header (token type & algorithm used for signing)
+```
+
+**Why use JWT in Node.js?**
+- **Stateless** (no session store on the server)
+- **Scalable** (ideal for microservices)
+- **Portable** (can be stored in cookies or localStorage)
+
+**How JWT Auth works(Flow)**
+
+|Step|Description|
+|---|---|
+|1.|User sends login credentials|
+|2.|Server verifies credentials|
+|3.|Server creates a **JWT** and sends it back|
+|4.|Client stores the JWT (localStorage/cookies)|
+|5.|Client includes JWT in `Authorization` header in each request|
+|6.|Server **verifies JWT** on each request to authorize user|
+
+**Tech Stack**
+- `jsonwebtoken` – to sign/verify tokens
+- `bcrypt` – to hash passwords
+- `express` – web framework
+
+
++ `npm i jsonwebtoken` To install JWT
++ `jwt.sign(payload, secretOrPrivateKey, [options, callback])` To sign token after credential verification
++ `jwt.verify(token, secretOrPublicKey, [options, callback])` To very token received from user using req.headers to get token then verify
+
+|Do|Don't|
+|---|---|
+|Use **short-lived** access tokens|Don't store tokens in plain text|
+|Store secret in `.env`|Never expose `SECRET_KEY` in frontend|
+|Use **HTTPS**|Don’t use JWT for sensitive data (e.g. password)|
+|Implement **refresh tokens** for long sessions|Don’t keep token lifetime too long|
+
+
+|Feature|JWT|Session|
+|---|---|---|
+|Stateless|✅ Yes|❌ No (stored server-side)|
+|Scalable|✅ Yes|❌ Limited by server memory|
+|Storage|Client (cookie/localStorage)|Server (RAM or DB)|
+|Token expiry|Built-in|Manual|
+
+---
+
+|Use `req.query` when:|Use `req.body` when:|
+|---|---|
+|You’re doing a **GET**|You’re doing **POST/PUT**|
+|You’re **filtering**|You’re **sending data**|
+|URLs like `/products?cat=shoes`|JSON like `{ productId: 1, quantity: 2 }`|

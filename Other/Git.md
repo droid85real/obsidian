@@ -28,13 +28,48 @@ https://youtu.be/q8EevlEpQ2A
 > to get back to prompt after it start showing `END` press `q`
 
 # git setup
-+ `git config --global user.email "youremail.com"` to set your email
++ `git config --global user.email "youremail.com"` to set your email (instead set no-reply email from github)
 + `git config --global user.name "your name"` to set your name
 + `git config --global core.editor "code --wait"` to set default code editor
+
+# `github` setup
+https://youtu.be/A4usVjplxbU
++ create repository on github and ssh keys over https cause then you don't have to enter userid and pass again and again
+One time setup:
++ `ssh-keygen -t pubFileName -C "your_email@example.com"` Here email is for your reference you can write anything and generate key
++ `cat ~/.ssh/id_ed25519.pub` to copy key
++ Go to: [GitHub > Settings > SSH and GPG Keys](https://github.com/settings/keys)
+- Click **"New SSH key"**
+    - Title: Name your device (e.g., "Droid85 Laptop")
+    - Key: Paste your copied key
+    - Save
+
+Second time
++ `ssh -T git@github.com` To test SSH connection
++ `git@github.com:yourusername/yourrepo.git` To clone or connect repos using SSH
+
+
+**CASE 1: Starting Fresh (New Project)**
+
+You **haven’t added a remote yet**.
+```
+git remote add origin git@github.com:yourusername/your-repo-name.git
+git branch -M main
+git push -u origin main
+```
+
++ This adds your GitHub repo as the remote, then pushes code.
+
+ **CASE 2: Changing an Existing Remote (e.g., from HTTPS to SSH)**
+
++ You **already added a remote** (maybe wrong or using HTTPS), so you **replace** it:
+`git remote set-url origin git@github.com:yourusername/your-repo-name.git`
++ This doesn't add a new remote — it **modifies** the existing `origin` to use SSH.
 
 # Linking Local Project with `Github`
 When you already created some files and folder and want to create repo and push to github
 + `git init` to initialize git in your project directory
++ link using Second time above given
 + `git add .` to add all files to the staging area or `git add filename.txt` to add specific file to staging area
 + `git commit -m "commit message Date/Time"` commit changes to git with message
 ### Generate ssh key 
