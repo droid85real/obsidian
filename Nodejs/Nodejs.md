@@ -827,7 +827,7 @@ https://www.npmjs.com/package/multer
 + make changes to product.model.js to accept `imageUrl` from `req.file` instead of `req.body` in `static add()`
 + similar changes to `update-product.ejs` and update in product.model.js and  `postUpdateProduct()` in product.controller.js and also apply middleware in index.js `server.post("/update-product/",uploadFile.single("imageUrl"),productController.postUpdateProduct);`
 
-User registration and login
+**User registration and login**
 registration
 + create user.model.js inside it define constructor
 + create `register.ejs` define html form for user registration
@@ -846,7 +846,7 @@ registration
 + in index.js define `server.post("/login",usersController.postLogin);` to post login data
 
 
-login
+**login**
 + similar steps for login
 + create view `login.ejs`
 + create `getLogin()` to render `login.ejs` in user.controller.js
@@ -854,7 +854,7 @@ login
 + create `postLogin()` in user.Controller.js to check posted data and grant login
 
 
-Session and logout feature
+**Session and logout feature**
 https://www.npmjs.com/package/express-session
 + `npm i express-session` To install express session
 + in index.js ,setup `express-session`
@@ -866,7 +866,7 @@ https://www.npmjs.com/package/express-session
 + destroy session on `logout()` in user.controller.js
 + and define routing in index.js `server.get("/logout",usersController.logout,);`
 
-Cookies
+**Cookies**
 https://www.npmjs.com/package/cookie-parser
 + `npm i cookie-parser` To install cookie parser
 + create `lastSeen.middleware.js` and inside it setup cookie and `res.cookie(nameOfCookie,Data,options)`
@@ -876,7 +876,7 @@ https://www.npmjs.com/package/cookie-parser
 + destroy cookie on `logout()` in user.controller.js
 + set cookie on get product request only in index.js
 
-Secure secret key, add .env support
+**Secure secret key, add .env support**
 https://www.npmjs.com/package/dotenv
 + `npm install dotenv` To install `dotenv`
 + change security code in session cause it is exposed in git 
@@ -1023,10 +1023,25 @@ https://www.npmjs.com/package/dotenv
 + create .env and setup session-token code there i.e. `VARIABLE_NAME=longSecretKey`
 + create .`env.example` for example for other dev
 + config `dotenv` in index.js like this `dotenv.config();`
-+ and use `secret:process.env.VARIABLE_NAME` to secure session secret key in config session in index.js
++ and use `process.env.VARIABLE_NAME` to secure session secret key in config session in index.js
+
+```js
+// config/env.js
+import dotenv from "dotenv";
+dotenv.config();
+
+export const PORT = process.env.PORT || 3000;
+export const MONGO_URI = process.env.MONGO_URI;
+export const JWT_SECRET = process.env.JWT_SECRET;
+```
+
+```js
+// server.js
+import { PORT, MONGO_URI } from "./config/env.js";
+```
 
 ---
-### `npm audit` 
+##### `npm audit` 
 - Scans all your **dependencies and their sub-dependencies**
 - Checks them against the **NPM vulnerability database**
 - Tells you:
@@ -1035,7 +1050,7 @@ https://www.npmjs.com/package/dotenv
     - What to upgrade/fix
 
 ---
-### `npm audit fix`
+##### `npm audit fix`
 - Automatically updates vulnerable packages **only if safe**  
     (doesn't break server or known compatibility)
 - Leaves the rest for you to **manually decide** if needed
@@ -1065,8 +1080,8 @@ Uses
 + body-parser (to parse json data)
 + multer (to upload image)
 + dotenv (for env support)
-+ 
-
++ jsonwebtoken
++ mongodb
 
 
 **Start**
@@ -1140,9 +1155,13 @@ https://www.npmjs.com/package/multer
 | Multiple files (e.g., `images[]`)                  | `req.files` |
 
 + make changes to product.model.js to accept `imageUrl` from `req.file` instead of `req.body` in `static add()` and sizes to array.
+
 + test `addProduct()` using postman
 	+  httpreq: post , url: http://localhost:3000/api/products
 	+ body>form-data>
+	+ insert everything according to constructor 
+		+ pass `sizes` as `7,8,9,10`
+		+ pass `imageUrl` as file
 
 
 inside .gitignore define below so we ignore rest file but keep .gitkeep 
@@ -1323,6 +1342,189 @@ Test on postman
 + httpReq: GET, URL: http://localhost:3000/api/cart
 + Headers>key: Authorization , value : Token received from loggin
 
++ To delete product from cart
++ httpReq: DELETE , URL: http://localhost:3000/api/cart/:id (id: cart id)
++ Headers> key: Authorization , value: Token received from loggin
+
+
+TODO: CORS week6|topic1|lec20
+and logging and handling error
+
+
+
+
+**MongoDB**
++ `npm i mongodb` To install mongodb package
++ and configure it inside mongodb.js
++ and call in index.js
+
+SignUp
++ in `user.controller.js` pass db using `req.app.locals.db` which we stored previously in index.js
++ and in user.model.js use db to get collection and create new document then insertOne , add await and async because insertOne return promise and return newUser .
+
++ applying repository pattern on both sign up and sign in
+	- **Controller** → takes request & validates → delegates to `UserRepository`
+	- **Repository** → handles DB operations → returns plain `UserModel`
+	- **Model** → just a data representation 
+
++ created async and await function in user.repository.js and bind this inside user.router.js as we using instance instead of static method
+
+
+Test on postman
++ To signUp
++ httpReq: POST , URL: http://localhost:3000/api/users/signup
++ BODY>raw>json
+```json
+{
+    "name": "user1",
+    "email":"user1@gmail.com",
+    "password": "user1Pass",
+    "type": "seller"
+}
+```
+
+
++ To signIn
++ httpReq: POST , URL: http://localhost:3000/api/users/signin
++ BODY>raw>json
+```json
+{
+    "email":"user1@gmail.com",
+    "password": "user1Pass",
+}
+```
+
+
+
+**Using Bcrypt**
++ `npm i bcrypt` To install bcrypt https://www.npmjs.com/package/bcrypt
++ create hashPassword in user.repository.js in postSignUp function
++ and compare hashed password 
++ removed password in return in both signUp and signIn
+
+
+**Applying repository pattern on Products and implement mongodb and Rating product**
++ In index.js , inside `startServer()` we pass db instance to  product.routes.js and also in index.js we make sure that listening to port only happens after server successfully connected to mongodb
++ In product.routes.js , create instance of product repository and pass it to the instance of product controller and also bind the controller while defining routes .
++ and product.controllers.js only handles status code and req and res . 
++ in product.repository.js only handles db operations only. ( One instance for controller method calls using constructor and passing db and by passing repo in routes )
+
+	**Rating**
+	+ in product.model.js make changes so it accepts average rating (store computed average) and array of { userEmail, rating }
+	+ and then changes in product.routes.js , product.controllers.js , product.repository.js 
+
+
+Test on postman
++ To `postAddProduct()`
+	+  httpReq: POST , url: http://localhost:3000/api/products
+	
+	+ Headers
+		+ Authorization: "token received from signin"
+	
+	+ Body>form-data>insert everything according to constructor 
+		+ pass `sizes` as `7,8,9,10`
+		+ pass `imageUrl` as file
+
++ To `getAllProducts()`
+	+ httpReq: GET , url: http://localhost:3000/api/products
+	+ Headers
+		+ Authorization: "token received from signin"
+
++ To `getOneProduct()`
+	+ httpReq: GET , URL:  http://localhost:3000/api/products/68a7e1ba8664fae85a15b313
+	+ Headers
+		+ Authorization: "token received from signin"
+
++ To `getFilteredProducts()`
+	+ httpReq: GET, URL: http://localhost:3000/api/products/filter?minPrice=40&maxPrice=200&category=Clothing - Outerwear
+	+ Headers
+		+ Authorization: "token received from signin"
+	+ Params
+		+ minPrice: 40
+		+ maxPrice: 200
+		+ category: Clothing - Outerwear
+
++ To `postRateProduct()`
+	+ httpReq: POST , URL: http://localhost:3000/api/products/:id/rate
+	+ Headers
+		+ Authorization: "token received from signin"
+	+ Body>raw>JSON
+```json
+{
+    "rating": 4
+}
+```
+
+
+**Changed jwt payload to contain only userID and userType and made relevant changes to support this in rating**
+
+**Fixed rating racing problem** 
++ (multiple user insert rating at same time it will cause data inconsistency as we using $set which replace whole rating array )
+
++ If rating exists → update it.
++ If rating does not exist → push new one.
++ Then recalc average rating.
+
+
++ To test `postRateProduct()`
+	+ httpReq: POST , URL: http://localhost:3000/api/products/:id/rate
+	+ Headers
+		+ Authorization: "token received from signin"
+	+ Body>raw>JSON
+```json
+{
+    "stars": 4
+}
+```
+
+**created env.js and configured dotenv and utilized it**
+
+**`getDB()` instead of passing db instance through multiple layers, used singleton pattern**
++ only one database connection to MongoDB to be reused across your app, instead of opening a new connection every time you query.
+
++ created getDB function in  mongodb.js and used it in user.repository.js and product.repository.js and in controller created instance of repository and then passed it to controller
+
+
+
+**Applying repository pattern on Cart and connected to mongodb**
+```js
+
+router.get("/", CartController.getCart);
+router.post("/add", CartController.addToCart);
+router.put("/update", CartController.updateItem);
+cartRoutes.delete("/:id",cartController.deleteCartItem);
+router.delete("/clear", CartController.clearCart);
+```
+
+
++ Move from req.query to req.body for post req at postAddcart and in rating.
++ instead of using same post req to add and update cartIteam ,split it into post (to add) and put (to update)
++ deleteCartItem, one cart on every one user, contain multiple products. and user and product validation and cart validation before delete.
+
+
+```js
+{
+  "_id": "cartId123",
+  "userId": "user123",
+  "items": [
+    {
+      "productId": "prod456",
+      "name": "Wireless Mouse",
+      "price": 599,
+      "quantity": 2,
+      "total": 1198
+    },
+    {
+      "productId": "prod789",
+      "name": "Mechanical Keyboard",
+      "price": 2499,
+      "quantity": 1,
+      "total": 2499
+    }
+  ],
+  "cartTotal": 3697
+}
+```
 
 
 
@@ -1331,27 +1533,12 @@ Test on postman
 
 
 
-delete
 
 
 
 
 
-
-week 6 | Topic 1 | 
-+ lec6
-
-
-
-
-
-
-
-
-
-
-
-
+week8|topic2|lec17
 
 
 
@@ -1359,11 +1546,19 @@ week 6 | Topic 1 |
 
 TODO:
 + express-validator to validate data before adding product
-+ In a real-world scenario, you'd **hash passwords on sign up** and **compare hashes** on login using `bcrypt.compare()`.
-+ Move from req.query to req.body for post req at postAddcart and in rating.
+
++ add imageurl or image both should be allowed
++ sub category in category
++ only purchased buyers can rate product
+
++ Move from req.query to req.body for post req at postAddcart
 + instead of using same post req to add and update cartIteam ,split it into post (to add) and put (to update)
 + deleteCartItem, one cart on every one user, contain multiple products. and user and product validation and cart validation before delete.
 
++ dependency injection using library so we dont have to pass db to each files utilising it.
+
++ jwt auth instead of storing tokens on localstorage use cookies instead
++ Refresh JWT token after expire
 
 
 ---
@@ -1374,10 +1569,24 @@ express-validator (for form validation)
 Multer (to upload file)
 cookie-parser
 express-session
-body-parser
+
+---
+TODO: pending
+swagger api week6|topic1|lec10
 
 
+---
+### `body-parser` (Old)
++ no longer needed because
+``` js
+server.use(express.json()); // parses JSON bodies
+server.use(express.urlencoded({ extended: true })); // parses form data
+```
+does the same job as installing body-parser but without extra dependencies.
 
+`body-parser` is only useful if:
++ You’re working with a very old Express version (<4.16.0)
++ You need special parsing features (like raw body for Stripe webhooks)
 
 
 ---
@@ -1418,10 +1627,12 @@ xxxxx.yyyyy.zzzzz
 - `bcrypt` – to hash passwords
 - `express` – web framework
 
+The flow is **SignUp → SignIn → Token Issued → Middleware Protects Routes**.
+Token is only issued when user signs in successfully.
 
 + `npm i jsonwebtoken` To install JWT
 + `jwt.sign(payload, secretOrPrivateKey, [options, callback])` To sign token after credential verification
-+ `jwt.verify(token, secretOrPublicKey, [options, callback])` To very token received from user using req.headers to get token then verify
++ `jwt.verify(token, secretOrPublicKey, [options, callback])` To very token received from user using `req.headers` to get token then verify
 
 |Do|Don't|
 |---|---|
@@ -1430,13 +1641,133 @@ xxxxx.yyyyy.zzzzz
 |Use **HTTPS**|Don’t use JWT for sensitive data (e.g. password)|
 |Implement **refresh tokens** for long sessions|Don’t keep token lifetime too long|
 
-
 |Feature|JWT|Session|
 |---|---|---|
 |Stateless|✅ Yes|❌ No (stored server-side)|
 |Scalable|✅ Yes|❌ Limited by server memory|
 |Storage|Client (cookie/localStorage)|Server (RAM or DB)|
 |Token expiry|Built-in|Manual|
+
+example
+
++ `npm i jsonwebtoken` To install JWT
++ in user.controller.js in postSignIn if user is authenticated then create token and return token
+```js
+// create token on signin , after user auth
+const token=JWT.sign(
+	{user: result.user}, // payload
+    SECRET_KEY, // secret key
+    {
+		expiresIn: "1h" //when token expires
+	}
+);
+
+// send token
+return res.status(200).json({
+	message: `Welcome, ${result.user.name}`,
+	token: token
+});
+```
+
++ in jwt.middleware.js , verify token send by user which is present in header . After verify it return payload which we attach it to req.user
+```js
+// jwt.middleware.js
+import JWT from "jsonwebtoken";
+import { SECRET_KEY } from "../config/env.js";
+
+const jwtAuth=(req,res,next)=>{
+    // read token from header
+    const token=req.headers["authorization"];
+
+    if(!token){ // authorization header is empty
+        return res.status(401).json({ message: "Unauthorized"});
+    }
+
+    try {
+        //  jwt.verify(token, secretOrPublicKey, [options, callback])
+        const payload=JWT.verify(token,SECRET_KEY); //check token validity
+        req.user=payload; // used later
+        // console.log(payload);
+    } catch (error) {
+        return res.status(401).json({ message: "Token validation failed"});        
+    }
+    next(); // calling next middleware in pipeline
+}
+export default jwtAuth;
+```
+
+
++ Apply Middleware to secure routes but do not apply it to signup and signin 
+`server.use("/api/cart", jwtAuth, cartRoutes);`
+
+
+
+Todo : instead of storing token on local storage store it in cookies 
+
+
+
+
+
+
+
+
+---
+### Bcrypt
++ To hash password
+- **Salt** (randomness per password, makes rainbow table attacks useless).
+- **Work factor / cost factor** (makes hashing intentionally slow → brute-force harder).
+
+- We also added **pepper** → an extra secret stored in environment variables, making it even harder for attackers.
+
+
++ `npm i bcrypt` To install bcrypt https://www.npmjs.com/package/bcrypt
+
++ create hashPassword in user.repository.js in signUp function
+	- import bcrypt in user.repository.js
+	- Add **pepper secret** (`password + process.env.PEPPER_SECRET`).
+	- Hash it with bcrypt using 12 salt rounds:
+```js
+const hashpassword = await bcrypt.hash(password + process.env.PEPPER_SECRET, 12);
+```
+
++ in user.repository.js in signIn
+	+ convert and compare hashed password using bcrypt compare
+```js
+      const match=await bcrypt.compare(password+PEPPER_SECRET,user.password);
+```
+
+---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ---
 
@@ -1445,3 +1776,14 @@ xxxxx.yyyyy.zzzzz
 |You’re doing a **GET**|You’re doing **POST/PUT**|
 |You’re **filtering**|You’re **sending data**|
 |URLs like `/products?cat=shoes`|JSON like `{ productId: 1, quantity: 2 }`|
+
+
+>Note:
+>- **Use comma version (`console.error("msg:", error)`)** if you want to debug properly, because the error object remains intact.
+>
+>- **Use concatenation (`"msg" + error`)** only if you explicitly want a single string (like logging to a file where JSON/string output matters).
+
+❌ Problem: `new Error("Error inserting user: ", error.message)` ignores `error.message` because the `Error` constructor only takes the **first string argument**.
+so, `throw new Error("Error inserting user: "+error.message);`
+
+
