@@ -51,6 +51,9 @@ https://youtu.be/q8EevlEpQ2A
 + `git config --global user.name "your name"` to set your name
 + `git config --global core.editor "code --wait"` to set default code editor
 + `git config merge.ff false` To turn off fast forward merge in repo (one time)
++ `git config --global init.defaultBranch main` To set default branch as main
++ `git config --global core.autocrlf true` for windows only
++ `git config --global core.autocrlf input` for linux only
 
 # `github` setup
 https://youtu.be/A4usVjplxbU
@@ -169,6 +172,78 @@ now either merge or rebase
 + create empty folder and inside it create `.gitkeep` file.
 
 ---
+# `.gitattributes`
+To handle line ending normalization for different operating system.
+
+```
+# ---------------------------------------------------------
+# DEFAULT: Normalize all text files to LF in the repo
+# Windows converts to CRLF on checkout automatically
+# ---------------------------------------------------------
+* text=auto eol=lf
+
+# ---------------------------------------------------------
+# Mark files that must ALWAYS stay LF (otherwise they break)
+# ---------------------------------------------------------
+*.sh      text eol=lf
+*.bash    text eol=lf
+*.zsh     text eol=lf
+*.env     text eol=lf
+Dockerfile text eol=lf
+*.yml     text eol=lf
+*.yaml    text eol=lf
+
+# ---------------------------------------------------------
+# Mark files that should never be changed by Git
+# (binary files stay untouched and don't get diffed)
+# ---------------------------------------------------------
+*.png     binary
+*.jpg     binary
+*.jpeg    binary
+*.gif     binary
+*.webp    binary
+*.ico     binary
+*.svg     text   # SVG is XML → treated as text, not binary
+*.pdf     binary
+*.zip     binary
+*.gz      binary
+*.tar     binary
+*.mp4     binary
+*.mp3     binary
+
+# ---------------------------------------------------------
+# Force correct settings for common source code
+# ---------------------------------------------------------
+*.js      text eol=lf
+*.jsx     text eol=lf
+*.ts      text eol=lf
+*.tsx     text eol=lf
+*.css     text eol=lf
+*.scss    text eol=lf
+*.html    text eol=lf
+*.json    text eol=lf
+*.md      text eol=lf
+*.txt     text eol=lf
+*.graphql text eol=lf
+
+# ---------------------------------------------------------
+# Prevent merge conflicts in lock files (important!)
+# ---------------------------------------------------------
+package-lock.json merge=union
+yarn.lock merge=union
+pnpm-lock.yaml merge=union
+
+# ---------------------------------------------------------
+# Disable diffs for compiled / generated files
+# (keeps git show/log clean)
+# ---------------------------------------------------------
+*.min.js  -diff
+*.map     -diff
+dist/*    -diff
+build/*   -diff
+```
+
+---
 # Branch
 + `git branch` to get list of all branches
 + `git branch -a` To get all branches local and repo
@@ -232,3 +307,20 @@ A Git tag is a reference to a specific point in Git history, typically used to m
 
 
 TODO: Rebase , relog
+
+---
+
+# Git : Pull Branch
+which is not present in your local repo
++ `git fetch origin` Updates your local Git with all new branches and commits from the remote.
++ `git branch -a` To get all branches
++ `git checkout -b branch origin/branch` To create local branch to work on it locally
++ `git pull` To fetch and merge latest update from remote repo to local repo
+
+# Git : Delete branch
+Delete feature based branch merge and delete locally and remote repository
++ `git checkout branch` To go to branch where you want to merge
++ `git branch -d branch` Name of branch which need to be deleted (-d=safe delete only deletes if merged, -D=unsafe delete)
++ `git push origin --delete branch` To delete branch from remote repo
++ `git fetch origin --prune` To remove stale remote-tracking branches 
++ then delete from local 

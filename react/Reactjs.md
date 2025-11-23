@@ -254,7 +254,7 @@ const App = () => {
 
 #### Default export
 
-In React, you can use `export default` to export a single component from a file.
+In React, you can use `export default` to **export a single component** from a file.
 
 #### In-line export
 
@@ -1594,7 +1594,12 @@ TODO:
 - **Purpose:** For injecting styles into DOM **before rendering**.
     
 - Rare, mostly for CSS-in-JS libraries.
-    
+
+
+
+
+useParams
+
 
 ---
 
@@ -1707,16 +1712,89 @@ https://www.npmjs.com/package/leaflet
 
 - check getting started and more documents in https://www.npmjs.com/package/react-leaflet-markercluster
 
-
-
-
-
-
 GeoJSON
 
+
 ---
+# tailwindcss
+https://tailwindcss.com/docs/installation/using-vite
+https://youtu.be/sHnG8tIYMB4 tailwind 4.0 install
+https://youtu.be/bupetqS1SMU tailwind 4.0 config
+
+install tailwindcss: `npm install tailwindcss @tailwindcss/vite`
 
 
+---
+# shadcn in vite
+https://youtu.be/2XF-HgauItk?t=587
+https://ui.shadcn.com/docs/installation/vite
+
+create project: `npm create vite@latest`
+
+add tailwind css: `npm install tailwindcss @tailwindcss/vite`
+
+Replace everything in `src/index.css` with the following: `@import "tailwindcss";`
+
+create `jsconfig.json` as we not using typescript
+```js
+{
+  "compilerOptions": {
+    // ...
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    }
+    // ...
+  }
+}
+```
+
+edit `vite.config.js`
+```js
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import path from "path";
+import tailwindcss from "@tailwindcss/vite";
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
+});
+```
+
+
+run the CLI : `npx shadcn@latest init`
+
+add components: `npx shadcn@latest add button`
+
+To test `src/App.jsx`
+```js
+import { Button } from "./components/ui/button";
+
+export const App = () => {
+  return (
+    <div className="flex min-h-svh flex-col items-center justify-center">
+      <Button>Click me</Button>
+    </div>
+  );
+};
+```
+
+
+
+
+
+
+
+
+---
 
 week6 | topic 2 | firebase pending
 
@@ -1724,3 +1802,9 @@ week 8 | topic 1 |
 + lec 7
 
 
+---
+### For Notification or toast
+
+tutorial: https://youtu.be/RUG5GVDZkOQ
+install: https://www.npmjs.com/package/sonner
+docs : https://sonner.emilkowal.ski/getting-started

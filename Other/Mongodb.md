@@ -156,6 +156,8 @@ export default connectToMongoDB;
 ```
 + can also be done with then and catch
 
+TODO: better version in ecommerce project backend only
+
 
 calling `connectToMongoDB()` in index.js
 ```js
