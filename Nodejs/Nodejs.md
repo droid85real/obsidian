@@ -420,22 +420,22 @@ server.listen(3100, () => {
 ---
 ### **Common `req` Properties in Express.js**
 
-| Property            | Type                | Description                                                                                                                                            |
-| ------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `req.body`          | `object`            | Contains data sent in the **body** of the request (e.g. POST, PUT). Requires body-parser middleware (like `express.json()` or `express.urlencoded()`). |
-| `req.params`        | `object`            | Contains **route parameters** from the URL path (e.g. `/users/:id`).                                                                                   |
-| `req.query`         | `object`            | Contains URL **query parameters** (e.g. `?name=John&age=25`).                                                                                          |
-| `req.file`          | `object`            | Contains **single uploaded file** (used with `multer` middleware).                                                                                     |
-| `req.files`         | `array` or `object` | Contains **multiple uploaded files** (also with `multer`).                                                                                             |
-| `req.headers`       | `object`            | Contains HTTP **headers** sent by the client.                                                                                                          |
-| `req.cookies`       | `object`            | Contains cookies sent by the client. Requires middleware like `cookie-parser`.                                                                         |
-| `req.signedCookies` | `object`            | Contains signed cookies (if using `cookie-parser` with a secret).                                                                                      |
-| `req.ip`            | `string`            | The IP address of the client making the request.                                                                                                       |
-| `req.originalUrl`   | `string`            | The original request URL.                                                                                                                              |
-| `req.method`        | `string`            | HTTP method used (GET, POST, PUT, DELETE, etc.).                                                                                                       |
-| `req.url`           | `string`            | URL of the request, relative to the app’s root.                                                                                                        |
-| `req.path`          | `string`            | The path part of the request URL.                                                                                                                      |
-| `req.hostname`      | `string`            | Hostname of the request.                                                                                                                               |
+| Property            | Type                | Description                                                                                                                                                                                   |
+| ------------------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `req.body`          | `object`            | Contains data sent in the **body** of the request (e.g. POST, PUT). Requires body-parser middleware (like `express.json()` or `express.urlencoded()`).<br>https://youtu.be/S5EpsMjel-M?t=1007 |
+| `req.params`        | `object`            | Contains **route parameters** from the URL path (e.g. `/users/:id`).                                                                                                                          |
+| `req.query`         | `object`            | Contains URL **query parameters** (e.g. `?name=John&age=25`).                                                                                                                                 |
+| `req.file`          | `object`            | Contains **single uploaded file** (used with `multer` middleware).                                                                                                                            |
+| `req.files`         | `array` or `object` | Contains **multiple uploaded files** (also with `multer`).                                                                                                                                    |
+| `req.headers`       | `object`            | Contains HTTP **headers** sent by the client.                                                                                                                                                 |
+| `req.cookies`       | `object`            | Contains cookies sent by the client. Requires middleware like `cookie-parser`.                                                                                                                |
+| `req.signedCookies` | `object`            | Contains signed cookies (if using `cookie-parser` with a secret).                                                                                                                             |
+| `req.ip`            | `string`            | The IP address of the client making the request.                                                                                                                                              |
+| `req.originalUrl`   | `string`            | The original request URL.                                                                                                                                                                     |
+| `req.method`        | `string`            | HTTP method used (GET, POST, PUT, DELETE, etc.).                                                                                                                                              |
+| `req.url`           | `string`            | URL of the request, relative to the app’s root.                                                                                                                                               |
+| `req.path`          | `string`            | The path part of the request URL.                                                                                                                                                             |
+| `req.hostname`      | `string`            | Hostname of the request.                                                                                                                                                                      |
 
 ### **Common `res` Methods in Express**
 | Method             | Purpose                                     | Example Use Case                               | Notes & Tips                                               |
@@ -1526,14 +1526,55 @@ router.delete("/clear", CartController.clearCart);
 }
 ```
 
+---
 
 
+When using the native MongoDB driver, I had to manually structure the application into layers:
+
+Controller → Repository → Database
+I created:
+- A `UserModel` class to represent user data.
+- A `UserRepository` to interact with MongoDB collections.
+- A `UserController` that depended on the repository (dependency injection).
+- Manual collection initialization using `getDB().collection("users")`.
+
+In this architecture:
+• The repository handled raw database operations (`findOne`, `insertOne`).  
+• The controller handled HTTP logic and response formatting.  
+• The model class was just a data container.  
+• I had to manually manage hashing, uniqueness checks, and data flow.
+
+When you used the native Mongo driver, you needed:
+
+• A singleton `getDB()` so you don’t open 50 connections.  
+• Lazy collection initialization because collections aren’t auto-managed.  
+• A repository because the driver is low-level.
+
+This separation made sense because the native driver provides no abstraction.
+
+Now the shift with Mongoose:
+
+Mongoose already provides:
+• Schema definition  
+• Model abstraction  
+• Validation  
+• Instance methods  
+• Static methods  
+• Middleware (pre/post hooks)  
+• Built-in abstraction over collections
 
 
-
-
-
-
+Now when to Use a repository layer when:
+1. Your business logic must not depend on a specific database syntax.  
+    If your service knows `{ email: value }` is Mongo-style, it’s coupled. Repository hides that.
+2. You expect multiple data sources.  
+    Example: MongoDB + Redis cache + external API in one operation.
+3. Queries are complex and reused everywhere.  
+    Instead of repeating `User.aggregate([...])` in five places, centralize it.
+4. You need clean unit testing without touching the database.  
+    Mock `userRepo.findByEmail()` easily. Mocking `User.findOne()` directly is uglier.
+5. You are building a large system with multiple developers.  
+    Clear boundaries reduce accidental chaos.
 
 
 
@@ -1787,3 +1828,175 @@ const hashpassword = await bcrypt.hash(password + process.env.PEPPER_SECRET, 12)
 so, `throw new Error("Error inserting user: "+error.message);`
 
 
+
+---
+
+### Nodejs Streams
+
+How to use stream nodejs stream doc: https://nodejs.org/en/learn/modules/how-to-use-streams
+Nodejs docs on stream: https://nodejs.org/api/stream.html
+
+piyush garg: https://youtu.be/64LJJhT6Ybo
+Nodejs streams by coder's gyan: https://youtu.be/ZPwgbvCkRpY?t=1324
+
+
+
+---
+
+https://www.youtube.com/playlist?list=PLu71SKxNbfoBGh_8p_NS-ZAh6v7HhYqHW
+backend project by hitesh (optional): https://youtu.be/9B4CvtzXRpc
+
+mongoose-aggregate-pagination: https://youtu.be/eWnZVUXMq8k?t=1239
+
+
+jwt,bcrypt: https://youtu.be/eWnZVUXMq8k?t=1664
+
+file upload using multer to cloudinary: https://youtu.be/6KPXn2Ha0cM
+
+http Methods, http headers: https://youtu.be/qgZiUvV41TI
+
+router and controller: https://youtu.be/HqcGLJSORaA
+
+refresh token and access token: https://youtu.be/7DVpag3cO0g
+https://youtu.be/L2_gIrDxCes
+
+update controller: https://youtu.be/9azRerL6CZc
+
+
+aggregation-pipeline:
+https://youtu.be/fDTf1mk-jQg
+https://www.mongodb.com/docs/manual/core/aggregation-pipeline/
+
+Aggregation = chaining multiple data operations into a pipeline.
+You can:
+filter → join → group → reshape → sort → paginate  
+all in one flow
+and MongoDB calls the whole pipeline an **aggregation**.
+It is “doing many things **in sequence**.”
+
+project, lookup , match etc
+
+
+sub-pipelines: https://youtu.be/qNnR7cuVliI
+
+pagination and other models: https://youtu.be/-5yWyE4AiVk
+
+
+
+production level code
+https://www.youtube.com/playlist?list=PLEyL54o6DAlnaMRaU7UiHphqHQgY82hx4
+
+
+---
+
+### Utils
+
+###### Using `asyncHandler`
++ Use `asyncHandler` **only on route handlers**.
+In Express, async route handlers throw rejected promises instead of throwing synchronous errors. Express does not automatically catch rejected promises. 
+So this:
+```js
+app.get("/", async (req, res) => {
+  throw new Error("boom");
+});
+```
+will crash unless you wrap it in try/catch and call next(err).
+
+```js
+// asyncHandler.js
+const asyncHandler = (requestHandler) => {
+return  (req, res, next) => {
+    Promise.resolve(requestHandler(req, res, next)).catch(err=>next(err));
+  };
+};
+export default asyncHandler;
+```
+
+asyncHandler is just a higher-order function (a function that returns another function) that auto-catches async errors and forwards them to Express error middleware.
+
+Without asyncHandler, every async controller needs its own try/catch just to forward errors to next()
+
+
+###### Using ApiError and apiResponse
+https://github.com/StackUnderFLowOfficial/markme/commit/b0c8cc4547221332cf46035daa5dab98568ea67a
+AppError = operational errors (expected failure scenarios i.e. user error 4xx)
+ApiResponse = structured success responses (2xx).
+
+ApiError
+In Node + Express, when you throw a normal `Error`, it contains only:
+- `message`
+- `stack`
+
+It does **not** contain:
+- HTTP status code
+- Whether it's safe to show to the client
+- Whether it's expected (user mistake) or a bug
+- Structured validation errors
+
+
+###### Error middleware 
+https://github.com/StackUnderFLowOfficial/markme/commit/285d01155863d20c505fbcae35601bac1248cf99
+- `asyncHandler` → catches async errors and calls `next(err)`
+- `AppError` → creates structured errors
+- `AppResponse` → structures success responses
+
+Here’s the key truth:
+**`next(err)` does not send a response. It only forwards the error.**
+
+Forward it to where?
+To Express **error-handling middleware**.
+
+If you don’t define one, Express uses its default handler. That default handler:
+- Sends HTML in development
+- May expose stack traces
+- Does NOT follow your `{ success, message }` format
+- Ignores your `AppError` structure
+
+
+---
+
+###### Joi for validation
+
+---
+###### Swagger for creating documentation
+https://swagger.io
+
+Swagger simply exposes them as a machine-readable contract and a human-friendly UI. The industry name for that contract is the OpenAPI Specification, and the common Node tooling to show it is Swagger UI.
+
+
+Basic structure of swagger.json  https://swagger.io/docs/specification/v3_0/basic-structure/
+
+
+---
+
+###### From Vault learn project I Learned 
+
+Section creation routes are placed in course route because course (parent) creates children and in children model (section model) have reference to course objectId is enough . Parent doesn't need to know children — children knowing parent is enough
+
+Routes represent RELATIONSHIP  
+DB represents STORAGE
+
+Course owns Section
+Section owns Lecture
+Lecture owns video
+
+Section creation in course route and section reading in section routes
+similarly other routes
+
+---
+###### streaming 
+codersgyan: https://youtu.be/ZPwgbvCkRpY
+
+
+
+`pipeline` from `"stream/promises"` is not just another utility—it’s the **correct, production-grade way to handle streams in Node.js**.
+
+You’ve probably used `.pipe()` before. That’s the beginner version. `pipeline` is the **safe, controlled, error-aware version of `.pipe()`**.
+
+
+`pipeline` is a function that:
+
+- Connects multiple streams (readable → transform → writable)
+- Handles **backpressure properly**
+- **Automatically propagates errors**
+- Returns a **Promise** (since you're using `"stream/promises"`)

@@ -253,19 +253,216 @@ export default class UserModel {
 ```
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 week8|topic2|lec1
+
+
+
+mongoose:
+https://youtu.be/VbGl3msgce8?t=1187
+https://youtu.be/lA_mNpddN5U
+
+
+
+Mongoose `sparse` Index
+
+**Definition:**  
+`sparse: true` makes MongoDB **index only documents that contain the field**.  
+Documents where the field is **missing are ignored by the index**.
+
+**Used with:** `unique: true`
+
+```js
+rollNumber: {
+  type: String,
+  unique: true,
+  sparse: true
+}
+```
+
+Behavior
+
+| Case                     | Result                                      |
+| ------------------------ | ------------------------------------------- |
+| Field present → `"A101"` | Must be **unique**                          |
+| Field missing            | Allowed in multiple documents               |
+| Field = `null`           | ❗ Still indexed → can cause duplicate error |
+
+**Why needed?**
+
+Without `sparse`:
+
+• MongoDB treats missing fields as `null`  
+• Only **one document** without `rollNumber` allowed (duplicate key error)
+
+With `unique + sparse`:
+
+• Uniqueness enforced **only when field exists**  
+• Multiple docs without the field are allowed
+
+### When to use
+
+Use for **optional unique fields**, e.g.:
+
+• rollNumber (if not all users are students)  
+• email (optional login)  
+• phone number (optional)
+
+### Important rule
+
+Do **not** store:
+
+```js
+rollNumber: null
+```
+
+Either store a real value or **omit the field completely**.
+
+### Mental model
+
+> Unique + sparse = “Unique when present, ignore when absent”
+
+---
+
+If you want the advanced alternative: `partialFilterExpression` (more precise than sparse), that’s the next evolution.
+
+
+---
+
+# Mongoose
+
+###### pre
+https://youtu.be/eWnZVUXMq8k?list=PLu71SKxNbfoBGh_8p_NS-ZAh6v7HhYqHW
+
+In **Mongoose**, `pre` is a **middleware hook** — a function that runs _before_ a specific event or operation happens.
+
+Think of it as a trapdoor you install in the code path. Whenever something important is about to occur — saving a document, deleting it, validating it — your function jumps in first.
+
+The syntax looks like this:
+
+```js
+schema.pre('save', function(next) {
+  // code here runs BEFORE save
+  next();
+});
+```
+
+That `'save'` is the hook. You're telling Mongoose:
+
+> “Before saving this document, run my function.”
+
+Now why would you want that?
+
+Because real systems need rules.
+
+The most classic example: hashing passwords before saving them.
+
+```js
+userSchema.pre('save', async function(next) {
+  if (!this.isModified('password')) return next();
+  this.password = await hashFunction(this.password);
+  next();
+});
+```
+
+Without `pre`, developers forget. Humans are unreliable. Middleware makes security automatic.
+
+There are two main types of `pre` hooks:
+
+1. **Document middleware** – runs on document actions like:
+    - `'save'`
+    - `'validate'`
+    - `'remove'`
+2. **Query middleware** – runs on query operations like:
+    - `'find'`
+    - `'findOne'`
+    - `'updateOne'`
+    - `'deleteOne'`
+
+Example for queries:
+
+```js
+schema.pre('find', function() {
+  this.where({ isDeleted: false });
+});
+```
+
+Now every find automatically ignores soft-deleted records. Elegant. Defensive.
+
+Key detail most students miss:  
+`pre('save')` does **not** run on `updateOne()` unless explicitly configured. Different operation, different middleware path. Many bugs are born from that misunderstanding.
+
+So conceptually:
+- `pre` = "before something happens"
+- `post` = "after something happens"
+
+It's lifecycle control.
+
+And lifecycle control is power — because software is just events chained together.
+
+If you want, we can go deeper into execution flow differences between document and query middleware — that’s where people usually trip.
+
+
+---
+
+###### seeding examples
+subject seed: https://github.com/StackUnderFLowOfficial/markme/commit/04a585068ec63a4e6254644ffaddf398b3f8d8bc
+and can also check section seed file
+
+---
+
+###### lean
+Using `.lean()` Industry practice when returning read-only data.
+Mongoose normally does something **extra** when it returns data. That “extra” is the key to understanding `.lean()`.
+
+Think of two possible outputs from MongoDB:
+1. **Plain JavaScript objects** (raw data)
+2. **Mongoose Documents** (objects with lots of methods and metadata attached)
+
+`.lean()` tells Mongoose:
+
+> “Do NOT wrap the result in a Mongoose Document. Just give me the raw object from MongoDB.”
+
+Using `.lean()`:
+- reduces memory usage
+- avoids document hydration
+- improves response time
+
+
+`returnDocument: "after"`
+In **Mongoose**, `findByIdAndUpdate()` by default returns the **old document** (before update).
+
+`runValidators: true`
+By default **Mongoose DOES NOT run schema validators on update queries**.
+```js
+  const section = await Section.findByIdAndUpdate(req.params.id, req.body, {
+    returnDocument: "after", // return the updated document not the old one
+    runValidators: true, // by default mongoose doesn't run validators on update, this option enables it
+  });
+```
+
+
+---
+###### aggregation
+
+aggregation-pipeline:
+chaicode: https://youtu.be/fDTf1mk-jQg
+docs: https://www.mongodb.com/docs/manual/core/aggregation-pipeline/
+
+sub-pipelines: https://youtu.be/qNnR7cuVliI
+
+Aggregation = chaining multiple data operations into a pipeline.
+You can:
+filter → join → group → reshape → sort → paginate  
+all in one flow
+and MongoDB calls the whole pipeline an **aggregation**.
+It is “doing many things **in sequence**.”
+
+project, lookup , match etc
+
+| Stage      | Purpose                                             |
+| ---------- | --------------------------------------------------- |
+| `$match`   | filter specific lecture                             |
+| `$lookup`  | join another collection                             |
+| `$unwind`  | flatten array → object                              |
+| `$project` | reduce payload (sending only selective info in res) |
+

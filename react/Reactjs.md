@@ -62,8 +62,6 @@ src/assets/    # whole folder
 
 
 ---
-#### For Tailwind Config https://v3.tailwindcss.com/docs/guides/vite
-
 #### For react-icons
 https://www.npmjs.com/package/react-icons
 `npm i react-icons` To install react icon
@@ -1717,6 +1715,9 @@ GeoJSON
 
 ---
 # tailwindcss
+
+#### For Tailwind Config (v3): https://v3.tailwindcss.com/docs/guides/vite
+
 https://tailwindcss.com/docs/installation/using-vite
 https://youtu.be/sHnG8tIYMB4 tailwind 4.0 install
 https://youtu.be/bupetqS1SMU tailwind 4.0 config
@@ -1803,8 +1804,268 @@ week 8 | topic 1 |
 
 
 ---
-### For Notification or toast
+### Sonner (For Notification or toast)
 
 tutorial: https://youtu.be/RUG5GVDZkOQ
 install: https://www.npmjs.com/package/sonner
 docs : https://sonner.emilkowal.ski/getting-started
+
+---
+
+###### React query
+fireship: https://www.youtube.com/watch?v=novnyCaa7To
+
+---
+
+###### **when to use what**
+
+Correct mental model used in production:
+```
+Local state        → useState / useReducer
+Global UI state    → Zustand (or Redux Toolkit)
+Server/API state   → React Query
+```
+
+###### **Props drilling**
+State management exists to solve **scope + complexity** problems.
+
+Problem 1 — Prop Drilling (local → shared)
+```tsx
+<App>
+  <Navbar user={user} />
+  <Dashboard user={user} />
+</App>
+```
+Passing `user` everywhere = fragile.
+
+
+###### **useState** (baseline)
+Use when:
+- State is used in **one component or very few**
+```tsx
+const [count, setCount] = useState(0);
+```
+✔ Simple  
+✖ Breaks when many components need it
+
+
+###### **Context API** (what you mentioned)
+Yes, Zustand _sounds like_ Context — but here’s the reality:
+
+React Context API
+
+Problem it solves:
+- Avoid prop drilling
+
+i.e.
+```tsx
+const UserContext = createContext();
+
+function App() {
+  const [user, setUser] = useState(null);
+
+  return (
+    <UserContext.Provider value={{ user, setUser }}>
+      <Navbar />
+      <Dashboard />
+    </UserContext.Provider>
+  );
+}
+```
+
+Problem it creates (important):
+- Every consumer re-renders on change
+- Performance degrades
+- Logic gets scattered
+- Hard to scale
+
+Context is **not a state management system**, it’s a **dependency injection tool**
+
+
+###### **Zustand** (fixes Context problems)
+
+What it fixes:
+- No unnecessary re-renders
+- Centralized logic
+- Cleaner access
+
+Same example in Zustand:
+```ts
+import { create } from 'zustand';
+
+const useUserStore = create((set) => ({
+  user: null,
+  setUser: (user) => set({ user }),
+}));
+```
+
+Use anywhere:
+```tsx
+const user = useUserStore((state) => state.user);
+```
+✔ Only re-renders when `user` changes  
+✔ No provider wrapping  
+✔ Cleaner than Context
+
+
+Real use case:
+- Auth state
+- Theme
+- UI flags
+- Small shared data
+
+
+###### **Redux Toolkit** (fixes scaling chaos)
+When Zustand starts becoming messy:
+
+Problem:
+- Too many actions
+- Hidden side effects
+- Hard to debug
+
+
+Redux Toolkit enforces structure
+```ts
+const userSlice = createSlice({
+  name: 'user',
+  initialState: { user: null },
+  reducers: {
+    setUser: (state, action) => {
+      state.user = action.payload;
+    },
+  },
+});
+```
+✔ Predictable updates  
+✔ DevTools (time travel debugging)  
+✔ Middleware support
+
+
+###### **TanStack Query**
+Problem:
+People misuse Zustand/Redux for API data
+
+Bad approach:
+```ts
+// ❌ storing API data in Zustand
+set({ users: fetchedUsers });
+```
+
+Why it's wrong:
+- No caching
+- No refetching
+- No sync handling
+
+Correct approach:
+```ts
+const { data, isLoading } = useQuery({
+  queryKey: ['users'],
+  queryFn: fetchUsers,
+});
+```
+✔ Auto caching  
+✔ Background updates  
+✔ Retry + sync
+
+
+Final mental model (clean and correct)
+
+| Type of State            | Tool                         |
+| ------------------------ | ---------------------------- |
+| Input fields, toggles    | useState                     |
+| Shared UI state          | Zustand                      |
+| Complex enterprise flows | Redux Toolkit                |
+| API/server data          | React Query (TanStack query) |
+
+
+---
+
+###### **setup nextjs**
+
+chaicode playlist: https://youtube.com/playlist?list=PLu71SKxNbfoBAaWGtn9GA2PTw0HO0tXzq&si=gHdbaJ6WhWlm7bi_
+
+https://nextjs.org/docs/app/getting-started/installation
+
+```bash
+npx create-next-app@latest my-app --yes
+cd my-app
+npm run dev
+```
+
+- `--yes` skips prompts using saved preferences or defaults. The default setup enables TypeScript, Tailwind, ESLint, App Router, and Turbopack, with import alias `@/*`.
+
+
+- Use **`npx`** to run **project generators or CLI tools temporarily** (no install).  
+    Example with Next.js and Vite:
+```
+    npx create-next-app@latest
+    npx create-vite@latest
+```
+- Use **`npm install`** to add **dependencies your project actually uses**.  
+    Example: React, Express
+```
+    npm install react express
+```
+
+- `npx` → **run a tool once**
+- `npm install` → **add a library to your project**
+
+
+
+---
+TODO: 
+###### React server componenets
+
+
+---
+###### userRouter hook
+(old)
+routing: https://youtu.be/BE5em7aDCnU
+router.query
+
+dynamic routing: https://youtu.be/SKEVxJN69zw?list=PLinedj3B30sDP2CHN5P0lDD64yYZ0Nn4J
+router.push
+router.replace (no history)
+router.reload
+
+
+###### useSWR hook
+https://youtu.be/yiZEX0S5eUI?list=PLinedj3B30sDP2CHN5P0lDD64yYZ0Nn4J&t=870
+
+###### getServerSideProps
+https://youtu.be/fjTDclQ6Ytc?list=PLinedj3B30sDP2CHN5P0lDD64yYZ0Nn4J&t=173
+
+###### SSG static site generation
+https://youtu.be/mS7K-GQcGHw?list=PLinedj3B30sDP2CHN5P0lDD64yYZ0Nn4J
+getStaticProps
+context.query.id
+context.params.id
+
+
+CSS support
+https://youtu.be/RV27wQpGqxM?list=PLinedj3B30sDP2CHN5P0lDD64yYZ0Nn4J
+global
+module
+
+
+image optimisation
+https://youtu.be/R4kRxRAr1pA?si=0c3kZGVKvQTL40CI
+
+auth in next
+https://youtu.be/c2gcGRhVxuk?list=PLinedj3B30sDP2CHN5P0lDD64yYZ0Nn4J
+
+deploy nextjs project
+https://youtu.be/YyeyXhKvgPY?list=PLinedj3B30sDP2CHN5P0lDD64yYZ0Nn4J
+
+App router (new)
+https://youtu.be/IKGSgdkcIVc?list=PLinedj3B30sDP2CHN5P0lDD64yYZ0Nn4J
+https://youtu.be/2GHgcFJJZmE
+https://youtu.be/hfUPcayZhKU?list=PLinedj3B30sDP2CHN5P0lDD64yYZ0Nn4J&t=352
+
+caching and preload and server only 
+https://youtu.be/Bx7GUurz5Zc?list=PLinedj3B30sDP2CHN5P0lDD64yYZ0Nn4J
+
+---
+
+###### vercel ai sdk 
+docs: https://ai-sdk.dev/getting-started

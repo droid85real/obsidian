@@ -34,7 +34,6 @@ function test() {
 ```
 
 ## `const`
-
 - **Block-scoped**, like `let`.
 - **Must be initialized** at the time of declaration.
 - **Cannot be updated or redeclared**.
@@ -739,7 +738,7 @@ console.log(a,b); // 20 10
 
 
 ---
-# Object
+### Object
 
 #### Object Creation
 ```js
@@ -982,17 +981,2502 @@ pending above and skipped some topic need to revisit
 
 
 ---
-
 ### Working of js
 
-Execution Contexts https://youtu.be/zdGfo6I1yrA
+###### **Execution Contexts** 
+- https://youtu.be/zdGfo6I1yrA
+- https://youtu.be/ZvbzSrg0afE?list=PLlasXeu85E9cQ32gLCvAvr9vNaUccPVNP
 
-pending
+JavaScript allocates memory for variables and functions during the creation phase of the execution context, before executing the code.
 
-week 6| topic 4 |
-+ lec 1
+**Execution Context creation in action**
+
+Example
+```js
+var x = 1;
+
+function foo() {
+  var y = 2;
+  console.log(x + y);
+}
+
+foo();
+```
+
+What happens
+Global creation phase
+```
+x → undefined
+foo → function
+```
+
+Global execution
+```
+x → 1
+foo() → new execution context
+```
+
+foo creation
+`y → undefined`
+
+**foo execution**
+`y → 2 console.log(3)`
+
+Then `foo` context is popped.
+
+
+
+**Each function call = a sealed memory box**
+Every time a function is invoked, JS creates a **new execution context** with:
+- its own variable environment
+- its own `x`, even if the name matches something outside
+
+```js
+var x = 1;
+a();
+b();
+console.log(x);
+
+function a() {
+  var x = 10;
+  console.log(x);
+}
+
+function b() {
+  var x = 100;
+  console.log(x);
+}
+```
+
+Output:
+10
+100
+1
+
+Why this is inevitable:
+- `a` gets its **own `x`**
+- `b` gets its **own `x`**
+- global `x` is untouched
+
+
+Call stack controls _where_ code runs, not _what_ memory exists
+The stack only decides **which execution context is active**.
+
+Stack timeline
+```
+Start        → [Global]
+a() called   → [Global, a]
+a() ends     → [Global]
+b() called   → [Global, b]
+b() ends     → [Global]
+Program end  → []
+```
+
+When a context pops:
+- its **local variables are gone**
+- unless captured by a closure (important later)
+
+
+
+**Variable lookup rule**
+When JS sees `x`, it does this:
+1. Check current execution context
+2. If not found → check outer context(parent)
+3. Repeat until global
+4. If still not found → ReferenceError
+```js
+var x = 5;
+
+function test() {
+  console.log(x);
+}
+
+test(); // 5
+```
+`test` has no `x`, so lookup climbs outward.
+
+
+
+**Why functions don’t overwrite globals by accident**
+```js
+var count = 0;
+
+function increment() {
+  var count = 10;
+}
+
+increment();
+console.log(count); // 0
+```
+Reason:
+- `var count` inside `increment` creates **new memory**
+- no mutation of outer scope happens
+Isolation is the default, not the exception.
+
+
+
+**When global does change**
+Only if you explicitly target it.
+```js
+var x = 1;
+
+function change() {
+  x = 99; // no local var
+}
+
+change();
+console.log(x); // 99
+```
+Now lookup finds:
+- no local `x`
+- outer `x` exists → mutate it
+
+
+`setTimeout`
+ https://youtu.be/eBTBG4nda2A?si=SNw6liELHt-BfE4l
+
+```js
+console.log("start");
+
+setTimeout(() => {
+  console.log("timer");
+}, 1000);
+
+console.log("end");
+
+// output
+// start
+// end
+//timer
+```
+Actual sequence inside the engine:
+1. `"start"` → Call Stack → executed
+2. `setTimeout` → callback registered with Web APIs + timer
+3. JS **moves on immediately**
+4. `"end"` → Call Stack → executed
+5. After 1s → callback pushed to **Task Queue**
+6. Event Loop checks: stack empty → moves callback to stack
+
+
+**In depth understanding of the above code**
+
+First: What an Execution Context Actually Contains
+Every execution context has three main components:
+1. Variable Environment
+2. Lexical Environment
+3. This binding
+
+In modern engines, Variable Environment and Lexical Environment are very similar. For global scope, they both point to the global environment record.
+
+
+Now let’s build your Global Execution Context step by step.
+
+PHASE 1 — Creation Phase
+JS scans the code before running it.
+In your code:
+- No `var`
+- No `let`
+- No `const`
+- No function declarations
+
+So what gets stored?
+Practically nothing from your code.
+
+But the GEC still contains:
+Lexical Environment:
+- Outer reference → null (because global has no outer scope)
+- Environment Record → empty (for your script)
+
+Variable Environment:
+- Same as above (empty for this code)
+
+This Binding:
+- In browser → `window`
+- In Node → `global`
+
+So internally it looks like:
+
+Global Execution Context  
+{  
+LexicalEnvironment: {  
+EnvironmentRecord: { },  
+Outer: null  
+},  
+VariableEnvironment: {  
+EnvironmentRecord: { },  
+Outer: null  
+},  
+ThisBinding: window  
+}
+Your script adds no variables, so the environment record stays empty.
+
+
+
+**Whole process behind the scene for the code**
+
+```js
+console.log("start");
+
+setTimeout(() => {
+  console.log("timer");
+}, 1000);
+
+console.log("end");
+```
+We assume browser environment.
+
+STEP 0 — Script Loads
+
+JS engine receives the file.
+It creates:
+
+**Global Execution Context (GEC)**
+
+As you understood:
+```
+GEC = {
+  LexicalEnvironment: { empty },
+  VariableEnvironment: { empty },
+  ThisBinding: window
+}
+```
+
+Then:
+
+**GEC is pushed to Call Stack**
+Stack:
+```
+[ Global EC ]
+```
+
+
+**STEP 1 — Creation Phase of GEC**
+Engine scans entire script.
+Finds:
+- No var
+- No let
+- No const
+- No function declarations
+So environment records remain empty.
+Creation phase ends.
+Now execution phase begins.
+
+**STEP 2 — Execution Phase (Line by Line)**
+We now execute code top to bottom.
+
+LINE 1
+```js
+console.log("start");
+```
+
+What happens internally:
+1. Engine resolves identifier `console`
+    - Not in local env
+    - Found on global object (window.console)
+2. Resolves `log`
+3. Calls `console.log`
+
+A new Execution Context is created for `log`.
+
+Stack:
+```
+[ console.log EC ]
+[ Global EC     ]
+```
+
+`console.log` executes native code → prints:
+```
+start
+```
+Then:
+`console.log EC` is popped.
+
+Stack:
+```
+[ Global EC ]
+```
+
+LINE 2
+```js
+setTimeout(() => {
+  console.log("timer");
+}, 1000);
+```
+Now slow down. This is where people hallucinate.
+
+Step A — Resolve setTimeout
+- Not in script env
+- Found on `window.setTimeout`
+
+Step B — Arrow Function Creation
+Before `setTimeout` runs, the arrow function is created as a function object in memory (heap).
+
+Important:  
+It closes over current lexical environment (Global EC).  
+In this case, nothing interesting is captured.
+
+So we now have:
+```
+callbackFunction → stored in heap
+```
+
+Step C — Call setTimeout
+A new Execution Context is created for `setTimeout`.
+
+Stack:
+```
+[ setTimeout EC ]
+[ Global EC     ]
+```
+
+Now critical understanding:
+`setTimeout` is **not implemented inside JS engine**.
+
+It is a Web API provided by the browser.
+
+Inside `setTimeout`:
+1. The callback reference is passed to Web APIs.
+2. Timer of 1000ms is started in browser timer system.
+3. Browser stores something like:
+
+```
+TimerRecord {
+  callback: reference_to_arrow_function,
+  delay: 1000ms
+}
+```
+
+Then `setTimeout` returns immediately.
+No waiting happens here.
+
+Step D — setTimeout finishes
+`setTimeout EC` popped.
+
+Stack:
+```
+[ Global EC ]
+```
+JS moves forward instantly.
+
+
+LINE 3
+```js
+console.log("end");
+```
+Same process as before:
+
+Push console.log EC:
+```
+[ console.log EC ]
+[ Global EC     ]
+```
+
+Prints:
+```
+end
+```
+Pop console.log EC.
+
+Stack:
+```
+[ Global EC ]
+```
+
+
+**STEP 3 — Script Finishes**
+
+No more synchronous code.
+Global Execution Context completes.
+
+It is popped.
+
+Stack:
+```
+(empty)
+```
+Now JS engine is idle.
+
+
+**Meanwhile — Outside the JS Engine**
+
+Inside browser Web APIs:
+Timer is counting down 1000ms.
+
+JS engine does nothing about it.
+
+After ~1000ms:
+Browser timer system finishes.
+Now it does NOT execute the callback directly.
+
+Instead:
+It pushes the callback reference into:
+
+**Task Queue (Macrotask Queue)**
+
+Queue:
+```
+[ callback ]
+```
+Still not executed.
+
+
+**STEP 4 — Event Loop**
+
+The Event Loop constantly runs this algorithm:
+```
+while(true) {
+  if (CallStack is empty) {
+    move first task from TaskQueue to CallStack
+  }
+}
+```
+At this moment:
+
+Call Stack:
+```
+(empty)
+```
+
+Task Queue:
+```
+[ callback ]
+```
+Condition satisfied.
+
+So:
+Callback is moved from Task Queue → Call Stack.
+
+
+**STEP 5 — Callback Execution**
+
+Stack:
+```
+[ callback EC ]
+```
+
+Now inside callback:
+```js
+console.log("timer");
+```
+
+New Execution Context for console.log:
+```
+[ console.log EC ]
+[ callback EC    ]
+```
+
+Prints:
+```
+timer
+```
+
+Then:
+Pop console.log EC.  
+Pop callback EC.
+
+Stack:
+```
+(empty)
+```
+Execution complete.
+
+Final Output Order
+```
+start
+end
+timer
+```
+
+
+**Important Precision Points (Interview Gold)**
+- setTimeout does NOT wait. It registers and exits.
+- Timer countdown happens outside JS engine.
+- Callback goes to Task Queue, not Call Stack.
+- Event Loop moves tasks only when stack is empty.
+- 1000ms is minimum delay, not guaranteed exact execution time.
+
+If stack were busy for 5 seconds,  
+timer would run after 5 seconds.
+
+
+**Full Ordered Timeline (Condensed)**
+1. GEC created
+2. GEC pushed to stack
+3. Creation phase runs
+4. console.log("start") executes
+5. Arrow function created
+6. setTimeout registers callback in Web APIs
+7. console.log("end") executes
+8. GEC popped
+9. Timer completes in Web APIs
+10. Callback pushed to Task Queue
+11. Event Loop sees empty stack
+12. Callback pushed to stack
+13. console.log("timer") executes
+14. Stack empty again
+
+
+
+
+
 
 ---
+###### **Hoisting** 
+means: **declarations are processed before code execution**, but **initializations are not**.
+
+JavaScript runs in two phases:
+1. **Creation phase** – memory is allocated
+2. **Execution phase** – code runs line by line
+
+During creation, the engine scans the code and “lifts” certain declarations into memory. That lifting illusion is called _hoisting_.
+
+`var` hoisting (the dangerous one)
+```js
+console.log(a);   // undefined
+var a = 10;
+console.log(a);   // 10
+```
+
+What the engine actually does:
+```js
+// Creation phase
+var a;           // initialized as undefined
+
+// Execution phase
+console.log(a);  // undefined
+a = 10;
+console.log(a);  // 10
+```
+
+**Key facts**
+- `var` is hoisted
+- Initialized to `undefined`
+- No error → this hides bugs
+- Function-scoped, not block-scoped
+ 
+ 
+ `let` and `const` hoisting (but with a trap)
+
+Yes, they **are hoisted**, but **not initialized**.
+```js
+console.log(b);   // ❌ ReferenceError
+let b = 20;
+```
+
+Why?
+Because of the **Temporal Dead Zone (TDZ)**  
+The time between the start of the scope and the declaration.
+```js
+// Creation phase
+// b exists but is uninitialized (TDZ)
+
+// Execution phase
+console.log(b); // ❌ cannot access before initialization
+let b = 20;
+```
+
+Same for `const`:
+```js
+console.log(c);  // ❌ ReferenceError
+const c = 30;
+```
+
+Key facts
+- Hoisted ✔️
+- Accessible before declaration ❌
+- Forces safer coding
+
+
+
+**Function Declaration hoisting (fully hoisted)**
+```js
+sayHello();   // works
+
+function sayHello() {
+  console.log("Hello");
+}
+```
+
+What happens:
+```js
+// Creation phase
+function sayHello() { ... }
+
+// Execution phase
+sayHello();
+```
+
+Key facts
+- Entire function is hoisted
+- Can be called before definition
+- Safest form of function
+
+
+
+**Function Expression hoisting (depends on variable type)**
+
+Using `var`
+```js
+sayHi();   // ❌ TypeError
+
+var sayHi = function () {
+  console.log("Hi");
+};
+```
+
+Why?
+```js
+var sayHi;     // hoisted as undefined
+sayHi();       // undefined is not a function ❌
+```
+
+
+Using `let`
+```js
+sayHey();   // ❌ ReferenceError
+
+let sayHey = function () {
+  console.log("Hey");
+};
+```
+
+Key facts
+- Variable hoisting rules apply
+- Function body is NOT hoisted
+
+
+
+**Arrow functions (same rule as function expressions)**
+Arrow functions are **never hoisted as functions**.
+```js
+greet();   // ❌ ReferenceError
+
+const greet = () => {
+  console.log("Hello");
+};
+```
+
+
+
+**Interview-level summary (write this in notes)**
+```
+Hoisting = JS behavior where declarations are moved to the top of their scope
+during the memory creation phase.
+
+var     → hoisted, initialized to undefined
+let     → hoisted, in Temporal Dead Zone
+const   → hoisted, in Temporal Dead Zone
+
+Function Declaration → fully hoisted
+Function Expression  → hoisted like variables
+Arrow Function       → hoisted like variables
+```
+
+**Q:** “Are `let` and `const` hoisted?”  
+**A:** “Yes, but they are not initialized and stay in the Temporal Dead Zone until execution reaches their declaration.”
+
+
+
+`undefined` vs `not defined` (this matters in debugging)
+
+`undefined`
+Memory exists, value doesn’t (yet).
+```js
+var x;
+console.log(x); // undefined
+```
+
+`not defined`
+No memory, no binding, nothing.
+```js
+console.log(y); // ReferenceError
+```
+
+Rule:
+- `undefined` → declared, not assigned
+- `ReferenceError` → never existed in scope chain
+
+
+---
+
+###### **Call stack**
+Call Stack = execution order, not memory
+The call stack only tracks which execution context is running.
+
+The **Call Stack** is a **LIFO (Last In, First Out) data structure** that keeps track of **which function is currently running** and **where the program should return after a function finishes**.
+
+JavaScript is **single-threaded**.  
+That means **one call stack, one thing at a time**. No parallel execution on the main thread.
+```js
+function a() {
+  b();
+}
+
+function b() {
+  console.log("Inside b");
+}
+
+a();
+```
+
+Call stack flow
+When `b` finishes, its context is destroyed.  
+When `a` finishes, its context is destroyed.  
+Global stays until script ends.
+
+Basic rule
+- Function call → **push** onto stack
+- Function return → **pop** from stack
+
+
+Example: Nested calls
+```js
+function a() {
+  b();
+  console.log("a");
+}
+
+function b() {
+  c();
+  console.log("b");
+}
+
+function c() {
+  console.log("c");
+}
+
+a();
+```
+
+Execution order (via call stack)
+1. `a()` pushed
+2. `b()` pushed
+3. `c()` pushed
+4. `c()` finishes → pop
+5. `b()` finishes → pop
+6. `a()` finishes → pop
+
+Output
+c
+b
+a
+
+Example: async web api (setTimeout)
+```js
+console.log("start");
+
+setTimeout(() => {
+  console.log("timeout");
+}, 0);
+
+console.log("end");
+```
+
+Output
+start
+end
+timeout
+
+Why?
+- `setTimeout` does **NOT** go on call stack
+- Callback waits in **task queue**
+- Stack must be empty first
+
+---
+
+###### 06: https://youtu.be/QCRpVw2KXf8?si=lTAnImyVK0Ur20X2
+
+**Shortest js code**: empty js program with no lines of code
+still causes the engine to create:
+- Global Execution Context (GEC)
+- Global object
+- `this`
+
+You can verify indirectly because this works **without writing anything else**:
+`console.log(this);`
+Something exists, so something was created.
+
+
+###### Global Execution Context (what it really is)
+The GEC is created **once per script** and contains:
+- Global memory (variables + functions)
+- Execution thread
+- A reference to the global object
+- A binding for `this`
+No GEC → no program.
+
+
+**`this` at global level (browser)**
+At global scope: `console.log(this === window); // true`
+Because during GEC creation: `this → global object`
+
+This is **not true everywhere** (Node behaves differently), but in browsers this rule holds.
+
+
+**what “global space” actually means**
+
+Global space = **not inside any function**.
+```js
+var a = 10;
+function test() {}
+```
+
+Behind the scenes (browser):
+```js
+window.a === 10        // true
+window.test === test  // true
+```
+Both are properties of `window`.
+
+
+Only **`var` and function declarations** attach to `window`.
+```js
+let a = 10;
+const b = 20;
+
+console.log(window.a); // undefined
+console.log(window.b); // undefined
+```
+But
+```js
+var c = 30;
+console.log(window.c); // 30
+```
+So:
+- `var` → global object property
+- `let` / `const` → global lexical environment (not on `window`)
+
+Same scope, different storage.
+
+
+---
+
+###### undefined vs not defined
+https://youtu.be/B7iF6G3EyIk?si=So0qiHcPeAkBblic
+
+`undefined`
+Memory exists, value doesn’t (yet).
+```js
+var x;
+console.log(x); // undefined
+```
+
+`not defined`
+No memory, no binding, nothing.
+```js
+console.log(y); // ReferenceError
+```
+
+Rule:
+- `undefined` → declared, not assigned
+- `ReferenceError` → never existed in scope chain
+
+
+JavaScript is loosely typed
+A variable is just a **label**, not a box with a fixed shape.
+```js
+var data;
+
+data = 10;
+data = "hello";
+data = true;
+```
+JS doesn’t care. The engine just swaps what the label points to. 
+
+
+**Why assigning `undefined` yourself is a bad idea**
+`var a = undefined;`
+
+This tells future readers **nothing**:
+- Is it uninitialized?
+- Was it intentionally cleared?
+- Is it a bug?
+
+If you mean “no value”, be explicit:
+`var a = null;`
+
+Rule:
+- `undefined` → engine’s job
+- `null` → developer’s intent
+
+
+**Correct way to check for uninitialized variables**
+```js
+var a;
+
+if (a === undefined) {
+  console.log("a is uninitialized");
+}
+
+// Never rely on truthy/falsy for this:
+if (!a) { } // WRONG — fails for 0, "", false
+```
+
+
+---
+###### Scope chain
+https://youtu.be/uH-tVP8MUs8?si=2zWWbOLqbt_P6t69
+
+Scope = where a variable is accessible.
+Scope Chain = the mechanism JavaScript uses to resolve variables by searching outward through nested scopes.
+
+JS uses Lexical Scoping.
+
+**When JS cannot find a variable in the current scope, it looks:**
+1. Current scope
+2. Outer scope
+3. Outer’s outer scope
+4. Global scope
+5. If still not found → `ReferenceError`
+That search path is the **scope chain**.
+
+
+**“Lexical” means written location, not call order**
+```js
+function a() {
+  function c() {
+    console.log("inside c");
+  }
+}
+```
+Here:
+- `c` is lexically inside `a`
+- `a` is lexically inside global
+
+This relationship is fixed at **parse time**.  
+Calling order does **not** change scope.
+
+
+**Lexical Environment = local memory + parent environment**
+
+Every execution context creates this structure:
+```
+Lexical Environment
+├── Local Memory (variables, functions)
+└── Outer Reference → parent environment
+```
+
+
+
+Example01: basic scope chain
+```js
+let globalVar = "I am global";
+
+function outer() {
+  let outerVar = "I am outer";
+
+  function inner() {
+    let innerVar = "I am inner";
+
+    console.log(innerVar);   // found in inner
+    console.log(outerVar);   // found in outer
+    console.log(globalVar);  // found in global
+  }
+
+  inner();
+}
+
+outer();
+```
+How resolution works inside `inner()`
+When JS sees `outerVar`:
+- Not in `inner`
+- Looks in `outer`
+- Found ✔
+When JS sees `globalVar`:
+- Not in `inner`
+- Not in `outer`
+- Found in global ✔
+That upward search is the **scope chain traversal**.
+
+
+Example02: Not found
+```js
+function a() {
+  var x = 5;
+}
+
+a();
+console.log(x); // ReferenceError
+```
+Why:
+- global scope has no access to `a`’s local memory
+- scope chain only points **upward**, never down
+Children know parents. Parents don’t know children.
+
+
+Example03: Variable Shadowing
+```js
+let x = 10;
+
+function test() {
+  let x = 20;
+  console.log(x);
+}
+
+test(); //20
+```
+Why?
+Because JS finds x in the nearest scope first.
+Outer x = 10 is shadowed.
+
+
+Example04: Lexical Scope vs Call Location (closure)
+```js
+let x = 100;
+
+function outer() {
+  let x = 200;
+
+  function inner() {
+    console.log(x);
+  }
+
+  return inner;
+}
+
+let fn = outer();
+fn(); //200
+```
+Even though fn() is called in global scope,
+it remembers where it was defined.
+That’s lexical scoping.
+Scope is determined at definition time, not call time.
+
+
+Example05: Lexical scope ≠ dynamic scope
+```js
+function outer() {
+  var x = 1;
+  inner();
+}
+
+function inner() {
+  console.log(x);
+}
+
+outer(); // ReferenceError
+```
+Why this fails:
+- `inner` is lexically inside **global**, not `outer`
+- call site does not matter
+- declaration site does
+Scope is **lexical, not runtime-based**.
+
+
+**Browser devtools prove this**
+Pause inside a function and check:
+- Call Stack → execution order
+- Scope panel → lexical environments
+
+If you see “Closure”:
+- that environment is being preserved
+- memory wasn’t deleted
+- reference still exists
+- Closures are just surviving lexical environments.
+
+
+Example05: Block Scope (let and const)
+```js
+{
+  let a = 10;
+  const b = 20;
+  var c = 30;
+}
+
+console.log(a); // ❌ ReferenceError
+console.log(b); // ❌ ReferenceError
+console.log(c); // 30
+```
+Why?
+- `let` and `const` are block scoped
+- `var` is function scoped
+Scope chain respects those rules.
+
+---
+###### let, const, TDZ (temporal dead zone)
+https://youtu.be/BNC6slYCj50?si=tgtiZddM6FGAM9Yb
+
+`let` / `const` _are_ hoisted but not initialized
+They **exist in memory** before execution, but the engine marks them as **unusable**.
+```js
+console.log(a); // undefined
+var a = 10;
+```
+vs
+```js
+console.log(b); // ReferenceError
+let b = 10;
+```
+Key difference: Same hoisting. Different initialization rules.
+- `var` → initialized with `undefined`
+- `let` / `const` → **uninitialized**
+
+
+**Temporal Dead Zone (TDZ)**
+TDZ is not a place. It’s a **time window**.
+TDZ occurs when you try to access variable before initialisation (let and const)
+
+The **Temporal Dead Zone** is the **time window in a scope where a `let` or `const` variable exists but cannot be accessed**.
+
+It starts: at the **beginning of the scope**
+It ends: when the **variable is declared and initialized**
+
+Any access during this window → **ReferenceError**.
+
+
+Example01:
+```js
+console.log(a); // ❌ ReferenceError
+let a = 10;
+```
+What happens internally:
+```js
+// Creation phase
+// a is hoisted but uninitialized (TDZ)
+
+// Execution phase
+console.log(a); // ❌ access before initialization
+let a = 10;     // TDZ ends here
+```
+
+
+Example02: TDZ vs var
+```js
+console.log(x); // undefined
+var x = 5;
+```
+`var`:
+- hoisted
+- initialized to `undefined`
+- no TDZ
+
+`let` / `const`:
+- hoisted
+- NOT initialized
+- TDZ applies
+
+
+Example03: TDZ with `let` inside function
+```js
+let x = 10;
+
+function test() {
+  console.log(x); // ❌ ReferenceError
+  let x = 20;
+}
+
+test();
+```
+Why?
+Because:
+- `x` inside `test` **shadows** the outer `x`
+- The inner `x` is in TDZ until its declaration
+- JS never reaches the global `x`
+
+
+Example04: TDZ with `const` inside function
+```js
+const y = 5;
+
+{
+  console.log(y); // ❌ ReferenceError
+  const y = 10;
+}
+```
+
+
+Example05: TDZ with default parameters
+```js
+function demo(a = b, b = 10) {
+  console.log(a);
+}
+
+demo(); // ❌ ReferenceError
+```
+Why?
+Default parameters are evaluated **left to right**.
+- `a = b` tries to access `b`
+- `b` is still in TDZ
+
+
+
+**Error types**
+
+`ReferenceError`
+```js
+console.log(a); // TDZ or not defined
+let a = 10;
+```
+
+`SyntaxError`
+```js
+let a = 1;
+let a = 2; // duplicate declaration
+
+const x; // missing initializer
+```
+
+`TypeError`
+```js
+const y = 5;
+y = 6; // reassignment
+```
+
+
+---
+###### Redeclaration of variable
+
+Redeclaration of variable is only possible with  the `var` keyword. 
+
+| Original | Redeclare with `var` | Redeclare with `let` | Redeclare with `const` |
+| -------- | -------------------- | -------------------- | ---------------------- |
+| `var`    | ✅ Allowed            | ❌ SyntaxError        | ❌ SyntaxError          |
+| `let`    | ❌ SyntaxError        | ❌ SyntaxError        | ❌ SyntaxError          |
+| `const`  | ❌ SyntaxError        | ❌ SyntaxError        | ❌ SyntaxError          |
+
+`var` **can be redeclared**
+```js
+var x = 10;
+var x = 20; // ✅ allowed
+```
+
+- `var` is **function-scoped**
+- Redeclaring the same variable with `var` does **not** cause an error
+
+`let` **cannot be redeclared in the same scope**
+```js
+let y = 10;
+let y = 20; // ❌ SyntaxError: Identifier 'y' has already been declared
+```
+- `let` is **block-scoped**
+- Redeclaration in the same scope is not allowed
+
+Mixing `var` and `let` causes an error
+```js
+let a = 10;
+var a = 20; // ❌ SyntaxError
+```
+
+```js
+var b = 10;
+let b = 20; // ❌ SyntaxError
+```
+
+✔️ This happens because `let` creates a **lexical binding**, and JavaScript does not allow another declaration of the same identifier in the same scope, regardless of keyword.
+
+
+**Rules for `const` in JavaScript**
+
+`const` **cannot be redeclared**
+```js
+const x = 10;
+const x = 20; // ❌ SyntaxError: Identifier 'x' has already been declared
+```
+
+`const` **cannot be redeclared with `var` or `let`**
+```js
+const a = 10;
+var a = 20; // ❌ SyntaxError
+```
+
+```js
+const b = 10;
+let b = 20; // ❌ SyntaxError
+```
+
+`const` **must be initialized**
+```js
+const c; // ❌ SyntaxError: Missing initializer in const declaration
+```
+
+`const` **cannot be reassigned**
+```js
+const d = 10;
+d = 20; // ❌ TypeError: Assignment to constant variable
+```
+⚠️ Note: This applies to the **binding**, not the value itself.
+
+Objects and arrays declared with `const` can be mutated
+```js
+const obj = { name: "JS" };
+obj.name = "JavaScript"; // ✅ allowed
+```
+
+```js
+const arr = [1, 2, 3];
+arr.push(4); // ✅ allowed
+```
+
+But reassigning is not:
+```js
+arr = []; // ❌ TypeError
+```
+
+
+---
+
+###### Block Scope and shadowing 
+https://youtu.be/lW_erSjyMeM?si=TFAYS3-9kmaWAbjU
+
+A block is just `{}` that creates a **lexical environment** _only_ for:
+- `let`
+- `const`
+- `class`
+
+```js
+{
+  let x = 1;
+  const y = 2;
+}
+```
+
+This block:
+- allocates memory
+- has its own scope chain link
+- is destroyed when execution leaves
+Blocks don’t matter by themselves — **what you declare inside them does**.
+
+
+**Block scope vs `var`**
+- `var` is **function-scoped**, not block-scoped
+- If no function exists → it leaks to global
+```js
+{
+  var a = 10;
+}
+console.log(a); // 10 (leaks)
+```
+But
+```js
+function test() {
+  {
+    var x = 5;
+  }
+  console.log(x); // 5 (function scope)
+}
+console.log(x);  // ReferenceError
+test();
+```
+So:
+- `var` ignores blocks
+- `let` / `const` respect blocks
+
+
+**Block scope vs `let`**
+```js
+{
+  let b = 20;
+  const c = 30;
+}
+console.log(b); // ReferenceError
+```
+Engine view:
+- new lexical environment created
+- `b` and `c` live there
+- environment destroyed after block ends
+
+
+**Shadowing: same name, closer wins**
+**Shadowing** happens when a variable declared in an inner scope has the **same name** as a variable in an outer scope.
+
+The inner variable **hides (shadows)** the outer one.
+
+Rule: Closest scope wins.
+```js
+let x = 10;
+
+function test() {
+  let x = 20;   // shadows outer x
+  console.log(x);
+}
+
+test();        // 20
+console.log(x); // 10
+```
+
+
+**Block Scope Shadowing (`let` / `const`)**
+```js
+let a = 5;
+
+{
+  let a = 10;
+  console.log(a); // 10
+}
+
+console.log(a);   // 5
+```
+
+**Illegal Shadowing**
+```js
+let b = 10;
+
+{
+  var b = 20; // ❌ SyntaxError
+}
+```
+Why?
+- `var` is function-scoped
+- `let` is block-scoped
+- This breaks scope rules → not allowed
+
+
+**Shadowing + TDZ**
+```js
+let x = 100;
+
+function demo() {
+  console.log(x); // ❌ ReferenceError
+  let x = 50;
+}
+
+demo();
+```
+Inner `x` shadows outer `x` and stays in **TDZ** until declared.
+
+Why `var` shadowing is dangerous
+Example01: 
+```js
+var x = 100;
+
+function demo() {
+  console.log(x); // undefined
+  var x = 50;
+}
+
+demo();
+```
+
+Example02: 
+```js
+var x = 100;
+
+function demo() {
+  console.log(x); // 100
+}
+
+demo();
+```
+
+Example03:
+```js
+var a = 100;
+
+{
+  var a = 10;
+}
+
+console.log(a); // 10
+```
+This is **not real shadowing**.  
+It’s the **same variable** being reassigned.
+Reason: both `var a` point to the same function/global memory
+
+Example04: Illegal shadowing
+```js
+let a = 10;
+{
+  var a = 20;
+}
+```
+Why:
+- `var` tries to declare in the **same scope** as `let`
+- `let` forbids re-declaration
+- engine stops at parse time → SyntaxError
+
+Example05: Legal
+```js
+var b = 10;
+{
+  let b = 20;
+}
+```
+Why:
+- `let b` stays inside block
+- does not leak outward
+- no collision
+
+Example06: Legal
+```js
+let x = 10;
+
+function test() {
+  var x = 20;
+  console.log(x); // 20
+}
+
+test();
+console.log(x); // 10
+```
+Function creates a **new boundary**.  
+`var` stays inside it.
+
+
+Arrow functions: nothing special for scope
+```js
+let x = 5;
+
+const fn = () => {
+  console.log(x);
+};
+
+fn(); // 5
+```
+Arrow functions:
+- don’t change lexical scope rules
+- just don’t create their own `this`
+Variables behave exactly the same.
+
+
+---
+
+###### Closures
+https://youtu.be/qikxEIxsXco?si=ggorML4FveApuiGo
+- A **closure** is created when a function **remembers and can access variables from its lexical (outer) scope even after that outer function has finished executing**.
+- It’s a **side-effect of lexical scope + functions being first-class**.
+
+
+Lexical scope comes first
+JavaScript decides scope **at write time**, not run time.
+```js
+function outer() {
+  let x = 10;
+
+  function inner() {
+    console.log(x);
+  }
+
+  inner();
+}
+outer();
+```
+Why does `inner()` see `x`?
+Because `inner` was **written inside** `outer`.  
+This relationship is fixed forever. Execution order doesn’t matter.
+No closure magic yet — just scope.
+
+
+**Closure appears when the outer function dies**
+Closure becomes obvious when the parent function finishes execution **but the child still lives**.
+```js
+function outer() {
+  let x = 10;
+
+  return function inner() {
+    console.log(x);
+  };
+}
+
+const fn = outer();
+fn(); // 10
+```
+What actually happened:
+1. `outer()` runs
+2. `x` is created
+3. `inner` is returned
+4. `outer()` execution context is popped off the stack
+5. **BUT `x` is not destroyed** because `inner` still references it
+Garbage collector sees a reference → keeps memory alive
+That preserved environment = **closure**
+
+
+Example:
+```js
+function outer() {
+  let count = 0;
+
+  function inner() {
+    count++;
+    console.log(count);
+  }
+
+  return inner;
+}
+
+const fn = outer();
+fn(); // 1
+fn(); // 2
+fn(); // 3
+```
+ Why this works
+- `outer()` finishes execution
+- Normally `count` should be gone
+- But `inner()` still has a reference to `count`
+- JS keeps `count` alive in memory
+That preserved scope is the **closure**.
+
+
+What is Actually Preserved?
+Not a copy.  
+A **reference** to the variable.
+```js
+function outer() {
+  let x = 10;
+  return function inner() {
+    console.log(x);
+  };
+}
+
+const f = outer();
+x = 100;     // different variable
+f();         // 10
+```
+
+
+**Deep closure chain (scope chain in action)**
+```js
+function outest() {
+  let c = 30;
+
+  function outer(b) {
+    let a = 20;
+
+    function inner() {
+      console.log(a, b, c);
+    }
+
+    return inner;
+  }
+
+  return outer;
+}
+
+outest()("hello")(); 
+// 20 "hello" 30
+```
+Lookup order:
+1. `inner` scope
+2. `outer` scope
+3. `outest` scope
+4. global
+This is **lexical scope chain**, not runtime magic.
+
+
+Reassignment proves it’s a reference
+```js
+function test() {
+  let x = 5;
+
+  function print() {
+    console.log(x);
+  }
+
+  x = 99;
+  return print;
+}
+
+const p = test();
+p(); // 99
+```
+If closures stored values, this would print `5`.  
+
+
+**Multiple closures = separate memories**
+Each function call creates a new lexical environment.
+```js
+function makeCounter() {
+  let count = 0;
+
+  return function () {
+    count++;
+    console.log(count);
+  };
+}
+
+const a = makeCounter();
+const b = makeCounter();
+
+a(); // 1
+a(); // 2
+
+b(); // 1
+```
+Same code. Different closures. Different memory.
+This is why closures are perfect for private state.
+
+
+**Closures in async**
+`setTimeout`
+```js
+function delayed() {
+  let msg = "Hello after 2s";
+
+  setTimeout(function () {
+    console.log(msg);
+  }, 2000);
+}
+
+delayed();
+```
+Even after `delayed()` finishes, `msg` survives.
+
+Not the function.  
+Not the execution context.
+
+What survives is **memory referenced by the callback**.
+
+The callback holds a **pointer** to `msg`.  
+As long as the pointer exists, garbage collection is forbidden.
+
+That’s the closure.
+
+Example:
+```js
+for (var i = 1; i <= 5; i++) {
+  setTimeout(() => console.log(i), i * 1000);
+}
+
+//output
+//6
+//6
+//6
+//6
+//6
+```
+Why?
+- `var` is function-scoped
+- One shared `i` . `var i` → **one memory location**
+- Closures capture the same variable
+- Loop runs instantly → `i` becomes `6`
+- All callbacks reference **the same `i`**
+- Timers expire later → they all read `6`
+This is not async weirdness.  This is **shared memory + delayed execution**.
+
+fix with `let`
+```js
+for (let i = 1; i <= 5; i++) {
+  setTimeout(() => console.log(i), i * 1000);
+}
+
+//output
+//1
+//2
+//3
+//4
+//5
+```
+What changes?
+- `let` is **block-scoped**
+- Each iteration creates a **new binding**
+- Each callback closes over a **different memory address**
+
+
+Example: Solving it without `let` (pure closure control)
+```js
+for (var i = 1; i <= 5; i++) {
+  (function(x) {
+    setTimeout(() => console.log(x), x * 1000);
+  })(i);
+}
+```
+What changed?
+- `x` is a **function parameter**
+- Each function call creates a **new execution context**
+- Each callback closes over a **different `x`**
+You manually manufactured block scope before ES6 existed.
+
+
+---
+###### First Class Functions
+https://youtu.be/SHINoHxvTso?si=iVAr1cDaTQ2cuIsJ
+
+
+**First-Class Functions**
+JavaScript treats functions like numbers or strings. Functions can be assigned , passed, return etc into another function
+
+Assign
+```js
+var fn = function () {
+  console.log("stored");
+};
+
+fn()
+```
+
+
+Pass
+```js
+function run(fn) {
+  fn();
+}
+
+run(() => console.log("passed"));
+```
+
+
+Return
+```js
+function makeFn() {
+  return function () {
+    console.log("returned");
+  };
+}
+
+const f = makeFn();
+f();
+```
+
+
+
+**Function Statement (Declaration)**
+```js
+a(); // works
+
+function a() {
+  console.log("a called");
+}
+```
+**Why this works**
+- During **memory creation phase**
+    - `a` → points directly to the function object
+- Before execution even starts, the function already exists
+Think: **function body is hoisted fully**, not `undefined`.
+
+
+**Function Expression**
+```js
+b(); // ❌ TypeError: b is not a function
+
+var b = function () {
+  console.log("b called");
+};
+```
+What actually happens
+Memory phase:
+`b = undefined`
+
+Execution phase:
+`b = function () { ... }`
+
+Calling `b()` early means you’re doing:
+`undefined()`
+
+Hence: **TypeError**, not ReferenceError.
+
+
+**`let` / `const` + function expressions (TDZ trap)**
+```js
+foo(); // ❌ ReferenceError
+
+let foo = function () {
+  console.log("hi");
+};
+```
+Why this is worse than `var`:
+- `var` → hoisted as `undefined`
+- `let` / `const` → **unusable until initialized**
+
+So calling early isn’t “undefined is not a function”  
+It’s **illegal access**
+
+
+**Arrow functions**
+```js
+sayHi(); // ❌
+
+const sayHi = () => {
+  console.log("hi");
+};
+```
+Arrow functions are **always expressions**, never declarations.
+No hoisting of the function body. Same rules as `let`.
+
+
+**Anonymous functions (why they “can’t exist alone”)**
+❌ Illegal:
+```js
+function () {
+  console.log("nope");
+}
+```
+Why?
+- Function **statements require a name**
+- Without a name, JS can’t attach it to memory
+
+✅ Legal (expression context):
+```js
+var x = function () {
+  console.log("ok");
+};
+```
+Rule: Anonymous functions must be used as values, never as standalone statements.
+
+
+**Named Function Expression**
+```js
+var b = function xyz() {
+  console.log(xyz);
+};
+
+b();      // works
+xyz();    // ❌ ReferenceError
+```
+What’s happening:
+- `xyz` exists **only inside the function body**
+- It’s created for:
+    - recursion
+    - debugging (stack traces)
+
+Parameters vs Arguments
+```js
+function sum(a, b) {   // parameters
+  return a + b;
+}
+
+sum(2, 3);             // arguments
+```
+
+
+---
+
+###### Callback functions
+https://youtu.be/btj35dh3_U8?si=RrtJyAIB5OUNVYzT
+
+Callback functions just **a function passed as a value**.
+```js
+function x(cb) {
+  console.log("x running");
+  cb(); // x decides *when* to call back
+}
+
+function y() {
+  console.log("y called");
+}
+
+x(y);
+```
+
+
+**Callbacks enable async (without blocking)**
+JS is single-threaded:
+one Call Stack
+one thing at a time
+
+```js
+console.log("start");
+
+setTimeout(function () {
+  console.log("timer done");
+}, 2000);
+
+console.log("end");
+
+//output
+//start
+//end
+//timer done
+```
+What actually happens:
+- `setTimeout` registers the callback + timer
+- JS **moves on immediately**
+- after 2s → callback enters Call Stack
+Nothing is “paused”.
+
+
+**Blocking the main thread**
+```js
+console.log("start");
+
+function blockFor5Sec() {
+  const end = Date.now() + 5000;
+  while (Date.now() < end) {}
+}
+
+blockFor5Sec();
+
+console.log("end");
+
+//output
+//start
+//end
+```
+During those 5 seconds:
+- no clicks
+- no timers
+- page feels dead
+
+
+**Event listeners = callbacks waiting in the shadows**
+```js
+document.getElementById("btn")
+  .addEventListener("click", function () {
+    console.log("clicked");
+  });
+```
+What JS does:
+- stores the callback
+- does **nothing** until event happens
+- when click occurs → callback pushed to stack
+
+
+**Closures inside event listeners (state without globals)**
+Bad (global state leak):
+```js
+let count = 0; //global
+
+document.getElementById("btn")
+  .addEventListener("click", () => {
+    console.log(++count);
+  });
+```
+Here:
+- `count` lives in **Global Execution Context**
+- It becomes part of global scope
+- Any script anywhere can modify it
+
+Good (closure-based state):
+```js
+function attachEventListener() {
+  let count = 0;
+
+  document.getElementById("btn")
+    .addEventListener("click", function () {
+      console.log(++count);
+    });
+}
+
+attachEventListener();
+
+attachEventListener();
+```
+Here:
+- `count` lives inside `attachEventListener`
+- That function runs
+- It finishes
+- But the callback still references `count`
+- JS keeps `count` alive in memory
+This is controlled, private memory.
+
+---
+
+###### Asynchronous JavaScript & EVENT LOOP
+https://youtu.be/8zKuNo4ay8E?si=zXZVHmCNq70z_z-n
+
+**JS engine vs browser (who does what)**
+
+JavaScript engine (V8):
+- Call Stack
+- Heap
+- Executes JS code
+
+Browser:
+- Timers
+- DOM
+- Network
+- Storage
+- Events
+
+Bridge between them: window
+
+So this:
+`setTimeout(() => {}, 1000);`
+
+is actually:
+`window.setTimeout(() => {}, 1000);`
+
+The engine **delegates** work to the browser.
+
+
+**The Event Loop (its only job)**
+The Event Loop keeps asking:
+- Is Call Stack empty?
+- Is something waiting?
+
+If yes → move task to stack.
+
+It does **not execute code**.  
+It only **moves** code.
+
+
+**Callback Queue (aka Task Queue)**
+Goes here:
+- `setTimeout`
+- `setInterval`
+- DOM events (click, scroll, keypress)
+
+
+**Microtask Queue (higher priority)**
+Goes here:
+- `Promise.then / catch / finally`
+- `fetch().then`
+- `queueMicrotask`
+- MutationObserver
+
+Example:
+
+```js
+setTimeout(() => console.log("timeout"), 0);
+
+Promise.resolve().then(() => {
+  console.log("promise");
+});
+
+//output
+//promise
+//timeout
+
+```
+Why?
+Microtask Queue is **always drained first**
+
+Event Loop priority rule (memorize this)
+> **Call Stack → Microtask Queue → Callback Queue**
+
+The Event Loop:
+1. Waits for stack to be empty
+2. Runs **all microtasks**
+3. Then runs **one callback task**
+4. Repeats
+
+
+Example:
+```js
+console.log("A");
+
+setTimeout(() => console.log("B"), 0);
+
+fetch("https://example.com")
+  .then(() => console.log("C"));
+
+Promise.resolve().then(() => console.log("D"));
+
+console.log("E");
+
+//output
+//A
+//E
+//D
+//C
+//B
+```
+Why:
+- sync first: A, E
+- microtasks: D, C
+- callback queue: B
+
+---
+
+###### JavaScript Runtime Environment and JS Engine
+https://youtu.be/2WJL19wDH68?si=weOWiHzNWJpf1Hwu
+
+**JavaScript Runtime Environment**
+JavaScript by itself is useless. It needs a **runtime**.
+Browser runtime gives:
+- DOM
+- timers
+- fetch
+- storage
+
+Node.js runtime gives:
+- file system
+- OS access
+- networking
+
+But core execution is identical. Same engine, same rules.
+```js
+// Browser
+setTimeout(() => console.log("hi"), 1000);
+
+// Node
+setTimeout(() => console.log("hi"), 1000);
+```
+
+
+**JavaScript Engine**
+An engine is just a C++ program pretending to be a language
+Rules come from: ECMAScript spec
+That spec defines:
+- how variables work
+- how scopes behave
+- how promises schedule microtasks
+
+Not:
+- DOM
+- fetch
+- setTimeout implementation
+Those are runtime features.
+
+
+**Parsing phase (code becomes structure)**
+Before anything runs, code is **understood**.
+
+Example:
+```js
+let x = 10 + 20;
+```
+Engine steps:
+1. Tokenize → `let`, `x`, `=`, `10`, `+`, `20`
+2. Build AST → meaning, not text
+
+AST means the engine sees:
+- declaration
+- assignment
+- binary operation
+
+That’s why formatting doesn’t matter:
+```js
+let x=10+20;
+```
+Same AST. Same execution.
+
+
+**Interpreter vs Compiler (why JS is fast _and_ flexible)**
+
+Old-school:
+- interpreter → fast start, slow execution
+- compiler → slow start, fast execution
+JS uses **both**.
+
+
+**JIT compilation**
+
+V8 pipeline:
+```
+AST → Ignition → Bytecode → TurboFan → Optimized machine code
+```
+
+Example:
+```js
+function add(a, b) {
+  return a + b;
+}
+
+add(1, 2);
+add(3, 4);
+add(5, 6);
+```
+What happens:
+- Ignition runs it immediately
+- Engine notices `add` is called often
+- TurboFan optimizes it assuming numbers
+- Machine code replaces bytecode
+
+
+**Optimization can backfire (important)**
+```js
+function add(a, b) {
+  return a + b;
+}
+
+add(1, 2);
+add("1", "2"); // 💥 different types
+```
+Engine thought: “This function always adds numbers”
+
+Now types change → **de-optimization**
+- optimized code thrown away
+- back to slow path
+This is why **stable types matter**.
+
+
+**Call Stack + Heap (execution & memory)**
+```js
+function foo() {
+  let x = { value: 42 };
+  bar(x);
+}
+
+function bar(obj) {
+  obj.value++;
+}
+
+foo();
+```
+- `foo`, `bar` → Call Stack
+- `{ value: 42 }` → Heap
+- stack stores references, not objects
+When stack unwinds and nothing references the object → garbage collectible.
+
+
+**Garbage Collection**
+V8 mostly uses **Mark & Sweep**.
+Simplified:
+1. Start from global objects
+2. Mark everything reachable
+3. Sweep the rest
+
+Example leak:
+```js
+let cache = [];
+
+function store() {
+  cache.push({ data: "big" });
+}
+```
+Nothing ever gets freed because references remain.
+GC is automatic, but **not magical**.
+
+
+**Why optimizations exist**
+```js
+for (let i = 0; i < 1_000_000; i++) {
+  obj.x;
+}
+```
+Inline caching:
+- first lookup: slow
+- engine remembers where `x` lives
+- next lookups: fast
+That’s how JS competes with C++ in hot paths.
+
+---
+
+###### `setTimeout` Lies About Time
+https://youtu.be/nqsPmuicJJc?si=iTJPgCGt0AbQYB5u
+
+`setTimeout(delay)` does **not** mean “run after _delay_ ms”.  
+It means:  Run no earlier than delay ms, _if_ the call stack is empty.
+
+Time is not the deciding factor.  
+The call stack is.
+
+
+**Single Thread = One Call Stack = One Bottleneck**
+JavaScript has:
+- **One call stack**
+- **One main thread**
+If the stack is busy, **everything waits**. Timers don’t interrupt. Promises don’t interrupt. Nothing interrupts.
+
+Blocking example (the truth demo)
+```js
+console.log("Start");
+
+setTimeout(() => {
+  console.log("Timeout");
+}, 2000);
+
+// Block for ~5 seconds
+const start = Date.now();
+while (Date.now() - start < 5000) {}
+
+console.log("End");
+
+//output
+//Start
+//End
+//Timeout   // after ~5 seconds, NOT 2
+```
+Timer expired at 2s.  
+Callback waited **3 more seconds** because the stack was blocked.
+
+
+**Web APIs, Callback Queue, Event Loop (Actual Flow)**
+When `setTimeout` runs:
+1. JS engine registers timer in **Web API**
+2. Timer counts down **outside JS engine**
+3. Callback moves to **Callback Queue**
+4. **Event Loop checks**:
+    - Is Call Stack empty?
+    - If NO → wait
+    - If YES → push callback
+No empty stack = no execution.
+
+
+---
+###### **Higher-Order Functions**
+https://youtu.be/HkWxvB1RJq0?si=WHdPHYpFnQn8tXDq
+A **Higher-Order Function (HOF)** does **one of two things**:
+- takes a function as input
+- returns a function as output
+
+```js
+function greet() {
+  console.log("Namaste");
+}
+
+function execute(fn) {
+  fn();
+}
+
+execute(greet);
+```
+Why? bcz functions are first class citizen in JS
+
+
+**Why Functional Programming Exists**
+```js
+function calculateArea(arr) {
+  const result = [];
+  for (let r of arr) {
+    result.push(Math.PI * r * r);
+  }
+  return result;
+}
+
+function calculateCircumference(arr) {
+  const result = [];
+  for (let r of arr) {
+    result.push(2 * Math.PI * r);
+  }
+  return result;
+}
+
+const radii = [1, 2, 3, 4];
+
+console.log(calculateArea(radii));
+console.log(calculateCircumference(radii));
+```
+Problem:
+- Loop logic duplicated
+- Only formula changes
+- Maintenance nightmare
+
+
+**Writing a Proper Higher-Order Function**
+```js
+function calculate(arr, logic) {
+  const result = [];
+  for (let r of arr) {
+    result.push(logic(r));
+  }
+  return result;
+}
+
+const radii = [1, 2, 3, 4];
+
+const area = calculate(radii, r => Math.PI * r * r);
+const circumference = calculate(radii, r => 2 * Math.PI * r);
+const diameter = calculate(radii, r => 2 * r);
+
+console.log(area);
+console.log(circumference);
+console.log(diameter);
+```
+This is **real functional programming**:
+- One loop
+- Infinite behaviors
+
+
+**You Already Know This — It’s `map`**
+Your `calculate` **is literally** `map`.
+```js
+radius.map(area);
+radius.map(circumference);
+radius.map(diameter);
+```
+Interview truth:  
+If you write your own `calculate`, interviewer expects you to say:
+“This is basically how `map` works internally.”
+If you don’t say that, you missed the point.
+
+---
+###### map filter and reduce
+https://youtu.be/zdp0zrpKzIE?si=fL7T1Xe65fj6hgcl
+
+
+
+
+---
+
+pending
+week 6| topic 4 |
++ lec 38
+
+Strict mode
+Closure
+
+
 ---
 ### OOPs in js
 + Objects in js are key value pairs
