@@ -1,6 +1,8 @@
 https://react.dev/learn
 React app is made up of components. Its components are js functions
 
+A functional component is a JavaScript function that accepts props as input and returns JSX, which React uses to describe what should be rendered on the screen.
+
 DOM : Document Object Model
 
 Virtual DOM : The Virtual DOM in ReactJS is a lightweight, in-memory representation of the actual DOM. React uses it to optimize performance by updating only the parts of the DOM that need to change, instead of re-rendering the entire UI. When a component's state or props change, React creates a new Virtual DOM, compares it with the previous version (using a process called "reconciliation"), and efficiently updates only the necessary elements in the real DOM. This minimizes expensive DOM manipulations, resulting in faster rendering.
@@ -8,29 +10,8 @@ Virtual DOM : The Virtual DOM in ReactJS is a lightweight, in-memory representat
 Babel in ReactJS converts modern JavaScript and JSX into browser-compatible code.
 
 
-
----
-### `create-react-app` (OLD)
-
-+ go to the directory and `npx create-react-app helloworld`
-+ and `npm run start` to start hosting locally.
-
-to update `npm install -g npm@latest`
-+ `npm -v` to check latest npm version
-+ `node -v` to check nodejs version
-
- **Files You Should Keep**
-- `package.json` and `package-lock.json` (Handles dependencies)
-- `public/index.html` (Main HTML entry point)
-- `src/index.js` (App entry point)
-- `src/App.js` (Main component)
-
->Note :
-`package.json` : It records all the dependencies , scripts and metadata about the project.
-
 ---
 ### New
-
 + `npm create vite@latest` To create React app 
 
 When Vite asks:
@@ -59,6 +40,26 @@ src/App.css
 src/index.css 
 src/assets/    # whole folder
 ```
+
+
+---
+skip
+###### `create-react-app` (OLD) 
++ go to the directory and `npx create-react-app helloworld`
++ and `npm run start` to start hosting locally.
+
+to update `npm install -g npm@latest`
++ `npm -v` to check latest npm version
++ `node -v` to check nodejs version
+
+ **Files You Should Keep**
+- `package.json` and `package-lock.json` (Handles dependencies)
+- `public/index.html` (Main HTML entry point)
+- `src/index.js` (App entry point)
+- `src/App.js` (Main component)
+
+>Note :
+`package.json` : It records all the dependencies , scripts and metadata about the project.
 
 
 ---
@@ -310,7 +311,6 @@ const App = () => {
 export default App;
 ```
 
-
 Note :
 You **must initialize** a variable, function, or class **before exporting it**.
 ```js
@@ -319,8 +319,7 @@ let x = 10;
 ```
 
 
-
-**call function in jsx**
+###### **call function in jsx**
 
 `App.js`
 ```js
@@ -343,9 +342,7 @@ function App() {
 export default App;
 ```
 
-
-
-**expressions in jsx**
+###### expressions in jsx
 
 `index.js`
 ```js
@@ -380,7 +377,7 @@ root.render(
 ```
 
 
-**printing array and object**
+###### **printing array and object**
 
 `index.js`
 ```js
@@ -577,8 +574,7 @@ console.log(animal); //output: cow
 
 
 ---
-#### Template literals (backticks)
-
+###### Template literals (backticks)
 ```js
 const name = "Alice";
 const age = 30;
@@ -598,7 +594,7 @@ https://youtu.be/uvEAvxWvwOs
 - They make components **reusable** and **dynamic**.
 - Props are immutable
 
-##### Basic props
+###### Basic props
 ```js
 // src/App.jsx (Parent)
 import Welcome from "./Welcome";
@@ -619,13 +615,10 @@ export default function App() {
 function Welcome(props) {
   return <h1>Hello, {props.name}</h1>;
 }
-
 export default Welcome;
 ```
 
-
-
-##### Props with destructuring
+###### Props with destructuring
 ```js
 // App.jsx
 import Profile from "./Profile";
@@ -652,9 +645,7 @@ export default function Profile({name,age}){
 }
 ```
 
-
-
-##### Props as array/objects
+###### Props as array/objects
 ```js
 // App.jsx
 import List from "./list";
@@ -676,32 +667,68 @@ export default function List({items}){
 }
 ```
 
+###### Props as function (event handler)
 
-
-##### Props as function (event handler)
+using `js`
 ```js
 // App.jsx
-import Button from "./button";
+import Btn from "./button";
 
 export default function App(){
   const handleClick=()=>{
     alert("Button Clicked");
   }
-  return <Button onClick={handleClick} label="Click me" />
+  return <Btn onClick={handleClick} label="Click me" />
 }
 ```
 
 ```js
 // button.jsx
-export default function Button({onClick,label}){
+export default function Btn({onClick,label}){
     return <button onClick={onClick}>{label}</button>
 }
 ```
 
+using `ts`
+```tsx
+import Child from "./Child";
 
-##### Props with Children
+const App = () => {
+  const handleClick = () => {
+    alert("Hi");
+  };
+
+  return (
+    <>
+      <div>Parent</div>
+      <Child fun={handleClick} label="Click" />
+    </>
+  );
+};
+export default App;
+```
+
+```tsx
+interface PropsTypes{
+    fun: () => void;
+    label: string;
+}
+const Child = ({ fun, label }: PropsTypes) => {
+  return (
+    <>
+      <div>Child</div>
+      <button onClick={fun}>{label}</button>
+    </>
+  );
+};
+export default Child;
+```
+
+
+###### Props with Children
 - In React, **anything you put between a component’s opening and closing tags** is automatically passed to that component as a special prop called `children`.
 
+using `javascript`
 ```js
 // App.jsx
 import Card from "./card";
@@ -716,7 +743,6 @@ export default function App() {
 }
 ```
 
-
 ```js
 // card.jsx
 export default function Card({ children }) {
@@ -727,8 +753,42 @@ export default function Card({ children }) {
 ```
 
 
+using `typescript`
+```tsx
+// App.tsx
+import Card from './card.tsx';
 
-##### Default props
+function App() {
+  return (
+    <Card>
+        <p>example01</p>
+        <p>example02</p>
+    </Card>
+  );
+}
+export default App;
+```
+
+```tsx
+// card.tsx
+import { ReactNode } from 'react';
+
+interface CardProps {
+  children: ReactNode;
+}
+
+const Card = ({ children }: CardProps) => {
+  return (
+    <div style={{ border: '1px solid gray', padding: '10px' }}>{children}</div>
+  );
+};
+
+export default Card;
+```
+
+###### Default props
+
+using `js`
 ```js
 // App.jsx
 import Greeting from "./greeting";
@@ -743,7 +803,6 @@ export default function App(){
 }
 ```
 
-
 ```js
 // greeting.jsx
 export default function Greeting({ name = "Guest" }) {
@@ -751,8 +810,43 @@ export default function Greeting({ name = "Guest" }) {
 }
 ```
 
+using `ts`
+```tsx
+import Child from "./Child";
+const App = () => {
+  return (
+    <>
+      <div style={{ backgroundColor: "blue", color: "white" }}>
+        <div>Parent</div>
+        <Child name="easdfasdf"/>
+        <Child name={null}/>
+        <Child />
+      </div>
+    </>
+  );
+};
+export default App;
+```
 
-##### Props vs State
+```tsx
+interface PropsTypes {
+  name?: string | null;
+}
+const Child = ({ name = "default value" }: PropsTypes) => {
+  return (
+    <>
+      <div style={{ backgroundColor: "green", color: "white" }}>
+        <div>Children</div>
+        <p>{name}</p>
+      </div>
+    </>
+  );
+};
+export default Child;
+```
+
+
+###### Props vs State
 - **Props**: External inputs, controlled by parent. Immutable.
 - **State**: Internal to the component. Mutable.
 
@@ -765,10 +859,10 @@ function Counter({ initial }) {
 Here `initial` comes as **props** (from parent), but `count` is **state** (local).
 
 
+###### Props drilling Example
 
-#### Props drilling Example
-
-```js
+using `js`
+```jsx
 // App.jsx
 import ParentComponent from "./components/ParentComponent";
 
@@ -783,8 +877,7 @@ const App = () => {
 export default App;
 ```
 
-
-```js
+```jsx
 // ParentComponent.jsx
 import { useState } from "react";
 import ChildComponent from "./ChildComponent";
@@ -807,8 +900,7 @@ const ParentComponent = () => {
 export default ParentComponent;
 ```
 
-
-```js
+```jsx
 // ChildComponent.jsx
 import GrandChildrenComponent from "./GrandChildrenComponent";
 
@@ -816,7 +908,7 @@ const ChildComponent = (props) => {
   return (
     <div
       style={{
-        border: `10px solid #000000`,
+        border: `10px solid ${color}`,
         marginLeft: "50px",
         padding: "30px",
         fontSize: "30px",
@@ -830,8 +922,7 @@ const ChildComponent = (props) => {
 export default ChildComponent;
 ```
 
-
-```js
+```jsx
 // GrandChildrenComponent.jsx
 const GrandChildrenComponent = (props) => {
   return (
@@ -844,30 +935,115 @@ const GrandChildrenComponent = (props) => {
 export default GrandChildrenComponent;
 ```
 
+
+using `ts`
+```tsx
+// App.tsx
+import ParentComponent from "./ParentComponent.tsx";
+
+const App = () => {
+  return <ParentComponent />;
+};
+
+export default App;
+```
+
+```tsx
+// ParentComponent.tsx
+import { useState } from "react";
+import ChildComponent from "./ChildComponent";
+
+const ParentComponent = () => {
+  const [color, setColor] = useState<string>("#000000");
+
+  return (
+    <>
+      <h1>Pick color</h1>
+      <input
+        type="color"
+        onChange={(e) => setColor(e.target.value)}
+        value={color}
+      />
+      <ChildComponent color={color} />
+    </>
+  );
+};
+
+export default ParentComponent;
+```
+
+```tsx
+// ChildComponent.tsx
+import GrandChildrenComponent from "./GrandChildrenComponent";
+
+interface ChildComponentProps {
+  color: string;
+}
+
+const ChildComponent = ({ color }: ChildComponentProps) => {
+  return (
+    <>
+      <div
+        style={{
+          border: `10px solid ${color}`,
+          marginLeft: "50px",
+          padding: "30px",
+          fontSize: "30px",
+          width: "300px",
+        }}
+      >
+        <GrandChildrenComponent color={color} />
+      </div>
+    </>
+  );
+};
+
+export default ChildComponent;
+```
+
+```tsx
+// GrandChildrenComponent.tsx
+interface GrandChildrenComponentProps {
+  color: string;
+}
+
+const GrandChildrenComponent = ({ color }: GrandChildrenComponentProps) => {
+  return (
+    <>
+      <p style={{ color: color }}>Color: {color}</p>
+    </>
+  );
+};
+
+export default GrandChildrenComponent;
+```
+
+
 ---
 ### `useRefs()`
 - **Purpose:** Mutable container, survives re-renders, does NOT cause re-render when changed.
 + Refs are used to directly access DOM elements
 
-**Signature:**
+Signature:
 ```js
 const ref = useRef(initialValue);
 ref.current; // mutable value
 ```
  
- **Details:**
+ Details:
  + Can be used to focus on input field and scroll to specific element
 - Also used as “instance variables” in function components.
 
-**Pitfalls:**
+Pitfalls:
 - Don’t use for state that drives UI. UI won’t update.
 
-**Example**
+Example
 + Refs are created using **`React.createRef()`** (in classes)
 + import `useRef` from react and use it to create reference and attached to the element via the ref attribute
 + we can use **`ref.current.value`** to access or modify the value of the input element associated with that ref
 
-```js
+using `js`
+```jsx
 // App.jsx
 import {useRef} from "react";
 function RefExample() {
@@ -888,6 +1064,25 @@ function RefExample() {
 export default RefExample;
 ```
 
+using `ts`
+```tsx
+// App.tsx
+import { useRef } from "react";
+
+const App = () => {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  return (
+    <>
+      <input ref={inputRef} type="text" placeholder="Enter your name" />
+      <button onClick={() => inputRef.current?.focus()}>Click</button>
+    </>
+  );
+};
+
+export default App;
+```
+
 
 ---
 ### `useState()`
@@ -899,11 +1094,11 @@ Functional components can have stateful logic using react hooks
 - Without state = static UI.
 - Async nature: You can’t immediately read updated value after `setValue`.
 
-```js
+using `js`
+```jsx
 import { useState } from "react";
 
 function Counter(){
-
   const [count,setCount]=useState(0);
 
   return(
@@ -913,10 +1108,26 @@ function Counter(){
     </>
   )
 }
-
 export default Counter;
 ```
 
+using `ts`
+```tsx
+import { useState } from "react";
+
+const App = () => {
+  const [count, setCount] = useState<number>(0);
+
+  return (
+    <>
+      <p>You clicked {count} times</p>
+      <button onClick={() => setCount(count + 1)}>Click</button>
+    </>
+  );
+};
+
+export default App;
+```
 
 **Why functional updates matter (batching!)**
 ```js
@@ -932,7 +1143,6 @@ setCount(c => c + 1);
 
 
 **Why can’t we just change state directly?**
-
 React checks if state **changed** by comparing the old value with the new value:
 - If it’s **the same object in memory**, React thinks “nothing changed” → **no re-render**.
 - If it’s a **new object/array**, React sees it’s different → **triggers re-render**.
@@ -947,7 +1157,6 @@ const [user, setUser] = useState({ name: "Alex", age: 20 });
 user.age = 21;     // directly changing the object
 setUser(user);     // React sees: "same object reference"
 ```
-
 React won’t re-render, because `user` is still the same object in memory, just with a changed property.
 
 ✅ RIGHT: Copy + replace
@@ -987,8 +1196,7 @@ Think of it like this:
 - **Immutability** = giving React a _new sheet of paper_ → React says “oh, this is new, let me redraw.”
 
 
-
-#### `useState()` Example
+`useState()` Example
 
 ```js
 // App.jsx
@@ -1012,7 +1220,6 @@ const App = () => {
 export default App;
 ```
 
-
 ```js
 // Blog.jsx
 const Blog = ({ formData, setFormData, blog, setBlog }) => {
@@ -1026,7 +1233,6 @@ const Blog = ({ formData, setFormData, blog, setBlog }) => {
   const handleDelete=(deleteIndex)=>{
     setBlog(blog.filter((_,index)=>index!==deleteIndex));
   }
-
 
   return (
     <div
@@ -1098,7 +1304,6 @@ const Blog = ({ formData, setFormData, blog, setBlog }) => {
 };
 export default Blog;
 ```
-
 
 
 

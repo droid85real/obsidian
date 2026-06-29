@@ -47,3 +47,30 @@ docker run -d \
 -v ~/minio-data:/data \
 quay.io/minio/minio server /data --console-address ":9001"
 ```
+
+with webhook
+```
+docker run -d \
+  --name minio \
+  --restart no \
+  -p 9000:9000 \
+  -p 9001:9001 \
+  -e MINIO_ROOT_USER=admin \
+  -e MINIO_ROOT_PASSWORD=admin123 \
+  -e MINIO_NOTIFY_WEBHOOK_ENABLE_PRIMARY=on \
+  -e MINIO_NOTIFY_WEBHOOK_ENDPOINT_PRIMARY=http://192.168.1.6:3000/api/webhooks/upload-completed \
+  -v ~/minio-data:/data \
+  quay.io/minio/minio server /data --console-address ":9001"
+```
+
+---
+
+Docker for mongodb
+
+```
+docker run -d \
+  --name mongodb \
+  -p 27017:27017 \
+  -v mongodb_data:/data/db \
+  mongo:8
+```

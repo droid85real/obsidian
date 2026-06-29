@@ -51,18 +51,18 @@ mc admin user add local user1 user1password
 **To Check User :**
 ```
 mc admin user list local
-
+```
 or
-
+```
 mc admin user info local user1
 ```
 
-**Add permission : (not recommended as it give access to all bucket readwrite) **
+(skip) **Add permission : (not recommended as it give access to all bucket readwrite) **
 ```
 mc admin policy attach local readwrite --user user1
 ```
 
-**To detach readwrite:**
+(skip) **To detach readwrite:**
 ```
 mc admin policy detach local readwrite --user user1
 ```
@@ -240,7 +240,7 @@ to generate **pre-signed URLs**. The alias simply lets you simulate what that re
 
 **To create bucket :**
 ```
-mc mb local/videos
+mc mb local/vaultlearn
 ```
 
 **List buckets :**
@@ -268,7 +268,6 @@ MinIO metadata tree
 
 ---
 ###### prefix and objects
-
 + think prefix as a directory or file path
 + A prefix becomes part of the path to access Object
 + and objects are immutable
@@ -351,3 +350,46 @@ AWS S3 in nodejs by piyush: https://youtu.be/DOUxRYi2Fwg
 s3 client and presigned url in vid at 18:00 
 
 IAM and policy: https://youtu.be/MDM8AraFgUE
+
+
+----
+#### MinIO Webhook Event Configuration
+You must configure a bucket notification.
+
+`hostname -I` to get ip address
+
+```
+mc admin config set local notify_webhook:primary \
+endpoint="http://192.168.1.8:3000/api/webhooks/upload-completed" \
+enable="on"
+```
+
+To restart
+```
+mc admin service restart local
+```
+
+To verify
+```
+mc admin config get local notify_webhook
+```
+
+attach the bucket event:
+```
+mc event add local/vaultlearn \
+arn:minio:sqs::primary:webhook \
+--event put
+```
+
+verify
+```
+mc event list local/vaultlearn
+```
+
+
+Can MinIO's network reach your backend?
+```
+docker run --rm alpine/curl \
+curl http://192.168.1.8:3000/api/webhooks/upload-completed
+```
+

@@ -278,7 +278,7 @@ build/*   -diff
 + `git diff commitcode1 commitcode2`
 
 ---
-## stack
+## stash
 `stash` allows you to temporarily save changes that are not yet ready to commit. 
 If you need to switch branches but don’t want to commit your changes, use `git stash` to save them. Later, you can apply or pop the stashed changes back with `git stash apply` or `git stash pop`.
 

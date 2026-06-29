@@ -49,7 +49,7 @@ const obj = { name: "Alice" };
 obj.name = "Bob"; // ✅ This is allowed
 ```
 
-## ✅ Quick Summary
+Quick Summary
 
 | Feature       | `var`           | `let`       | `const`     |
 | ------------- | --------------- | ----------- | ----------- |
@@ -61,10 +61,10 @@ obj.name = "Bob"; // ✅ This is allowed
 > \*TDZ = Temporal Dead Zone — accessing the variable before it's declared throws a `ReferenceError`.
 
 
-# ( && ) AND Operator 
+###### ( && ) AND Operator 
 + first falsy and last truthy
 
-# ( || ) OR Operator
+###### ( || ) OR Operator
 + first truthy and last falsy
 
 ### Falsy Values in JavaScript
@@ -72,47 +72,43 @@ obj.name = "Bob"; // ✅ This is allowed
 In JavaScript, **falsy values** are values that evaluate to `false` in a boolean context. These include:
 - `false`
 - `0`
+- `-0`
++ `0n`
 - `''` (empty string)
 - `null`
 - `undefined`
 - `NaN` (not a number)
 Any other value is considered **truthy**
 
-## `undefined`
-- A variable that has been declared but has not yet been assigned a value is `undefined`. It’s the default value of uninitialized variables.
-- A function that doesn't return anything will implicitly return `undefined`.
-- Accessing a non-existent property of an object or an array index that is out of bounds will return `undefined`.
-- `typeof` undefined is `undefined`
+---
 
-## `null`
-+ `null` is an explicit assignment that represents the intentional absence of any object value. It’s an object that represents "nothing" or "no value."
-+ It's typically used when you want to explicitly indicate that a variable should be empty or has no value.
-+ `typeof` null is object
+Strict mode in JavaScript is a restricted version of JS that enforces cleaner coding rules and throws errors for unsafe or ambiguous behavior.
 
->NOTE:
-- **Loose equality (`==`)**: `undefined` and `null` are considered equal.
-- **Strict equality (`===`)**: They are **not** the same.
-
-
-`Number.MAX_VALUE` for largest positive number
-`Number.MIN_VALUE` for smallest positive number
-
-### Infinity 
-+ **Infinity** is a special constant in JavaScript, but it's **not a data type** on its own
-
-**Positive Infinity**: When you divide a positive number by zero, you get positive infinity.
+You enable it using:
 ```js
-console.log(1 / 0);  // Infinity
+"use strict";
 ```
 
-**Negative Infinity**: When you divide a negative number by zero, you get negative infinity.
+Key points (interview-ready):
+- Prevents silent errors by throwing exceptions
+- Disallows undeclared variables
+- Stops duplicate parameter names in functions
+- Restricts use of `this` (undefined in functions instead of global object)
+- Makes debugging easier and code more secure
+- Helps JS run in a more optimized way internally
+
+Example:
 ```js
-console.log(-1 / 0);  // -Infinity
+"use strict";
+
+x = 10; // ❌ ReferenceError: x is not defined
 ```
 
+Strict mode is a feature in JavaScript that enforces stricter parsing and error handling, helping catch bugs early and make code safer and more predictable.
 
 
-# Type coercion
+---
+### Type coercion
 + It refers to the automatic or implicit conversion of values from one data type to another.
 
 **Implicit coercion**
@@ -141,6 +137,265 @@ let bool1 = Boolean(0);   // false (0 is falsy)
 let bool2 = Boolean('');   // false (empty string is falsy)
 let bool3 = Boolean('hello');  // true (non-empty string is truthy)
 ```
+
+
+The easiest interview trick is to memorize **what each operator wants**.
+
+|Operator|What it wants|Example|Result|
+|---|---|---|---|
+|`+`|Number **or** String|`1 + "2"`|`"12"` (concatenation)|
+|`-`, `*`, `/`, `%`, `**`|**Only Number**|`"5" - 2`|`3`|
+|`<`, `>`, `<=`, `>=`|Numbers (unless both are strings)|`"5" > 2`|`true`|
+|`==`|Loose comparison (does type coercion)|`"5" == 5`|`true`|
+|`===`|No coercion|`"5" === 5`|`false`|
+
+### The conversion table (most asked in interviews)
+
+|Value|`Number()`|`String()`|`Boolean()`|
+|---|---|---|---|
+|`undefined`|`NaN`|`"undefined"`|`false`|
+|`null`|`0`|`"null"`|`false`|
+|`true`|`1`|`"true"`|`true`|
+|`false`|`0`|`"false"`|`false`|
+|`""`|`0`|`""`|`false`|
+|`"123"`|`123`|`"123"`|`true`|
+|`"abc"`|`NaN`|`"abc"`|`true`|
+
+ Interview trick (remember this)
+- **`+` is greedy for strings.**
+    - If **either operand is a string**, `+` concatenates.
+    - Otherwise, it adds numbers.
+- **Every other arithmetic operator (`- * / % **`) is greedy for numbers.**
+    - It converts operands to numbers.
+    - If conversion fails → `NaN`.
+
+ Examples
+```js
+1 + "2"          // "12"
+"5" - 2          // 3
+"5" * "2"        // 10
+undefined + 1    // NaN
+undefined * 2    // NaN
+null + 1         // 1
+true + 2         // 3
+```
+
+**Only `+` can concatenate strings. All other arithmetic operators first convert operands to numbers. If that conversion fails, the result is usually `NaN`.**
+
+
+
+---
+# Data Types
+
+Primitive
+- Number
+- String
+- Boolean
+- null
+- undefined
+- Symbol
+- BigInt
+
+Reference
+- Object
+- Array
+- Function
+- Date
+- RegExp
+- Map
+- Set
+- WeakMap
+- WeakSet
+
+
+### `undefined`
+- A variable that has been declared but has not yet been assigned a value is `undefined`. It’s the default value of uninitialized variables.
+- A function that doesn't return anything will implicitly return `undefined`.
+- Accessing a non-existent property of an object or an array index that is out of bounds will return `undefined`.
+- `typeof` undefined is `undefined`
+
+### `null`
++ `null` is an explicit assignment that represents the intentional absence of any object value. It’s an object that represents "nothing" or "no value."
++ It's typically used when you want to explicitly indicate that a variable should be empty or has no value.
++ `typeof` null is object
+
+>NOTE:
+- **Loose equality (`==`)**: `undefined` and `null` are considered equal.
+- **Strict equality (`===`)**: They are **not** the same.
+
+```js
+[] == []              // false     (different array objects)
+[] === []             // false
+{} == {}              // false     (different object references)
+{} === {}             // false
+```
+Reason: different memory reference
+
+
+`Number.MAX_VALUE` for largest positive number
+`Number.MIN_VALUE` for smallest positive number
+
+### Infinity 
++ **Infinity** is a special constant in JavaScript, but it's **not a data type** on its own
+
+**Positive Infinity**: When you divide a positive number by zero, you get positive infinity.
+```js
+console.log(1 / 0);  // Infinity
+```
+
+**Negative Infinity**: When you divide a negative number by zero, you get negative infinity.
+```js
+console.log(-1 / 0);  // -Infinity
+```
+
+
+### Map
++ A `Map` is a built-in collection that stores **key-value pairs** where **keys can be of any data type**.
+- Maintains **insertion order**.
+
+Syntax: `const map = new Map();`
+
+Or with initial values:
+```js
+const map = new Map([
+    ["name", "John"],
+    ["age", 25],
+    ["city", "Delhi"]
+]);
+
+console.log(map);
+//Output:
+// Map(3) {
+//   'name' => 'John',
+//   'age' => 25,
+//   'city' => 'Delhi'
+// }
+```
+
+
+```js
+const map = new Map([
+    ["key0", "value0"],
+    ["key1", "value1"],
+]);
+
+console.log(map);
+// Output:
+// Map(2) {
+//   'key0' => 'value0',
+//   'key1' => 'value1'
+// }
+
+const arr = [...map];
+console.log(arr);
+// Output:
+// [
+//   ['key0', 'value0'],
+//   ['key1', 'value1']
+// ]
+
+const keys = [...map.keys()];
+console.log(keys);
+// Output:
+// ['key0', 'key1']
+
+const values = [...map.values()];
+console.log(values);
+// Output:
+// ['value0', 'value1']
+```
+
+
+| Method            | Description                    |
+| ----------------- | ------------------------------ |
+| `set(key, value)` | Add or update a key-value pair |
+| `get(key)`        | Get value by key               |
+| `has(key)`        | Check if key exists            |
+| `delete(key)`     | Remove a key                   |
+| `clear()`         | Remove all entries             |
+| `size`            | Returns number of entries      |
+
+
+`set(key, value)` - Add a new key-value pair
+```js
+map.set("key2", "value2");
+console.log(map);
+// Output:
+// Map(3) {
+//   'key0' => 'value0',
+//   'key1' => 'value1',
+//   'key2' => 'value2'
+// }
+```
+
+`set(key, value)` - Update an existing key
+```js
+map.set("key1", "updatedValue1");
+console.log(map);
+// Output:
+// Map(3) {
+//   'key0' => 'value0',
+//   'key1' => 'updatedValue1',
+//   'key2' => 'value2'
+// }
+```
+
+`get(key)` - Retrieve value by key
+```js
+console.log(map.get("key1"));
+// Output:
+// updatedValue1
+```
+
+`has(key)` - Check if key exists
+```js
+console.log(map.has("key2"));
+// Output:
+// true
+
+console.log(map.has("key3"));
+// Output:
+// false
+```
+
+`size` - Number of key-value pairs
+```js
+console.log(map.size);
+// Output:
+// 3
+```
+
+`delete(key)` - Remove a key-value pair
+```js
+map.delete("key2");
+console.log(map);
+// Output:
+// Map(2) {
+//   'key0' => 'value0',
+//   'key1' => 'updatedValue1'
+// }
+```
+
+`clear()`- Remove all entries
+```js
+map.clear();
+console.log(map);
+// Output:
+// Map(0) {}
+```
+
+
+| Feature           | Object                                                                                                                           | Map                                                                     |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| **Key Types**     | Only strings and symbols are valid keys                                                                                          | Any value can be used as a key (objects, functions, primitives)         |
+| **Key Order**     | Keys are unordered (in practice, insertion order is mostly preserved for string keys, but not guaranteed)                        | Keys are ordered by insertion; iteration follows insertion order        |
+| **Size Property** | No built-in way to get the number of keys; must use `Object.keys(obj).length`                                                    | Use the `.size` property for the number of entries                      |
+| **Iterability**   | Not directly iterable; must use `Object.keys`, `Object.values`, or `Object.entries`                                              | Directly iterable with `for...of`, `.keys()`, `.values()`, `.entries()` |
+| **Prototype**     | Has a prototype chain; may have default properties that can collide with custom keys (can be avoided with `Object.create(null)`) | Does not have a prototype, so there are no default keys                 |
+| **Performance**   | May be less efficient for frequent additions/removals                                                                            | Optimized for frequent additions and deletions                          |
+| **Serialization** | Can be easily serialized to JSON                                                                                                 | Cannot be directly serialized to JSON                                   |
+
+
 
 ---
 # Ternary operator
@@ -190,7 +445,7 @@ console.log(greatShort("droid85")); //Output: Hello, droid85!
 
 
 
-**Anonymous Function**
+###### **Anonymous Function**
 + Used when you don’t need to name a function, often as an argument:
 ```js
 setTimeout(function() {
@@ -198,8 +453,7 @@ setTimeout(function() {
 }, 1000);
 ```
 
-
-**Immediately Invoked Function Expression (IIFE)**
+###### **Immediately Invoked Function Expression (IIFE)**
 + Runs as soon as it is defined:
 ```js
 (function(){
@@ -224,6 +478,268 @@ function greet(name){
 }
 greet(); //Output: undefined
 ```
+
+
+###### Generator Function
+Think of a **generator** as a function that **doesn't run all at once**. It runs a little, stops, remembers where it stopped, and continues later when you ask it to.
+
+Before generators, a normal function behaves like this:
+
+```js
+function greet() {
+  console.log("Hello");
+  console.log("World");
+}
+greet();
+// Output:
+// Hello
+// World
+```
+The function starts from the top and runs until the end. **You cannot pause it in the middle.**
+
+
+What changes with a generator?
+
+A generator is declared with `function*`.
+```js
+function* greet() {
+  console.log("Hello");
+  yield;
+  console.log("World");
+}
+```
+
+Notice two new things:
+- `function*`
+- `yield`
+
+When you call it:
+```js
+const gen = greet();
+console.log(gen);
+```
+
+It doesn't print anything.
+
+Why?
+Because calling a generator **does not execute its code.**
+Instead, it returns a **generator object**.
+
+Think of it like this:
+```
+function* greet() {
+   ...
+}
+
+↓ call
+
+const gen = greet();
+
+gen =
+┌──────────────────────┐
+│ paused function      │
+│ ready to execute     │
+└──────────────────────┘
+```
+Nothing inside has run yet.
+
+What does `next()` do?
+
+`next()` tells the generator:
+"Start (or continue) executing until you hit a `yield`."
+
+Example:
+```js
+function* greet() {
+  console.log("Hello");
+  yield;
+  console.log("World");
+}
+const gen = greet();
+gen.next();
+```
+
+Execution:
+```
+Start
+
+console.log("Hello")
+↓
+
+Hello
+
+yield
+↓
+PAUSE
+```
+
+Output:
+```
+Hello
+```
+
+Notice that `"World"` wasn't printed.
+The function literally stopped at `yield`.
+
+Call `next()` again
+```js
+gen.next();
+```
+
+Now execution resumes **right after the previous `yield`.**
+```
+yield
+↓
+console.log("World")
+↓
+End
+```
+
+Output:
+```
+World
+```
+Now the generator has finished.
+
+
+What if `yield` returns a value?
+
+Your example:
+```js
+function* generator(i) {
+  yield i;
+  yield i * 2;
+}
+
+const gen = generator(10);
+```
+
+Again:
+```
+generator(10)
+```
+does **not** execute the function.
+
+It only creates:
+- gen
+- paused generator
+
+First `next()`
+```js
+gen.next();
+```
+
+Execution:
+```
+function* generator(i) {
+yield i;
+```
+
+`i` is `10`.
+So
+```
+yield 10
+```
+
+`yield` does two things:
+1. returns `10`
+2. pauses the function
+
+So
+```js
+gen.next()
+```
+
+returns
+```js
+{
+  value: 10,
+  done: false
+}
+```
+
+because it paused—not finished.
+```
+console.log(gen.next().value);
+```
+
+prints
+```
+10
+```
+
+The generator is now paused here:
+```
+yield i;
+      ^
+```
+
+
+Second `next()`
+```js
+gen.next();
+```
+
+Execution resumes after the first `yield`.
+```
+yield i;
+↓
+yield i * 2;
+```
+
+Now
+```
+10 * 2 = 20
+```
+
+So it returns
+```js
+{
+  value: 20,
+  done: false
+}
+// Output:
+// 20
+```
+Again, it pauses.
+
+Third `next()`
+```js
+gen.next();
+```
+
+There is nothing left.
+So the function ends.
+
+It returns
+```js
+{
+  value: undefined,
+  done: true
+}
+```
+`done: true` means
+"The generator has completely finished."
+
+
+**Why are generators useful?**
+Imagine reading a huge file with **10 million lines**.
+Without generators: All 10 million lines are loaded into memory before you process them.
+
+Notes to remember
+- `function*` → Defines a generator function.
+- Calling a generator **does not execute it**; it returns a generator object.
+- `yield` → Returns a value **and pauses** execution.
+- `next()` → Starts or resumes execution until the next `yield` (or the end).
+- `next()` returns an object:
+
+```js
+{
+  value: <yielded value>,
+  done: <true if finished, otherwise false>
+}
+```
+- Unlike `return`, a generator can produce **multiple values** over time.
 
 
 ---
@@ -282,6 +798,7 @@ console.log(slicedArr); // Output: [2,3]
 
 ##### `splice()`
 + Changes the content of an array by removing or replacing existing elements and/or adding new elements in place
++ make changes to original array and return the removed elements
 
 ```js
 array.splice(startIndex, deleteCount, item1, item2, ..., itemN);
@@ -295,6 +812,14 @@ let arr=[1,2,3,4,5,6];
 arr.splice(1,3,7,8,9); //start at index 1,remove 3 elements, insert 7,8,9
 console.log(arr); // Output: [1,7,8,9,5,6]
 ```
+
+
+|`slice()`|`splice()`|
+|---|---|
+|Does **not** modify the original array (immutable)|Modifies the original array (mutable)|
+|Returns a **shallow copy** (subset) of selected elements|Returns an array of the **removed** elements|
+|Used to **extract** elements from an array|Used to **add**, **remove**, or **replace** elements in an array|
+|Syntax: `array.slice(start, end)`|Syntax: `array.splice(start, deleteCount, ...items)`|
 
 #### Searching and Filtering
 ##### `indexOf(value)`
@@ -740,7 +1265,7 @@ console.log(a,b); // 20 10
 ---
 ### Object
 
-#### Object Creation
+###### Object Creation
 ```js
 const student={
 	name: 'Alexa',
@@ -752,14 +1277,22 @@ const student={
 	100: 'hundred', 
 };
 
+console.log(student.name); // Alexa
+console.log(student["name"]); // Alexa
+console.log(student[100]); // hundred
+student.show(); // This is the student details section
+
 console.log(student);
-console.log(student.name);
-console.log(student["name"]);
-console.log(student[100]);
-student.show();
+// {
+//   '100': 'hundred',
+//   name: 'Alexa',
+//   age: 10,
+//   hobby: 'Dancing',
+//   show: [Function: show]
+// }
 ```
 
-#### object creation using new keyword then adding properties
+###### object creation using new keyword then adding properties
 ```js
 const person=new Object(); // creates an object
 
@@ -770,26 +1303,26 @@ person.age=50;
 console.log(person); //Output: { firstName: 'John', lastName: 'Doe', age: 50 }
 ```
 
+###### Adding/Updating Properties
+```js
+let person = { name: "Bob", age: 35 };  // Adding a new property 
+person.city = "New York";  // Updating an existing property 
+person.age = 36;  
+console.log(person);  // { name: 'Bob', age: 36, city: 'New York' }
+```
 
 
-working
+```js
+const property = "firstName";
+const name = "Piyush Agarwal";
 
+const user = {
+	[property]: name,
+};
+console.log(user.firstName);
+```
 
-TODO: length,split,hasownproperty
-
-week6,topic3,lec44
-#### 3. Adding/Updating Properties
-
-javascript
-
-CopyEdit
-
-`let person = { name: "Bob", age: 35 };  // Adding a new property person.city = "New York";  // Updating an existing property person.age = 36;  console.log(person);  // { name: 'Bob', age: 36, city: 'New York' }`
-
----
-
-#### 4. Deleting Properties
-
+###### Deleting Properties
 Use the `delete` operator:
 ```js
 let person = { name: "Charlie", age: 40, city: "London" };
@@ -797,13 +1330,8 @@ delete person.city;
 console.log(person); // { name: 'Charlie', age: 40 }
 ```
 
-
----
-
-#### 5. Object Methods
-
+###### Object Methods
 An object can have **methods**, which are functions that belong to the object.
-
 ```js
 let car = {
   make: "Toyota",
@@ -816,11 +1344,85 @@ let car = {
 console.log(car.displayInfo()); // Output: 2020 Toyota Corolla
 ```
 
+###### Accessing value using dot notation
+```js
+const user = {
+  name: "Alice",
+  age: 25,
+  city: "Delhi"
+};
 
----
+console.log(user.name); // Alice
+console.log(user.age);  // 25
+```
 
-#### 6. Object Destructuring
+###### Access a value using bracket notation
+```js
+const user = {
+  name: "Alice",
+  age: 25
+};
 
+console.log(user["name"]); // Alice
+
+const key = "age";
+console.log(user[key]); // 25
+```
+
+| Method                | Returns                       |
+| --------------------- | ----------------------------- |
+| `Object.keys(obj)`    | Array of keys                 |
+| `Object.values(obj)`  | Array of values               |
+| `Object.entries(obj)` | Array of `[key, value]` pairs |
+###### Get all keys
+```js
+const user = {
+	name: "Alice",
+	age: 25,
+	city: "Delhi",
+};
+const keys = Object.keys(user);
+console.log(keys); // ["name", "age", "city"]
+```
+
+###### Get all values
+```js
+const user = {
+	name: "Alice",
+	age: 25,
+	city: "Delhi",
+};
+const values = Object.values(user);
+console.log(values);// ["Alice", 25, "Delhi"]
+```
+
+###### Get both keys and values
+```js
+const user = {
+	name: "Alice",
+	age: 25,
+	city: "Delhi",
+};
+const entries = Object.entries(user);
+console.log(entries);
+// [
+//   ["name", "Alice"],
+//   ["age", 25],
+//   ["city", "Delhi"]
+// ]
+```
+
+###### Using `for...in`
+```js
+for (const key in user) {
+  console.log(key, user[key]);
+}
+// name Alice
+// age 25
+// city Delhi
+```
+
+###### Object Destructuring
 ```js
 const person = {
   firstName: 'John',
@@ -834,18 +1436,29 @@ console.log(firstName); // John
 console.log(age);       // 30
 ```
 
-#### Renaming variables during destructuring:
-
+###### Renaming variables during destructuring:
 ```js
+const person = {
+  firstName: 'John',
+  lastName: 'Doe',
+  age: 30
+};
+
 const { firstName: fName, lastName: lName } = person;
 
 console.log(fName); // John
 console.log(lName); // Doe
 ```
 
-#### Destructuring as an assignment pattern
+###### Destructuring as an assignment pattern
 Just like arrays, you can destructure in assignments (not just declarations):
 ```js
+const person = {
+  firstName: 'John',
+  lastName: 'Doe',
+  age: 30
+};
+
 let fName, lName;
 
 ({ firstName: fName, lastName: lName } = person);
@@ -855,10 +1468,13 @@ console.log(lName); // Doe
 ```
 The parentheses `()` are necessary to tell JS this is an expression, not a block.
 
-
-#### Default Value 
-
+###### Default Value 
 ```js
+const person = {
+  firstName: 'John',
+  lastName: 'Doe',
+  age: 30
+};
 const { middleName = "N/A" } = person;
 
 console.log(middleName);  // N/A
@@ -866,10 +1482,7 @@ console.log(middleName);  // N/A
 Here, `middleName = "N/A"` means:  
 If `middleName` doesn’t exist or is `undefined`, assign `"N/A"` instead.
 
-
----
-
-#### 7. Nested Objects
+###### Nested Objects
 ```js
 let user = {
   name: "Jake",
@@ -882,8 +1495,7 @@ let user = {
 console.log(user.address.city); // Output: Los Angeles
 ```
 
-
-#### Nested Object Destructuring
+###### Nested Object Destructuring
 ```js
 const user = {
   id: 101,
@@ -899,7 +1511,7 @@ console.log(first); // Alice
 console.log(last);  // Smith
 ```
 
-#### `this` Keyword in object method
+###### `this` Keyword in object method
 + Inside an object method, `this` refers to the object itself.
 
 ```js
@@ -912,6 +1524,11 @@ let person = {
 };
 console.log(person.fullName()); // Output: Sophia Lee
 ```
+
+
+
+TODO: length,split,hasownproperty
+week6,topic3,lec44
 
 
 ---
@@ -940,6 +1557,27 @@ console.log(original.skills); // ["JS", "React", "Node"]
 - Nested objects/arrays are also new copies.
 - Changing one object never affects the other.
 
+The preferred modern approach is `structuredClone()`, which deep clones most built-in JavaScript data structures and supports circular references. 
+```js
+const obj = {
+    name: "John",
+    address: {
+        city: "Delhi"
+    }
+};
+
+const clone = structuredClone(obj);
+
+clone.address.city = "Mumbai";
+
+console.log(obj);
+console.log(clone);
+// Output:
+// { name: 'John', address: { city: 'Delhi' } }
+// { name: 'John', address: { city: 'Mumbai' } }
+```
+
+For simple JSON-compatible objects, `JSON.parse(JSON.stringify(obj))` works but loses types like `Date`, `Map`, `Set`, `undefined`, and functions. 
 ```js
 const original = { name: "Amit", skills: ["JS", "React"] };
 
@@ -953,11 +1591,11 @@ console.log(deep.skills); // ["JS", "React", "Node"]
 ```
 
 
+
 ---
 ### Passing the reference happens in objects not in primitive data type
 
 ##### 1️⃣ **Primitives**
-
 Types: `string`, `number`, `boolean`, `null`, `undefined`, `bigint`, `symbol`
 - Stored directly in memory as the value itself.
 - When you assign them to another variable, a **copy of the value** is made.
@@ -965,7 +1603,6 @@ Types: `string`, `number`, `boolean`, `null`, `undefined`, `bigint`, `symbol`
 
 
 ### 2️⃣ **Objects** (includes arrays, functions, dates, etc.)
-
 - Stored in memory by reference — the variable **doesn’t hold the object itself**, but a **pointer (address)** to where it lives in memory.
 - When you assign an object to another variable, **the reference is copied**, not the object.
 - Now both variables point to the **same object**.
@@ -986,6 +1623,61 @@ pending above and skipped some topic need to revisit
 ###### **Execution Contexts** 
 - https://youtu.be/zdGfo6I1yrA
 - https://youtu.be/ZvbzSrg0afE?list=PLlasXeu85E9cQ32gLCvAvr9vNaUccPVNP
+
+An Execution Context (EC) is the environment in which JavaScript code is executed.
+It contains:
+- Variable environment (variables, functions)
+- Scope chain (lexical scope access)
+- `this` binding
+
+Types of Execution Context
+1. Global Execution Context (GEC)
+- Created when JS file starts executing
+- One per program
+- `this` points to:
+    - `window` (browser)
+    - `global` (Node.js)
+
+2. Function Execution Context (FEC)
+- Created whenever a function is called
+- One per function call
+- Has its own:
+    - local variables
+    - arguments object
+    - `this`
+
+
+**Execution Context Phases**
+Every execution context is created in **2 phases**:
+
+1. Memory Creation Phase (Hoisting phase)
+JS scans the code and allocates memory:
+- `var` → initialized as `undefined`
+- `let` / `const` → declared but in **Temporal Dead Zone (TDZ)**
+- function declarations → fully stored in memory
+
+Example:
+```js
+console.log(a); // undefined
+var a = 10;
+
+console.log(b); // ReferenceError (TDZ)
+let b = 20;
+
+foo(); // works
+
+function foo() {
+  console.log("hello");
+}
+```
+
+2. Execution Phase
+Code runs line by line:
+- variables assigned real values
+- functions executed
+- expressions evaluated
+
+
 
 JavaScript allocates memory for variables and functions during the creation phase of the execution context, before executing the code.
 
@@ -1229,7 +1921,6 @@ STEP 0 — Script Loads
 
 JS engine receives the file.
 It creates:
-
 **Global Execution Context (GEC)**
 
 As you understood:
@@ -1240,7 +1931,6 @@ GEC = {
   ThisBinding: window
 }
 ```
-
 Then:
 
 **GEC is pushed to Call Stack**
@@ -1268,7 +1958,6 @@ LINE 1
 ```js
 console.log("start");
 ```
-
 What happens internally:
 1. Engine resolves identifier `console`
     - Not in local env
@@ -1338,14 +2027,12 @@ Inside `setTimeout`:
 1. The callback reference is passed to Web APIs.
 2. Timer of 1000ms is started in browser timer system.
 3. Browser stores something like:
-
 ```
 TimerRecord {
   callback: reference_to_arrow_function,
   delay: 1000ms
 }
 ```
-
 Then `setTimeout` returns immediately.
 No waiting happens here.
 
@@ -1421,7 +2108,6 @@ Still not executed.
 
 
 **STEP 4 — Event Loop**
-
 The Event Loop constantly runs this algorithm:
 ```
 while(true) {
@@ -1516,10 +2202,6 @@ timer would run after 5 seconds.
 14. Stack empty again
 
 
-
-
-
-
 ---
 ###### **Hoisting** 
 means: **declarations are processed before code execution**, but **initializations are not**.
@@ -1529,6 +2211,7 @@ JavaScript runs in two phases:
 2. **Execution phase** – code runs line by line
 
 During creation, the engine scans the code and “lifts” certain declarations into memory. That lifting illusion is called _hoisting_.
+**Hoisting** in JavaScript is the behavior where few declarations are processed before the code executes.
 
 `var` hoisting (the dangerous one)
 ```js
@@ -1586,7 +2269,7 @@ Key facts
 - Accessible before declaration ❌
 - Forces safer coding
 
-
+---
 
 **Function Declaration hoisting (fully hoisted)**
 ```js
@@ -1611,7 +2294,7 @@ Key facts
 - Can be called before definition
 - Safest form of function
 
-
+---
 
 **Function Expression hoisting (depends on variable type)**
 
@@ -1629,6 +2312,7 @@ Why?
 var sayHi;     // hoisted as undefined
 sayHi();       // undefined is not a function ❌
 ```
+Since sayHi is undefined at the time of the call, you get: TypeError: sayHello is not a function
 
 
 Using `let`
@@ -1639,7 +2323,6 @@ let sayHey = function () {
   console.log("Hey");
 };
 ```
-
 Key facts
 - Variable hoisting rules apply
 - Function body is NOT hoisted
@@ -2535,6 +3218,7 @@ Variables behave exactly the same.
 https://youtu.be/qikxEIxsXco?si=ggorML4FveApuiGo
 - A **closure** is created when a function **remembers and can access variables from its lexical (outer) scope even after that outer function has finished executing**.
 - It’s a **side-effect of lexical scope + functions being first-class**.
+- A closure exists because the returned function keeps a hidden reference to its lexical environment, so the garbage collector cannot free that environment until all references to the function are gone.
 
 
 Lexical scope comes first
@@ -2546,7 +3230,6 @@ function outer() {
   function inner() {
     console.log(x);
   }
-
   inner();
 }
 outer();
@@ -2579,7 +3262,6 @@ What actually happened:
 5. **BUT `x` is not destroyed** because `inner` still references it
 Garbage collector sees a reference → keeps memory alive
 That preserved environment = **closure**
-
 
 Example:
 ```js
@@ -2623,6 +3305,32 @@ x = 100;     // different variable
 f();         // 10
 ```
 
+What actually happens in your line:
+`x = 100;`
+JavaScript interprets it like this:
+“Assign 100 to a variable named `x` in the current scope chain. If it doesn’t exist, try the global scope.”
+
+
+**Non-strict mode**
+In a browser:
+```
+x = 100;
+```
+becomes:
+```
+window.x = 100;
+```
+
+**Strict mode (modern safe code)**
+If you had:
+```
+"use strict";x = 100;
+```
+Then:
+```
+ReferenceError: x is not defined
+```
+
 
 **Deep closure chain (scope chain in action)**
 ```js
@@ -2653,7 +3361,7 @@ Lookup order:
 This is **lexical scope chain**, not runtime magic.
 
 
-Reassignment proves it’s a reference
+**Reassignment proves it’s a reference**
 ```js
 function test() {
   let x = 5;
@@ -2817,6 +3525,12 @@ const f = makeFn();
 f();
 ```
 
+###### first order function
+A first-order function is a function that doesn’t accept another function as an argument and doesn’t return a function as its return value. i.e, It's a regular function that works with primitive or non-function values.
+
+```js
+const firstOrder = () => console.log("I am a first order function!");
+```
 
 
 **Function Statement (Declaration)**
@@ -3567,7 +4281,6 @@ function Person(name){
 
 const obj=new Person("Person1");
 console.log(obj.name); // Person1
-
 ```
 
 
@@ -3797,11 +4510,18 @@ console.log(arr.constructor === Array); // true
 ---
 ### Prototype Inheritance
 https://www.geeksforgeeks.org/javascript/prototype-inheritance-in-javascript/
-
 + Constructor creates object.
 + Objects need a way to share methods and properties without duplicating them in memory. That’s where prototypes come in.
 + Every JavaScript object has an internal link to another object called its **prototype**.
 + If you try to access a property/method on the object and it doesn’t exist there, JavaScript automatically looks for it in the prototype. This forms a **prototype chain**.
+
+Prototype chain is the mechanism in JavaScript where objects inherit properties from other objects through a linked chain of prototypes.
+
+When you access a property on an object, JS:
+1. Looks on the object itself
+2. If not found, checks its prototype (`__proto__`)
+3. Continues up the chain until `Object.prototype`
+4. If still not found → `undefined`
 
 
 ```js
@@ -4169,7 +4889,6 @@ pending week8 | topic2 | lec1
 ---
 
 # Asynchronous JavaScript
-
 + JavaScript runs in a **single thread** — only one thing at a time.  
 + If you do something that takes a long time (e.g., network request, file reading), it’ll **block** everything else unless you use **asynchronous** code.
 
@@ -4178,6 +4897,25 @@ There are three main async patterns in JS
 ### Callbacks
 + Old-school, used before promises.
 + A callback is a function passed as an argument to another function
+
+why?
+JavaScript is single-threaded. It executes one thing at a time. Many operations (network requests, file reading, timers, user clicks) take time. If JavaScript waited for each one to finish, the entire application would freeze.
+
+**Simple callback**
+```js
+function greet(name, callback) {
+    console.log(`Hello ${name}`);
+    callback();
+}
+function sayBye() {
+    console.log("Goodbye");
+}
+greet("Alice", sayBye);
+// Output:
+// Hello Alice
+// Goodbye
+```
+
 
 ```js
 function printMessage(){
@@ -4198,20 +4936,17 @@ setTimeout(()=>{
 },2000);
 
 console.log("End");
-
 //Output:
 //Start
 //End
 //After 2 seconds
 ```
-
 **Pros:** Simple
 **Cons:** Leads to callback hell if many async tasks depend on each other.
 
 
 **Using async `setInterval()`**
 + When using the JavaScript function `setInterval()`, you can specify a `callback` function to be executed for each interval
-
 ```js
 console.log("Start");
 let count=0;
@@ -4223,13 +4958,38 @@ setInterval(()=>{
 console.log("End");
 ```
 
+###### CallBack hell (Pyramid of Doom)
+The **callback hell** occurs at the **call site**, where callbacks are nested multiple levels deep.
+Problems:
+- Deep indentation
+- Hard to read
+- Difficult error handling
+- Difficult maintenance
+- Sequential dependencies become messy
 
+Callback Hell is a situation where multiple asynchronous callbacks are nested inside each other, creating deeply indented code, often called the 'Pyramid of Doom.' 
+It makes code difficult to read, debug, maintain, and handle errors. 
+Modern JavaScript avoids callback hell by using Promises and async/await, which provide a cleaner and more maintainable way to write asynchronous code.
 
-TODO:
-+ CallBack hell
+```js
+function getData(dataId, getNextData) {
+    setTimeout(() => {
+        console.log("Data:", dataId);
 
+        if (getNextData) {
+            getNextData();
+        }
+    }, 2000);
+}
 
-
+getData(1, () => {
+    getData(2, () => {
+        getData(3, () => {
+            console.log("All data fetched");
+        });
+    });
+});
+```
 
 
 ---
@@ -4237,11 +4997,14 @@ TODO:
 https://youtu.be/NJwRQgsu1Q8
 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
 https://www.w3schools.com/js/js_promise.asp
-
 + A Promise is basically an object representing a future value.
 + The **`Promise`** object represents the eventual completion (or failure) of an asynchronous operation and its resulting value.
 + A **Promise** is like a _placeholder_ for a value that you’ll get **later** (either success or failure).
 
+A Promise can be in one of **three states**:
+- `pending`: Initial state, neither fulfilled nor rejected.
+- `fulfilled`: The operation completed successfully.
+- `rejected`: The operation failed (e.g., due to a network error).
 
 **Syntax for promises to create and consume**
 ```js
@@ -4268,7 +5031,6 @@ myPromise
     console.log("I will run irrespective of failure or success");
   });
 ```
-
 - **`then()`** runs when resolved.
 - **`catch()`** runs when rejected.
 - **`finally()`** runs in both cases.
@@ -4323,11 +5085,121 @@ async function handlePromise(){
 }
 ```
 
+###### Promise Chaining
+Promise chaining means **connecting multiple `.then()` methods so that each asynchronous task runs only after the previous one is completed.**
+
+```js
+Promise.resolve(1)
+  .then((result) => {
+    console.log(result); // 1
+    return result * 2;
+  })
+  .then((result) => {
+    console.log(result); // 2
+    return result * 3;
+  })
+  .then((result) => {
+    console.log(result); // 6
+  });
+```
+
+```js
+new Promise(function (resolve, reject) {
+  setTimeout(() => resolve(1), 1000);
+})
+  .then(function (result) {
+    console.log(result); // 1
+    return result * 2;
+  })
+  .then(function (result) {
+    console.log(result); // 2
+    return result * 3;
+  })
+  .then(function (result) {
+    console.log(result); // 6
+    return result * 4;
+  });
+```
+
+
+
+`Promise.all()` is a static method of the `Promise` object that takes an **iterable** (usually an array) of promises and returns **a new promise**.
+
+The returned promise:
+- ✅ **Resolves** only when **all** input promises resolve.
+- ❌ **Rejects immediately** if **any one** of the input promises rejects (this is called **fail-fast** behavior).
+
+```js
+Promise.all([Promise1, Promise2, Promise3]) .then(result) => {   console.log(result) }) .catch(error => console.log(`Error in promises ${error}`))
+```
+
+**Note:** Remember that the order of the promises(output the result) is maintained as per input order.
+
+i.e. All promises resolve
+```js
+const p1 = Promise.resolve(10);
+
+const p2 = new Promise(resolve => {
+    setTimeout(() => resolve(20), 1000);
+});
+
+const p3 = Promise.resolve(30);
+
+Promise.all([p1, p2, p3])
+    .then(results => {
+        console.log(results);
+    })
+    .catch(error => {
+        console.log(error);
+    });
+// Output: [10, 20, 30]
+```
+Notice that although p2 finishes last, the results are returned in the same order as the input array.
+
+i.e. One promise rejects
+```js
+const p1 = Promise.resolve("A");
+
+const p2 = Promise.reject("Something went wrong");
+
+const p3 = Promise.resolve("C");
+
+Promise.all([p1, p2, p3])
+    .then(results => {
+        console.log(results);
+    })
+    .catch(error => {
+        console.log(error);
+    });
+// Output: Something went wrong
+```
+The .then() is never executed because one promise rejected.
+
+
 
 
 ---
 ### async/await
 
+```js
+function getData(dataId) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            console.log(dataId);
+            resolve();
+        }, 2000);
+    });
+}
+
+async function fetchData() {
+    await getData(1);
+    await getData(2);
+    await getData(3);
+    console.log("All data fetched");
+}
+
+fetchData();
+```
 
 
 ---
